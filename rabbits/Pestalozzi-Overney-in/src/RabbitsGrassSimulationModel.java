@@ -11,7 +11,9 @@ import uchicago.src.sim.engine.SimModelImpl;
  */
 
 
-public class RabbitsGrassSimulationModel extends SimModelImpl {		
+public class RabbitsGrassSimulationModel extends SimModelImpl {	
+		private Schedule mSchedule;
+		private int mNumAgents;
 
 		public static void main(String[] args) {
 			
@@ -35,12 +37,32 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		}
 
 		public Schedule getSchedule() {
-			// TODO Auto-generated method stub
-			return null;
+			return mSchedule;
+		}
+		
+		public void buildModel() {
+			
+		}
+		
+		public void buildSchedule() {
+			
+		}
+		
+		public void buildDisplay() {
+			
 		}
 
 		public void setup() {
-			// TODO Auto-generated method stub
-			
+			buildModel();
+			buildSchedule();
+			buildDisplay();
+		}
+		
+		public int getNumAgents() {
+			return mNumAgents;
+		}
+		
+		public void setNumAgents(int na) {
+			mNumAgents = na;
 		}
 }
