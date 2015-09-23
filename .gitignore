@@ -3,6 +3,7 @@
 *.war
 *.ear
 *.class
+*.sublime-*
 
 *mac bullcrap*
 .DS_Store
