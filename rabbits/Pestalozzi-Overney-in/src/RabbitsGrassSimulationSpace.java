@@ -46,9 +46,23 @@ public class RabbitsGrassSimulationSpace {
   public Object2DGrid getCurrentAgentSpace() {
     return mAgentSpace;
   }
+  
+  public boolean isInField(int x, int y){
+	  return x >= 0 && y >= 0 && x < mAgentSpace.getSizeX() && y < mAgentSpace.getSizeY();
+  }
 
   public boolean isCellOccupied(int x, int y) {
     return mAgentSpace.getObjectAt(x, y) != null;
+  }
+  
+  public void moveAgent(int fromX, int fromY, int toX, int toY){
+	  RabbitsGrassSimulationAgent agent = (RabbitsGrassSimulationAgent) mAgentSpace.getObjectAt(fromX, fromY);
+	  if(!isCellOccupied(toX, toY)){
+		  mAgentSpace.putObjectAt(toX, toY, agent);
+		  mAgentSpace.putObjectAt(fromX, fromY, null);
+		  agent.setXY(toX, toY);
+	  }
+	  // TODO add assertion that the agents coords are correct.
   }
 
   public boolean addAgent(RabbitsGrassSimulationAgent agent) {

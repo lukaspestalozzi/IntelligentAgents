@@ -28,6 +28,8 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	public void draw(SimGraphics target) {
 		target.drawFastRoundRect(Color.red);
 	}
+	
+
 
 	public int getX() {
 		return mX;
@@ -55,7 +57,11 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	}
 
 	public void report() {
-		System.out.println(getID() + " at " + mX + ", " + mY + " has " + getEnergyLevel() + " energy.");
+		System.out.println(this.toString());
+	}
+	
+	public String toString(){
+		return getID() + " at " + mX + ", " + mY + " has " + getEnergyLevel() + " energy.";
 	}
 
 }

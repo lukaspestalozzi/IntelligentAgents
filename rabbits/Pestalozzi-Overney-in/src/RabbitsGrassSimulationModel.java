@@ -1,13 +1,16 @@
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Random;
 
+import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
-import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.ColorMap;
+import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.gui.Value2DDisplay;
+import uchicago.src.sim.util.SimUtilities;
 
 /**
  * Class that implements the simulation model for the rabbits grass simulation.
@@ -47,6 +50,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		System.out.println("[+] Running setup");
 		mGrassFieldSpace = null;
 		mAgentList = new ArrayList<RabbitsGrassSimulationAgent>();
+		mSchedule = new Schedule(1);
 
 		if (mTiles != null) {
 			mTiles.dispose();
@@ -89,6 +93,44 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	public void buildSchedule() {
 		System.out.println(" ├─ Building schedule");
+
+		class RabbitStep extends BasicAction {
+			public void execute() {
+				SimUtilities.shuffle(mAgentList);
+				for (int i = 0; i < mAgentList.size(); i++) {
+					RabbitsGrassSimulationAgent agent = mAgentList.get(i);
+					int x = agent.getX();
+					int y = agent.getY();
+					
+					Random r = new Random();
+					int[] dirs = {-1, 1};
+					int direction = dirs[r.nextInt(2)];
+					
+					int newX = x;
+					int newY = y;
+					boolean isVarX = r.nextBoolean();
+					if(isVarX){
+						newX = x+direction;
+						if(!mGrassFieldSpace.isInField(newX, newY)){
+							newX = x-direction;
+						}
+					}else{
+						newY = y+direction;
+						if(!mGrassFieldSpace.isInField(newX, newY)){
+							newY = y-direction;
+						}
+					}
+					
+					mGrassFieldSpace.moveAgent(x, y, newX, newY);
+					agent.report();
+				}
+				
+				mTiles.updateDisplay();
+			}
+		}
+
+		mSchedule.scheduleActionAtInterval(1, new RabbitStep());
+
 	}
 
 	public void buildDisplay() {
@@ -161,11 +203,11 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	public void setBirthThreshold(int birthThreshold) {
 		this.mBirthThreshold = birthThreshold;
 	}
-	
+
 	public int getStartEnergy() {
 		return mStartEnergy;
 	}
-	
+
 	public void setStartEnergy(int startEnergy) {
 		this.mStartEnergy = startEnergy;
 	}
