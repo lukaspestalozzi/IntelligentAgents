@@ -30,6 +30,9 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	}
 	
 
+	public void looseEnergy(int energyLoss){
+		this.mEnergyLevel -= energyLoss;
+	}
 
 	public int getX() {
 		return mX;

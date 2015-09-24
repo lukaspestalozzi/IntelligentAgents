@@ -27,6 +27,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	private static final int TOTAL_GRASS_AMOUNT = 300;
 	private static final int BIRTH_THRESHOLD = 50;
 	private static final int INIT_ENERGY = 10;
+	private static final int ENERGY_LOST_MOVING = 1;
 
 	private int mNumRabbits = INIT_NUM_RABBITS;
 	private int mWorldXSize = INIT_WOLRD_SIZE;
@@ -34,6 +35,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	private int mGrassAmount = TOTAL_GRASS_AMOUNT;
 	private int mBirthThreshold = BIRTH_THRESHOLD;
 	private int mStartEnergy = INIT_ENERGY;
+	private int mEnergyLostMoving = ENERGY_LOST_MOVING;
 
 	private Schedule mSchedule;
 	private RabbitsGrassSimulationSpace mGrassFieldSpace;
@@ -122,6 +124,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 					}
 					
 					mGrassFieldSpace.moveAgent(x, y, newX, newY);
+					agent.looseEnergy(mEnergyLostMoving);
 					agent.report();
 				}
 				
@@ -160,7 +163,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	public String[] getInitParam() {
 		String[] initParams = { "NumAgents", "WorldXSize", "WorldYSize", "StartEnergy", "BirthThreshold",
-				"GrassAmount" };
+				"GrassAmount" , "EnergyLostMoving"};
 		return initParams;
 	}
 
@@ -211,4 +214,13 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	public void setStartEnergy(int startEnergy) {
 		this.mStartEnergy = startEnergy;
 	}
+	
+	public int getEnergyLostMoving() {
+		return this.mEnergyLostMoving;
+	}
+	
+	public void setEnergyLostMoving(int energyLostMoving) {
+		this.mEnergyLostMoving = energyLostMoving;
+	}
+	
 }
