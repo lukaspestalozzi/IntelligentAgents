@@ -9,6 +9,7 @@
 .DS_Store
 
 # eclipse specific git ignore
+.classpath
 *.pydevproject
 .project
 .metadata
@@ -20,7 +21,6 @@ tmp/**/*
 *.swp
 *~.nib
 local.properties
-.classpath
 .settings/
 .loadpath
 
