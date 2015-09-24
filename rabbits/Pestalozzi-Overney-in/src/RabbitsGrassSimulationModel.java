@@ -6,6 +6,7 @@ import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.ColorMap;
+import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.gui.Value2DDisplay;
 
 /**
@@ -35,7 +36,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
   private Schedule mSchedule;
   private RabbitsGrassSimulationSpace mGrassFieldSpace;
-  private ArrayList mAgentList;
+  private ArrayList<RabbitsGrassSimulationAgent> mAgentList;
   private DisplaySurface mTiles;
 
   public static void main(String[] args) {
@@ -47,7 +48,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
   public void setup() {
     System.out.println("[+] Running setup");
     mGrassFieldSpace = null;
-    mAgentList = new ArrayList();
+    mAgentList = new ArrayList<RabbitsGrassSimulationAgent>();
 
     if(mTiles != null) {
       mTiles.dispose();
@@ -76,11 +77,16 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
   public void buildModel() {
     System.out.println(" ├─ Building model");
-    mGrassFieldSpace = new RabbitsGrassSimulationSpace(mWorldXSize, mWorldYSize);
+    mGrassFieldSpace =
+      new RabbitsGrassSimulationSpace(mWorldXSize, mWorldYSize);
     mGrassFieldSpace.spreadGrass(mGrassAmount);
 
-    for (int i = 0; i < numAgents; i++) {
+    for (int i = 0; i < mNumAgents; i++) {
       addNewAgent();
+    }
+
+    for (RabbitsGrassSimulationAgent rabbit : mAgentList) {
+      rabbit.report();
     }
   }
 
@@ -101,7 +107,12 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     Value2DDisplay displayGrass =
       new Value2DDisplay(mGrassFieldSpace.getCurrentGrassField(), colorMap);
 
+    Object2DDisplay displayAgents =
+      new Object2DDisplay(mGrassFieldSpace.getCurrentGrassField());
+    displayAgents.setObjectList(mAgentList);
+
     mTiles.addDisplayable(displayGrass, "Grass");
+    mTiles.addDisplayable(displayAgents, "Agents");
   }
 
   private void addNewAgent() {

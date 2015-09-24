@@ -1,3 +1,5 @@
+import java.awt.Color;
+
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
 
@@ -13,6 +15,8 @@ public class RabbitsGrassSimulationAgent implements Drawable {
   private int mY;
   private int mEnergyLevel;
   private int mStepsToLive;
+  private static int msIDNumber = 0;
+  private int mID;
 
   public RabbitsGrassSimulationAgent(int minLifespan, int maxLifespan) {
     mX = -1;
@@ -20,26 +24,41 @@ public class RabbitsGrassSimulationAgent implements Drawable {
     mEnergyLevel = 0;
     mStepsToLive =
       (int)(Math.random() * (maxLifespan - minLifespan) + minLifespan);
+    mID = ++msIDNumber;
   }
 
-  public void draw(SimGraphics arg0) {
-// TODO Auto-generated method stub
-
+  public void draw(SimGraphics target) {
+    target.drawFastRoundRect(Color.red);
   }
 
   public int getX() {
-// TODO Auto-generated method stub
-    return 0;
+    return mX;
   }
 
   public int getY() {
-// TODO Auto-generated method stub
-    return 0;
+    return mY;
   }
 
   public void setXY(int newX, int newY) {
     mX = newX;
     mY = newY;
+  }
+
+  public String getID() {
+    return "A-" + mID;
+  }
+
+  public int getEnergyLevel() {
+    return mEnergyLevel;
+  }
+
+  public int getStepsToLive() {
+    return mStepsToLive;
+  }
+
+  public void report() {
+    System.out.println(getID() + " at " + mX + ", " + mY + " has " +
+      getEnergyLevel() + " energy and " + getStepsToLive() + " steps to live.");
   }
 
 }

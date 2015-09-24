@@ -43,20 +43,24 @@ public class RabbitsGrassSimulationSpace {
     return mGrassFieldSpace;
   }
 
+  public Object2DGrid getCurrentAgentSpace() {
+    return mAgentSpace;
+  }
+
   public boolean isCellOccupied(int x, int y) {
-    return agentSpace.getObjectAt(x, y) != null;
+    return mAgentSpace.getObjectAt(x, y) != null;
   }
 
   public boolean addAgent(RabbitsGrassSimulationAgent agent) {
     boolean retVal = false;
 
-    for (count = 0;
-      retVal && count < 10 * mAgentSpace.getSizeX() * mAgentSpace*getSizeY();
+    for (int count = 0;
+      !retVal && count < 10 * mAgentSpace.getSizeX() * mAgentSpace.getSizeY();
       count++) {
 
-      int x = (int)(Math.random()*agentSpace.getSizeX());
-      int y = (int)(Math.random()*agentSpace.getSizeY());
-
+      int x = (int)(Math.random()*mAgentSpace.getSizeX());
+      int y = (int)(Math.random()*mAgentSpace.getSizeY());
+      System.out.println(mAgentSpace.getSizeX());
       if (!isCellOccupied(x, y)) {
         mAgentSpace.putObjectAt(x, y, agent);
         agent.setXY(x,y);
