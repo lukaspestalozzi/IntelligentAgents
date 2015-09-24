@@ -3,7 +3,8 @@
 *.war
 *.ear
 *.class
-*.sublime-*
+*.sublime-workspace
+*.sublime-project
 
 *mac bullcrap*
 .DS_Store

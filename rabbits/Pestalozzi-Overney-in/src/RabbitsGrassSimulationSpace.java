@@ -36,7 +36,7 @@ public class RabbitsGrassSimulationSpace {
     Object currentOccupant = mGrassFieldSpace.getObjectAt(x,y);
     
     return (currentOccupant != null) ?
-        ((Integer)currentOccupant).intValue() : 0;
+    ((Integer)currentOccupant).intValue() : 0;
   }
 
   public Object2DGrid getCurrentGrassField() {
@@ -48,21 +48,23 @@ public class RabbitsGrassSimulationSpace {
   }
   
   public boolean isInField(int x, int y){
-	  return x >= 0 && y >= 0 && x < mAgentSpace.getSizeX() && y < mAgentSpace.getSizeY();
+    return x >= 0 && y >= 0 && x < mAgentSpace.getSizeX() &&
+      y < mAgentSpace.getSizeY();
   }
 
   public boolean isCellOccupied(int x, int y) {
     return mAgentSpace.getObjectAt(x, y) != null;
   }
-  
-  public void moveAgent(int fromX, int fromY, int toX, int toY){
-	  RabbitsGrassSimulationAgent agent = (RabbitsGrassSimulationAgent) mAgentSpace.getObjectAt(fromX, fromY);
-	  if(!isCellOccupied(toX, toY)){
-		  mAgentSpace.putObjectAt(toX, toY, agent);
-		  mAgentSpace.putObjectAt(fromX, fromY, null);
-		  agent.setXY(toX, toY);
-	  }
-	  // TODO add assertion that the agents coords are correct.
+
+  public void moveAgent(int fromX, int fromY, int toX, int toY) {
+    RabbitsGrassSimulationAgent agent = 
+    (RabbitsGrassSimulationAgent) mAgentSpace.getObjectAt(fromX, fromY);
+    if(!isCellOccupied(toX, toY)){
+      mAgentSpace.putObjectAt(toX, toY, agent);
+      mAgentSpace.putObjectAt(fromX, fromY, null);
+      agent.setXY(toX, toY);
+    }
+    // TODO add assertion that the agents coords are correct.
   }
 
   public boolean addAgent(RabbitsGrassSimulationAgent agent) {
@@ -74,7 +76,7 @@ public class RabbitsGrassSimulationSpace {
 
       int x = (int)(Math.random()*mAgentSpace.getSizeX());
       int y = (int)(Math.random()*mAgentSpace.getSizeY());
-      System.out.println(mAgentSpace.getSizeX());
+
       if (!isCellOccupied(x, y)) {
         mAgentSpace.putObjectAt(x, y, agent);
         agent.setXY(x,y);
