@@ -1,10 +1,8 @@
 import java.awt.Color;
 import java.util.Random;
 
-import sun.applet.resources.MsgAppletViewer_zh_TW;
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
-import uchicago.src.sim.space.Object2DGrid;
 
 /**
  * Class that implements the simulation agent for the rabbits grass simulation.
@@ -45,13 +43,14 @@ public class RabbitsGrassSimulationAgent
   public boolean move(){
     int newX = mX;
     int newY = mY;
-    int direction = random.nextBoolean() ? 1 : -1;
-    
-    if (random.nextBoolean()) { 
-      newX = mSpace.isInField(mX + direction, mY) ? mX + direction : mX - direction;
-    } else {
-      newY = mSpace.isInField(mX, mY + direction) ? mY + direction : mY - direction;
-    }
+    do{
+      int direction = random.nextBoolean() ? 1 : -1;
+      if (random.nextBoolean()) {
+        newX = mX + direction;
+      } else {
+        newY = mY + direction;
+      }
+    }while(!mSpace.isInField(newX, newY)); // TODO may hang if all 4 directions are not in the field for some reason
     
     if(mSpace.moveAgent(mX, mY, newX, newY)){
       mX = newX;
@@ -78,7 +77,7 @@ public class RabbitsGrassSimulationAgent
     int amountEaten = Math.min(max, mSpace.getGrassAt(mX, mY));
     mSpace.removeGrassAt(mX, mY, amountEaten);
     gainEnergy(amountEaten*energyPerGrass);
-    System.out.println(String.format("A-%d ate %d grass and has now %d energy.", mID, amountEaten, mEnergyLevel));
+//    System.out.println(String.format("%d ate %d grass and has now %d energy.", getID(), amountEaten, mEnergyLevel));
   }
   
   public boolean hasToDie(){

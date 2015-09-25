@@ -1,7 +1,9 @@
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Random;
 
+import uchicago.src.sim.analysis.DataSource;
+import uchicago.src.sim.analysis.OpenSequenceGraph;
+import uchicago.src.sim.analysis.Sequence;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
@@ -26,18 +28,19 @@ public class RabbitsGrassSimulationModel
   private static final int INIT_NUM_RABBITS = 1;
   private static final int INIT_WOLRD_SIZE = 20;
   private static final int INIT_TOTAL_GRASS_AMOUNT = 7;
-  private static final int INIT_BIRTH_THRESHOLD = 50;
+  private static final int INIT_Reproduce_THRESHOLD = 50;
   private static final int INIT_ENERGY = 49;
   private static final int INIT_ENERGY_LOST_MOVING = 1;
   private static final int INIT_MAX_GRASS_EATING = 2;
   private static final int INIT_ENERGY_PER_GRASS = 5;
-  private static final int INIT_REPRODUCE_COST = INIT_BIRTH_THRESHOLD / 2;
-  
+  private static final int INIT_REPRODUCE_COST = INIT_Reproduce_THRESHOLD
+      / 2;
+      
   private int mNumRabbits = INIT_NUM_RABBITS;
   private int mWorldXSize = INIT_WOLRD_SIZE;
   private int mWorldYSize = INIT_WOLRD_SIZE;
   private int mGrassAmount = INIT_TOTAL_GRASS_AMOUNT;
-  private int mBirthThreshold = INIT_BIRTH_THRESHOLD;
+  private int mReproduceThreshold = INIT_Reproduce_THRESHOLD;
   private int mStartEnergy = INIT_ENERGY;
   private int mEnergyLostMoving = INIT_ENERGY_LOST_MOVING;
   private int mMaxGrassEating = INIT_MAX_GRASS_EATING;
@@ -48,6 +51,21 @@ public class RabbitsGrassSimulationModel
   private RabbitsGrassSimulationSpace mGrassFieldSpace;
   private ArrayList<RabbitsGrassSimulationAgent> mAgentList;
   private DisplaySurface mTiles;
+  
+  private OpenSequenceGraph nbrRabbits;
+
+  class NbrRabbits implements DataSource, Sequence {
+
+    @Override
+    public Object execute() {
+      return new Double(getSValue());
+    }
+
+    @Override
+    public double getSValue() {
+      return (double)mAgentList.size();
+    }
+  }
   
   public static void main(String[] args) {
     SimInit init = new SimInit();
@@ -62,15 +80,29 @@ public class RabbitsGrassSimulationModel
     mAgentList = new ArrayList<RabbitsGrassSimulationAgent>();
     mSchedule = new Schedule(1);
     
+    // dispose displays
     if (mTiles != null) {
       mTiles.dispose();
     }
     mTiles = null;
     
+    if (nbrRabbits != null){
+      nbrRabbits.dispose();
+    }
+    nbrRabbits = null;
+    
+    // Create Displays
     mTiles = new DisplaySurface(this,
         "Rabbit Grass Simulation Window 1");
+    nbrRabbits = new OpenSequenceGraph("Amount Of Living Rabbits",this);
+
+    
+ // register Displays
     registerDisplaySurface(
         "Rabbit Grass Simulation Window 1", mTiles);
+    this.registerMediaProducer("Plot", nbrRabbits);
+    
+    
   }
   
   @Override
@@ -80,6 +112,7 @@ public class RabbitsGrassSimulationModel
     buildDisplay();
     
     mTiles.display();
+    nbrRabbits.display();
   }
   
   @Override
@@ -119,16 +152,17 @@ public class RabbitsGrassSimulationModel
           RabbitsGrassSimulationAgent agent = mAgentList
               .get(i);
           // move
-          if (agent.move()) {
-            agent.looseEnergy(mEnergyLostMoving);
-          }
+          agent.move();
+          agent.looseEnergy(mEnergyLostMoving);
           
           // eat
           agent.eat(mMaxGrassEating, mEnergyPerGRass);
           
           // reproduce
-          RabbitsGrassSimulationAgent baby = agent.reproduce(mBirthThreshold, mStartEnergy, mReproduceCost);
-          if(baby != null){
+          RabbitsGrassSimulationAgent baby = agent
+              .reproduce(mReproduceThreshold, mStartEnergy,
+                  mReproduceCost);
+          if (baby != null) {
             babies.add(baby);
           }
           
@@ -138,9 +172,9 @@ public class RabbitsGrassSimulationModel
             mAgentList.remove(i);
             // TODO do we have to do more?
           }
-          
+          agent.report();
         }
-        for(RabbitsGrassSimulationAgent baby: babies){
+        for (RabbitsGrassSimulationAgent baby : babies) {
           mAgentList.add(baby);
         }
         
@@ -155,9 +189,18 @@ public class RabbitsGrassSimulationModel
       }
     }
     
-    mSchedule.scheduleActionAtInterval(1, new RabbitStep());
-    mSchedule.scheduleActionAtInterval(1, new GrowGrassAction());
+    class UpdateNbrRabbits extends BasicAction {
+      @Override
+      public void execute(){
+        nbrRabbits.step();
+      }
+    }
     
+    mSchedule.scheduleActionAtInterval(1, new RabbitStep());
+    mSchedule.scheduleActionAtInterval(1,
+        new GrowGrassAction());
+    mSchedule.scheduleActionAtInterval(5, new UpdateNbrRabbits());
+        
   }
   
   public void buildDisplay() {
@@ -179,6 +222,7 @@ public class RabbitsGrassSimulationModel
     
     mTiles.addDisplayable(displayGrass, "Grass");
     mTiles.addDisplayable(displayAgents, "Agents");
+    nbrRabbits.addSequence("Rabbits In Space", new NbrRabbits());
   }
   
   private void addNewAgent() {
@@ -191,7 +235,7 @@ public class RabbitsGrassSimulationModel
   @Override
   public String[] getInitParam() {
     String[] initParams = { "NumAgents", "WorldXSize",
-        "WorldYSize", "StartEnergy", "BirthThreshold",
+        "WorldYSize", "StartEnergy", "ReproduceThreshold",
         "GrassAmount", "EnergyLostMoving", "MaxGrassEating",
         "EnergyPerGRass", "ReproduceCost" };
     return initParams;
@@ -229,12 +273,12 @@ public class RabbitsGrassSimulationModel
     mGrassAmount = grassAmount;
   }
   
-  public int getBirthThreshold() {
-    return mBirthThreshold;
+  public int getReproduceThreshold() {
+    return mReproduceThreshold;
   }
   
-  public void setBirthThreshold(int birthThreshold) {
-    mBirthThreshold = birthThreshold;
+  public void setReproduceThreshold(int reproduceThreshold) {
+    mReproduceThreshold = reproduceThreshold;
   }
   
   public int getStartEnergy() {
