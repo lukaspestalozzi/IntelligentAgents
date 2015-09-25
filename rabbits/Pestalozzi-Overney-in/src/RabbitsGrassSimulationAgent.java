@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.util.Random;
 
+import sun.applet.resources.MsgAppletViewer_zh_TW;
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
 import uchicago.src.sim.space.Object2DGrid;
@@ -24,12 +25,10 @@ public class RabbitsGrassSimulationAgent
   
   private RabbitsGrassSimulationSpace mSpace;
   
-  public RabbitsGrassSimulationAgent(int startEnergy,
-      int birthThreshold, RabbitsGrassSimulationSpace space) {
+  public RabbitsGrassSimulationAgent(int startEnergy, RabbitsGrassSimulationSpace space) {
     mX = -1;
     mY = -1;
     mEnergyLevel = startEnergy;
-    mBirthTreshold = birthThreshold;
     mID = ++msIDNumber;
     mSpace = space;
   }
@@ -63,11 +62,23 @@ public class RabbitsGrassSimulationAgent
     }
   }
   
+  public RabbitsGrassSimulationAgent reproduce(int threshold, int startEnergy, int energyLoss){
+    if(mEnergyLevel > threshold){
+   // TODO make sure energyLoss < threshold ?
+      RabbitsGrassSimulationAgent baby = new RabbitsGrassSimulationAgent(startEnergy, mSpace);
+      if(mSpace.addAgent(baby)){
+        looseEnergy(energyLoss);
+        return baby;
+      }
+    }
+    return null;
+  }
+  
   public void eat(int max, int energyPerGrass){
     int amountEaten = Math.min(max, mSpace.getGrassAt(mX, mY));
     mSpace.removeGrassAt(mX, mY, amountEaten);
     gainEnergy(amountEaten*energyPerGrass);
-    System.out.println(String.format("%d ate %d grass and gained %d energy.", mID, amountEaten, mEnergyLevel));
+    System.out.println(String.format("A-%d ate %d grass and has now %d energy.", mID, amountEaten, mEnergyLevel));
   }
   
   public boolean hasToDie(){

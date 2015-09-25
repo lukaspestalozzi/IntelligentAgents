@@ -23,14 +23,15 @@ import uchicago.src.sim.util.SimUtilities;
 public class RabbitsGrassSimulationModel
     extends SimModelImpl {
     
-  private static final int INIT_NUM_RABBITS = 10;
+  private static final int INIT_NUM_RABBITS = 1;
   private static final int INIT_WOLRD_SIZE = 20;
   private static final int INIT_TOTAL_GRASS_AMOUNT = 7;
   private static final int INIT_BIRTH_THRESHOLD = 50;
-  private static final int INIT_ENERGY = 10;
+  private static final int INIT_ENERGY = 49;
   private static final int INIT_ENERGY_LOST_MOVING = 1;
-  private static final int INIT_MAX_GRASS_EATING = 1;
+  private static final int INIT_MAX_GRASS_EATING = 2;
   private static final int INIT_ENERGY_PER_GRASS = 5;
+  private static final int INIT_REPRODUCE_COST = INIT_BIRTH_THRESHOLD / 2;
   
   private int mNumRabbits = INIT_NUM_RABBITS;
   private int mWorldXSize = INIT_WOLRD_SIZE;
@@ -41,6 +42,7 @@ public class RabbitsGrassSimulationModel
   private int mEnergyLostMoving = INIT_ENERGY_LOST_MOVING;
   private int mMaxGrassEating = INIT_MAX_GRASS_EATING;
   private int mEnergyPerGRass = INIT_ENERGY_PER_GRASS;
+  private int mReproduceCost = INIT_REPRODUCE_COST;
   
   private Schedule mSchedule;
   private RabbitsGrassSimulationSpace mGrassFieldSpace;
@@ -112,6 +114,7 @@ public class RabbitsGrassSimulationModel
       @Override
       public void execute() {
         SimUtilities.shuffle(mAgentList);
+        ArrayList<RabbitsGrassSimulationAgent> babies = new ArrayList<>();
         for (int i = 0; i < mAgentList.size(); i++) {
           RabbitsGrassSimulationAgent agent = mAgentList
               .get(i);
@@ -123,6 +126,12 @@ public class RabbitsGrassSimulationModel
           // eat
           agent.eat(mMaxGrassEating, mEnergyPerGRass);
           
+          // reproduce
+          RabbitsGrassSimulationAgent baby = agent.reproduce(mBirthThreshold, mStartEnergy, mReproduceCost);
+          if(baby != null){
+            babies.add(baby);
+          }
+          
           // die
           if (agent.hasToDie()) {
             mGrassFieldSpace.removeAgent(agent);
@@ -130,6 +139,9 @@ public class RabbitsGrassSimulationModel
             // TODO do we have to do more?
           }
           
+        }
+        for(RabbitsGrassSimulationAgent baby: babies){
+          mAgentList.add(baby);
         }
         
         mTiles.updateDisplay();
@@ -140,7 +152,6 @@ public class RabbitsGrassSimulationModel
       @Override
       public void execute() {
         mGrassFieldSpace.spreadGrass(mGrassAmount);
-        System.out.println("Grass grown: "+mGrassAmount);
       }
     }
     
@@ -172,7 +183,7 @@ public class RabbitsGrassSimulationModel
   
   private void addNewAgent() {
     RabbitsGrassSimulationAgent newAgent = new RabbitsGrassSimulationAgent(
-        mStartEnergy, mBirthThreshold, mGrassFieldSpace);
+        mStartEnergy, mGrassFieldSpace);
     mAgentList.add(newAgent);
     mGrassFieldSpace.addAgent(newAgent);
   }
@@ -182,7 +193,7 @@ public class RabbitsGrassSimulationModel
     String[] initParams = { "NumAgents", "WorldXSize",
         "WorldYSize", "StartEnergy", "BirthThreshold",
         "GrassAmount", "EnergyLostMoving", "MaxGrassEating",
-        "EnergyPerGRass" };
+        "EnergyPerGRass", "ReproduceCost" };
     return initParams;
   }
   
@@ -256,6 +267,14 @@ public class RabbitsGrassSimulationModel
   
   public void setMaxGrassEating(int maxGrassEating) {
     this.mMaxGrassEating = maxGrassEating;
+  }
+  
+  public int getReproduceCost() {
+    return mReproduceCost;
+  }
+  
+  public void setReproduceCost(int reproduceCost) {
+    this.mReproduceCost = reproduceCost;
   }
   
 }

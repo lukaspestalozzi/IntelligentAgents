@@ -86,6 +86,11 @@ public class RabbitsGrassSimulationSpace {
     return false;
   }
   
+  /**
+   * 
+   * @param agent
+   * @return true iff the agent was added , false otherwise
+   */
   public boolean addAgent(
       RabbitsGrassSimulationAgent agent) {
     boolean retVal = false;
