@@ -23,20 +23,24 @@ import uchicago.src.sim.util.SimUtilities;
 public class RabbitsGrassSimulationModel
     extends SimModelImpl {
     
-  private static final int INIT_NUM_RABBITS = 1;
+  private static final int INIT_NUM_RABBITS = 10;
   private static final int INIT_WOLRD_SIZE = 20;
-  private static final int TOTAL_GRASS_AMOUNT = 300;
-  private static final int BIRTH_THRESHOLD = 50;
+  private static final int INIT_TOTAL_GRASS_AMOUNT = 7;
+  private static final int INIT_BIRTH_THRESHOLD = 50;
   private static final int INIT_ENERGY = 10;
-  private static final int ENERGY_LOST_MOVING = 1;
+  private static final int INIT_ENERGY_LOST_MOVING = 1;
+  private static final int INIT_MAX_GRASS_EATING = 1;
+  private static final int INIT_ENERGY_PER_GRASS = 5;
   
   private int mNumRabbits = INIT_NUM_RABBITS;
   private int mWorldXSize = INIT_WOLRD_SIZE;
   private int mWorldYSize = INIT_WOLRD_SIZE;
-  private int mGrassAmount = TOTAL_GRASS_AMOUNT;
-  private int mBirthThreshold = BIRTH_THRESHOLD;
+  private int mGrassAmount = INIT_TOTAL_GRASS_AMOUNT;
+  private int mBirthThreshold = INIT_BIRTH_THRESHOLD;
   private int mStartEnergy = INIT_ENERGY;
-  private int mEnergyLostMoving = ENERGY_LOST_MOVING;
+  private int mEnergyLostMoving = INIT_ENERGY_LOST_MOVING;
+  private int mMaxGrassEating = INIT_MAX_GRASS_EATING;
+  private int mEnergyPerGRass = INIT_ENERGY_PER_GRASS;
   
   private Schedule mSchedule;
   private RabbitsGrassSimulationSpace mGrassFieldSpace;
@@ -111,39 +115,37 @@ public class RabbitsGrassSimulationModel
         for (int i = 0; i < mAgentList.size(); i++) {
           RabbitsGrassSimulationAgent agent = mAgentList
               .get(i);
-          // TODO maybe move this code into the agent. like 'agent.move()' call or something.
-          // This would mean that the agent has to have a reference to the 'GrassFieldSpace'
-          int x = agent.getX();
-          int y = agent.getY();
-          
-         
-          Random r = new Random();
-          int direction = r.nextBoolean() ? 1 : -1;
-          
-          int newX = x;
-          int newY = y;
-          if (r.nextBoolean()) {
-            newX = x + direction;
-            if (!mGrassFieldSpace.isInField(newX, newY)) {
-              newX = x - direction;
-            }
-          } else {
-            newY = y + direction;
-            if (!mGrassFieldSpace.isInField(newX, newY)) {
-              newY = y - direction;
-            }
+          // move
+          if (agent.move()) {
+            agent.looseEnergy(mEnergyLostMoving);
           }
           
-          mGrassFieldSpace.moveAgent(x, y, newX, newY);
-          agent.looseEnergy(mEnergyLostMoving);
-          agent.report();
+          // eat
+          agent.eat(mMaxGrassEating, mEnergyPerGRass);
+          
+          // die
+          if (agent.hasToDie()) {
+            mGrassFieldSpace.removeAgent(agent);
+            mAgentList.remove(i);
+            // TODO do we have to do more?
+          }
+          
         }
         
         mTiles.updateDisplay();
       }
     }
     
+    class GrowGrassAction extends BasicAction {
+      @Override
+      public void execute() {
+        mGrassFieldSpace.spreadGrass(mGrassAmount);
+        System.out.println("Grass grown: "+mGrassAmount);
+      }
+    }
+    
     mSchedule.scheduleActionAtInterval(1, new RabbitStep());
+    mSchedule.scheduleActionAtInterval(1, new GrowGrassAction());
     
   }
   
@@ -170,7 +172,7 @@ public class RabbitsGrassSimulationModel
   
   private void addNewAgent() {
     RabbitsGrassSimulationAgent newAgent = new RabbitsGrassSimulationAgent(
-        mStartEnergy, mBirthThreshold);
+        mStartEnergy, mBirthThreshold, mGrassFieldSpace);
     mAgentList.add(newAgent);
     mGrassFieldSpace.addAgent(newAgent);
   }
@@ -179,7 +181,8 @@ public class RabbitsGrassSimulationModel
   public String[] getInitParam() {
     String[] initParams = { "NumAgents", "WorldXSize",
         "WorldYSize", "StartEnergy", "BirthThreshold",
-        "GrassAmount", "EnergyLostMoving" };
+        "GrassAmount", "EnergyLostMoving", "MaxGrassEating",
+        "EnergyPerGRass" };
     return initParams;
   }
   
@@ -237,6 +240,22 @@ public class RabbitsGrassSimulationModel
   
   public void setEnergyLostMoving(int energyLostMoving) {
     mEnergyLostMoving = energyLostMoving;
+  }
+  
+  public int getEnergyPerGRass() {
+    return mEnergyPerGRass;
+  }
+  
+  public void setEnergyPerGRass(int energyPerGRass) {
+    this.mEnergyPerGRass = energyPerGRass;
+  }
+  
+  public int getMaxGrassEating() {
+    return mMaxGrassEating;
+  }
+  
+  public void setMaxGrassEating(int maxGrassEating) {
+    this.mMaxGrassEating = maxGrassEating;
   }
   
 }
