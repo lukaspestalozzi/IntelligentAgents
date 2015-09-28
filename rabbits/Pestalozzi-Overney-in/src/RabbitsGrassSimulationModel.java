@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.util.ArrayList;
 
+import uchicago.src.reflector.RangePropertyDescriptor;
 import uchicago.src.sim.analysis.DataSource;
 import uchicago.src.sim.analysis.OpenSequenceGraph;
 import uchicago.src.sim.analysis.Sequence;
@@ -102,6 +103,14 @@ public class RabbitsGrassSimulationModel
         "Rabbit Grass Simulation Window 1", mTiles);
     this.registerMediaProducer("Plot", nbrRabbits);
     
+    // Add sliders
+    RangePropertyDescriptor sliderInitRabbits = new RangePropertyDescriptor("NumRabbits", 0, mWorldXSize*mWorldYSize, 5);
+    RangePropertyDescriptor sliderGrassGrowth = new RangePropertyDescriptor("GrassAmount", 0, 500, 1);
+    RangePropertyDescriptor sliderReproduceThreshold = new RangePropertyDescriptor("ReproduceThreshold", 0, 500, 5);
+    descriptors.put("NumRabbits", sliderInitRabbits);
+    descriptors.put("GrassAmount", sliderGrassGrowth);
+    descriptors.put("ReproduceThreshold", sliderReproduceThreshold);
+    
     
   }
   
@@ -172,12 +181,12 @@ public class RabbitsGrassSimulationModel
             mAgentList.remove(i);
             // TODO do we have to do more?
           }
-          agent.report();
+          
         }
         for (RabbitsGrassSimulationAgent baby : babies) {
           mAgentList.add(baby);
         }
-        
+        System.out.println("Total nbr of living rabbits: "+mAgentList.size());
         mTiles.updateDisplay();
       }
     }
@@ -199,7 +208,7 @@ public class RabbitsGrassSimulationModel
     mSchedule.scheduleActionAtInterval(1, new RabbitStep());
     mSchedule.scheduleActionAtInterval(1,
         new GrowGrassAction());
-    mSchedule.scheduleActionAtInterval(5, new UpdateNbrRabbits());
+    mSchedule.scheduleActionAtInterval(1, new UpdateNbrRabbits());
         
   }
   
@@ -234,18 +243,18 @@ public class RabbitsGrassSimulationModel
   
   @Override
   public String[] getInitParam() {
-    String[] initParams = { "NumAgents", "WorldXSize",
+    String[] initParams = { "NumRabbits", "WorldXSize",
         "WorldYSize", "StartEnergy", "ReproduceThreshold",
         "GrassAmount", "EnergyLostMoving", "MaxGrassEating",
         "EnergyPerGRass", "ReproduceCost" };
     return initParams;
   }
   
-  public int getNumAgents() {
+  public int getNumRabbits() {
     return mNumRabbits;
   }
   
-  public void setNumAgents(int na) {
+  public void setNumRabbits(int na) {
     mNumRabbits = na;
   }
   
