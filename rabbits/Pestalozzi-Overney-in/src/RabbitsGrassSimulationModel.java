@@ -109,9 +109,7 @@ public class RabbitsGrassSimulationModel
     RangePropertyDescriptor sliderReproduceThreshold = new RangePropertyDescriptor("ReproduceThreshold", 0, 500, 5);
     descriptors.put("NumRabbits", sliderInitRabbits);
     descriptors.put("GrassAmount", sliderGrassGrowth);
-    descriptors.put("ReproduceThreshold", sliderReproduceThreshold);
-    
-    
+    descriptors.put("ReproduceThreshold", sliderReproduceThreshold);    
   }
   
   @Override
@@ -179,7 +177,6 @@ public class RabbitsGrassSimulationModel
           if (agent.hasToDie()) {
             mGrassFieldSpace.removeAgent(agent);
             mAgentList.remove(i);
-            // TODO do we have to do more?
           }
           
         }
