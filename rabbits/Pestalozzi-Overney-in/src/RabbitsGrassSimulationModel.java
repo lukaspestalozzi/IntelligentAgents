@@ -69,11 +69,13 @@ public class RabbitsGrassSimulationModel
   }
   
   private class GrassAmount implements DataSource, Sequence {
-	  public Object execute() {
+	  @Override
+    public Object execute() {
 		  return new Double(getSValue());
 	  }
 	  
-	  public double getSValue() {
+	  @Override
+    public double getSValue() {
 		  return (double)mGrassAmount;
 	  }
   }
@@ -106,6 +108,8 @@ public class RabbitsGrassSimulationModel
     mTiles = new DisplaySurface(this,
         "Rabbit Grass Simulation Window 1");
     mStatisticsGraph = new OpenSequenceGraph("Amount Of Things in our world",this);
+    mStatisticsGraph.setXViewPolicy(OpenSequenceGraph.SHOW_LAST);
+    mStatisticsGraph.setXIncrement(100);
 
     
  // register Displays
@@ -238,8 +242,8 @@ public class RabbitsGrassSimulationModel
     
     mTiles.addDisplayable(displayGrass, "Grass");
     mTiles.addDisplayable(displayAgents, "Agents");
-    mStatisticsGraph.addSequence("Rabbits In Space", new NbrRabbits());
-    mStatisticsGraph.addSequence("Grass Amount", new GrassAmount());
+    mStatisticsGraph.addSequence("Rabbits In Space", new NbrRabbits(), Color.RED, OpenSequenceGraph.FILLED_CIRCLE);
+    mStatisticsGraph.addSequence("Grass Amount", new GrassAmount(), Color.BLUE, OpenSequenceGraph.FILLED_CIRCLE);
   }
   
   private void addNewAgent() {
