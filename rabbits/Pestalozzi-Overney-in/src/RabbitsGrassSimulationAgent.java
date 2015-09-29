@@ -112,13 +112,12 @@ public class RabbitsGrassSimulationAgent
     return null;
   }
   
-  public void eat(int max, int energyPerGrass) {
+  public int eat(int max, int energyPerGrass) {
     int amountEaten = Math.min(max,
         mSpace.getGrassAt(mX, mY));
     mSpace.removeGrassAt(mX, mY, amountEaten);
     gainEnergy(amountEaten * energyPerGrass);
-    // System.out.println(String.format("%d ate %d grass and has now %d
-    // energy.", getID(), amountEaten, mEnergyLevel));
+    return amountEaten;
   }
   
   public boolean hasToDie() {
