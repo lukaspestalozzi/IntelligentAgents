@@ -87,6 +87,7 @@ public class RabbitsGrassSimulationModel
     init.loadModel(model, "", false);
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public void setup() {
     System.out.println("[+] Running setup");
