@@ -169,7 +169,7 @@ public class RabbitsGrassSimulationModel
           RabbitsGrassSimulationAgent agent = mAgentList
               .get(i);
           // move
-          agent.move();
+          agent.move(mWorldXSize, mWorldYSize);
           agent.looseEnergy(mEnergyLostMoving);
           
           // eat

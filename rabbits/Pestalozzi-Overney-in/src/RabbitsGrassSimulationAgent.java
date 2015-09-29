@@ -76,7 +76,6 @@ public class RabbitsGrassSimulationAgent
         newY = 0;
       }
     }
-    System.out.println(getID()+" to ("+newX +", "+newY+")");
     
     if (mSpace.moveAgent(mX, mY, newX, newY)) {
       mX = newX;
