@@ -62,10 +62,21 @@ public class RabbitsGrassSimulationAgent
     int newY = mY;
     int direction = random.nextBoolean() ? 1 : -1;
     if (random.nextBoolean()) {
-      newX = (mX + direction) % worldX;
+      newX = (mX + direction);
+      if(newX < 0){
+        newX = worldX-1;
+      }else if(newX == worldX){
+        newX = 0;
+      }
     } else {
-      newY = (mY + direction) % worldY;
+      newY = (mY + direction);
+      if(newY < 0){
+        newY = worldY-1;
+      }else if(newY == worldY){
+        newY = 0;
+      }
     }
+    System.out.println(getID()+" to ("+newX +", "+newY+")");
     
     if (mSpace.moveAgent(mX, mY, newX, newY)) {
       mX = newX;
