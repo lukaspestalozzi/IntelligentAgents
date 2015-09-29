@@ -44,7 +44,6 @@ public class RabbitsGrassSimulationSpace {
   }
   
   public void removeGrassAt(int x, int y, int amount){
-    // TODO throw error when amount > actual value at (x, y) ?
     mGrassFieldSpace.putValueAt(x, y, Math.max(0, getGrassAt(x, y) - amount));
   }
   
@@ -77,7 +76,6 @@ public class RabbitsGrassSimulationSpace {
       int toY) {
     RabbitsGrassSimulationAgent agent = (RabbitsGrassSimulationAgent) mAgentSpace
         .getObjectAt(fromX, fromY);
-    // TODO assert that fromX, fromY contains an agent
     if (!isCellOccupied(toX, toY)) {
       mAgentSpace.putObjectAt(toX, toY, agent);
       mAgentSpace.putObjectAt(fromX, fromY, null);
@@ -110,7 +108,6 @@ public class RabbitsGrassSimulationSpace {
         retVal = true;
       }
     }
-    
     return retVal;
   }
 }

@@ -1,11 +1,7 @@
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Random;
-
-import javax.imageio.ImageIO;
 
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
@@ -21,7 +17,6 @@ public class RabbitsGrassSimulationAgent
   private int mX;
   private int mY;
   private int mEnergyLevel;
-  private int mBirthTreshold;
   private static int msIDNumber = 0;
   private int mID;
   private static Image msRabbitImg = null;
@@ -46,7 +41,6 @@ public class RabbitsGrassSimulationAgent
   
   @Override
   public void draw(SimGraphics target) {
-    // target.drawFastRoundRect(Color.red);
     target.drawImageToFit(msRabbitImg);
   }
   
@@ -95,6 +89,7 @@ public class RabbitsGrassSimulationAgent
   public RabbitsGrassSimulationAgent reproduce(
       int threshold, int startEnergy, int energyLoss) {
     if (mEnergyLevel > threshold) {
+      
       // make sure energyLoss < threshold
       if (energyLoss >= threshold) {
         energyLoss = threshold - 1;
@@ -151,10 +146,6 @@ public class RabbitsGrassSimulationAgent
   
   public int getEnergyLevel() {
     return mEnergyLevel;
-  }
-  
-  public int getBirthTreshold() {
-    return mBirthTreshold;
   }
   
   public void report() {

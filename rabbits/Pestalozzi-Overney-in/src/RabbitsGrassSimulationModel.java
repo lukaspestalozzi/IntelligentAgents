@@ -55,30 +55,31 @@ public class RabbitsGrassSimulationModel
   private DisplaySurface mTiles;
   
   private OpenSequenceGraph mStatisticsGraph;
-
+  
   private class NbrRabbits implements DataSource, Sequence {
-
+    
     @Override
     public Object execute() {
       return new Double(getSValue());
     }
-
+    
     @Override
     public double getSValue() {
-      return (double)mAgentList.size();
+      return (double) mAgentList.size();
     }
   }
   
-  private class GrassAmount implements DataSource, Sequence {
-	  @Override
+  private class GrassAmount
+      implements DataSource, Sequence {
+    @Override
     public Object execute() {
-		  return new Double(getSValue());
-	  }
-
-	  @Override
+      return new Double(getSValue());
+    }
+    
+    @Override
     public double getSValue() {
-		  return (double)mCurrentGrassAmount;
-	  }
+      return (double) mCurrentGrassAmount;
+    }
   }
   
   public static void main(String[] args) {
@@ -101,7 +102,7 @@ public class RabbitsGrassSimulationModel
     }
     mTiles = null;
     
-    if (mStatisticsGraph != null){
+    if (mStatisticsGraph != null) {
       mStatisticsGraph.dispose();
     }
     mStatisticsGraph = null;
@@ -109,23 +110,28 @@ public class RabbitsGrassSimulationModel
     // Create Displays
     mTiles = new DisplaySurface(this,
         "Rabbit Grass Simulation Window 1");
-    mStatisticsGraph = new OpenSequenceGraph("Amount Of Things in our world",this);
-    mStatisticsGraph.setXViewPolicy(OpenSequenceGraph.SHOW_LAST);
+    mStatisticsGraph = new OpenSequenceGraph(
+        "Amount Of Things in our world", this);
+    mStatisticsGraph
+        .setXViewPolicy(OpenSequenceGraph.SHOW_LAST);
     mStatisticsGraph.setXIncrement(100);
-
     
- // register Displays
+    // register Displays
     registerDisplaySurface(
         "Rabbit Grass Simulation Window 1", mTiles);
     this.registerMediaProducer("Plot", mStatisticsGraph);
     
     // Add sliders
-    RangePropertyDescriptor sliderInitRabbits = new RangePropertyDescriptor("NumRabbits", 0, mWorldXSize*mWorldYSize, 5);
-    RangePropertyDescriptor sliderGrassGrowth = new RangePropertyDescriptor("GrassAmount", 0, 500, 1);
-    RangePropertyDescriptor sliderReproduceThreshold = new RangePropertyDescriptor("ReproduceThreshold", 0, 500, 5);
+    RangePropertyDescriptor sliderInitRabbits = new RangePropertyDescriptor(
+        "NumRabbits", 0, mWorldXSize * mWorldYSize, 5);
+    RangePropertyDescriptor sliderGrassGrowth = new RangePropertyDescriptor(
+        "GrassAmount", 0, 500, 1);
+    RangePropertyDescriptor sliderReproduceThreshold = new RangePropertyDescriptor(
+        "ReproduceThreshold", 0, 500, 5);
     descriptors.put("NumRabbits", sliderInitRabbits);
     descriptors.put("GrassAmount", sliderGrassGrowth);
-    descriptors.put("ReproduceThreshold", sliderReproduceThreshold);    
+    descriptors.put("ReproduceThreshold",
+        sliderReproduceThreshold);
   }
   
   @Override
@@ -178,9 +184,16 @@ public class RabbitsGrassSimulationModel
           agent.move(mWorldXSize, mWorldYSize);
           agent.looseEnergy(mEnergyLostMoving);
           
-          // eat
-          mCurrentGrassAmount -= agent.eat(mMaxGrassEating, mEnergyPerGRass);
+          // die
+          if (agent.hasToDie()) {
+            mGrassFieldSpace.removeAgent(agent);
+            mAgentList.remove(i);
+          }
           
+          // eat
+          mCurrentGrassAmount -= agent.eat(mMaxGrassEating,
+              mEnergyPerGRass);
+              
           // reproduce
           RabbitsGrassSimulationAgent baby = agent
               .reproduce(mReproduceThreshold, mStartEnergy,
@@ -188,18 +201,12 @@ public class RabbitsGrassSimulationModel
           if (baby != null) {
             babies.add(baby);
           }
-          
-          // die
-          if (agent.hasToDie()) {
-            mGrassFieldSpace.removeAgent(agent);
-            mAgentList.remove(i);
-          }
-          
+          agent.report();
         }
         for (RabbitsGrassSimulationAgent baby : babies) {
           mAgentList.add(baby);
         }
-        System.out.println("Total nbr of living rabbits: "+mAgentList.size());
+        
         mTiles.updateDisplay();
       }
     }
@@ -214,7 +221,7 @@ public class RabbitsGrassSimulationModel
     
     class UpdateNbrRabbits extends BasicAction {
       @Override
-      public void execute(){
+      public void execute() {
         mStatisticsGraph.step();
       }
     }
@@ -222,7 +229,8 @@ public class RabbitsGrassSimulationModel
     mSchedule.scheduleActionAtInterval(1, new RabbitStep());
     mSchedule.scheduleActionAtInterval(1,
         new GrowGrassAction());
-    mSchedule.scheduleActionAtInterval(1, new UpdateNbrRabbits());
+    mSchedule.scheduleActionAtInterval(1,
+        new UpdateNbrRabbits());
         
   }
   
@@ -245,8 +253,12 @@ public class RabbitsGrassSimulationModel
     
     mTiles.addDisplayable(displayGrass, "Grass");
     mTiles.addDisplayable(displayAgents, "Agents");
-    mStatisticsGraph.addSequence("Rabbits In Space", new NbrRabbits(), Color.RED, OpenSequenceGraph.FILLED_CIRCLE);
-    mStatisticsGraph.addSequence("Grass Amount", new GrassAmount(), Color.BLUE, OpenSequenceGraph.FILLED_CIRCLE);
+    mStatisticsGraph.addSequence("Rabbits In Space",
+        new NbrRabbits(), Color.RED,
+        OpenSequenceGraph.FILLED_CIRCLE);
+    mStatisticsGraph.addSequence("Grass Amount",
+        new GrassAmount(), Color.BLUE,
+        OpenSequenceGraph.FILLED_CIRCLE);
   }
   
   private void addNewAgent() {
@@ -301,7 +313,8 @@ public class RabbitsGrassSimulationModel
     return mReproduceThreshold;
   }
   
-  public void setReproduceThreshold(int reproduceThreshold) {
+  public void setReproduceThreshold(
+      int reproduceThreshold) {
     mReproduceThreshold = reproduceThreshold;
   }
   
