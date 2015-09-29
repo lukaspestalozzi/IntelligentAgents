@@ -1,7 +1,8 @@
-import java.awt.Color;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -37,12 +38,9 @@ public class RabbitsGrassSimulationAgent
     mID = ++msIDNumber;
     mSpace = space;
     if (msRabbitImg == null) {
-      try {
-        msRabbitImg = ImageIO
-            .read(new File("src/resources/rabbitImg.png"));
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
+      URL url = getClass().getResource("rabbitImg.png");
+      Toolkit t = Toolkit.getDefaultToolkit();
+      msRabbitImg = t.getImage(url);
     }
   }
   
