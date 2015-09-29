@@ -47,6 +47,7 @@ public class RabbitsGrassSimulationModel
   private int mMaxGrassEating = INIT_MAX_GRASS_EATING;
   private int mEnergyPerGRass = INIT_ENERGY_PER_GRASS;
   private int mReproduceCost = INIT_REPRODUCE_COST;
+  private int mCurrentGrassAmount = 0;
   
   private Schedule mSchedule;
   private RabbitsGrassSimulationSpace mGrassFieldSpace;
@@ -73,10 +74,10 @@ public class RabbitsGrassSimulationModel
     public Object execute() {
 		  return new Double(getSValue());
 	  }
-	  
+
 	  @Override
     public double getSValue() {
-		  return (double)mGrassAmount;
+		  return (double)mCurrentGrassAmount;
 	  }
   }
   
@@ -177,7 +178,7 @@ public class RabbitsGrassSimulationModel
           agent.looseEnergy(mEnergyLostMoving);
           
           // eat
-          agent.eat(mMaxGrassEating, mEnergyPerGRass);
+          mCurrentGrassAmount -= agent.eat(mMaxGrassEating, mEnergyPerGRass);
           
           // reproduce
           RabbitsGrassSimulationAgent baby = agent
@@ -206,6 +207,7 @@ public class RabbitsGrassSimulationModel
       @Override
       public void execute() {
         mGrassFieldSpace.spreadGrass(mGrassAmount);
+        mCurrentGrassAmount += mGrassAmount;
       }
     }
     
