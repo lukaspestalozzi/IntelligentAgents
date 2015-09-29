@@ -53,9 +53,9 @@ public class RabbitsGrassSimulationModel
   private ArrayList<RabbitsGrassSimulationAgent> mAgentList;
   private DisplaySurface mTiles;
   
-  private OpenSequenceGraph nbrRabbits;
+  private OpenSequenceGraph mStatisticsGraph;
 
-  class NbrRabbits implements DataSource, Sequence {
+  private class NbrRabbits implements DataSource, Sequence {
 
     @Override
     public Object execute() {
@@ -66,6 +66,16 @@ public class RabbitsGrassSimulationModel
     public double getSValue() {
       return (double)mAgentList.size();
     }
+  }
+  
+  private class GrassAmount implements DataSource, Sequence {
+	  public Object execute() {
+		  return new Double(getSValue());
+	  }
+	  
+	  public double getSValue() {
+		  return (double)mGrassAmount;
+	  }
   }
   
   public static void main(String[] args) {
@@ -87,21 +97,21 @@ public class RabbitsGrassSimulationModel
     }
     mTiles = null;
     
-    if (nbrRabbits != null){
-      nbrRabbits.dispose();
+    if (mStatisticsGraph != null){
+      mStatisticsGraph.dispose();
     }
-    nbrRabbits = null;
+    mStatisticsGraph = null;
     
     // Create Displays
     mTiles = new DisplaySurface(this,
         "Rabbit Grass Simulation Window 1");
-    nbrRabbits = new OpenSequenceGraph("Amount Of Living Rabbits",this);
+    mStatisticsGraph = new OpenSequenceGraph("Amount Of Things in our world",this);
 
     
  // register Displays
     registerDisplaySurface(
         "Rabbit Grass Simulation Window 1", mTiles);
-    this.registerMediaProducer("Plot", nbrRabbits);
+    this.registerMediaProducer("Plot", mStatisticsGraph);
     
     // Add sliders
     RangePropertyDescriptor sliderInitRabbits = new RangePropertyDescriptor("NumRabbits", 0, mWorldXSize*mWorldYSize, 5);
@@ -119,7 +129,7 @@ public class RabbitsGrassSimulationModel
     buildDisplay();
     
     mTiles.display();
-    nbrRabbits.display();
+    mStatisticsGraph.display();
   }
   
   @Override
@@ -198,7 +208,7 @@ public class RabbitsGrassSimulationModel
     class UpdateNbrRabbits extends BasicAction {
       @Override
       public void execute(){
-        nbrRabbits.step();
+        mStatisticsGraph.step();
       }
     }
     
@@ -228,7 +238,8 @@ public class RabbitsGrassSimulationModel
     
     mTiles.addDisplayable(displayGrass, "Grass");
     mTiles.addDisplayable(displayAgents, "Agents");
-    nbrRabbits.addSequence("Rabbits In Space", new NbrRabbits());
+    mStatisticsGraph.addSequence("Rabbits In Space", new NbrRabbits());
+    mStatisticsGraph.addSequence("Grass Amount", new GrassAmount());
   }
   
   private void addNewAgent() {
