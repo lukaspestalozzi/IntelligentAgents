@@ -36,9 +36,10 @@ public class RabbitsGrassSimulationAgent
     mEnergyLevel = startEnergy;
     mID = ++msIDNumber;
     mSpace = space;
-    if(msRabbitImg == null){
+    if (msRabbitImg == null) {
       try {
-        msRabbitImg = ImageIO.read(new File("src/resources/rabbitImg.png"));
+        msRabbitImg = ImageIO
+            .read(new File("src/resources/rabbitImg.png"));
       } catch (IOException ex) {
         ex.printStackTrace();
       }
@@ -47,29 +48,25 @@ public class RabbitsGrassSimulationAgent
   
   @Override
   public void draw(SimGraphics target) {
-    //target.drawFastRoundRect(Color.red);
+    // target.drawFastRoundRect(Color.red);
     target.drawImageToFit(msRabbitImg);
   }
   
   /**
    * 
-   * @return true if the rabbit moved, false if something was in the way and/or the
-   *         rabbit staid on the same place.
+   * @return true if the rabbit moved, false if something was in the way and/or
+   *         the rabbit staid on the same place.
    */
-  public boolean move() {
+  public boolean move(int worldX, int worldY) {
     int newX = mX;
     int newY = mY;
-    int maxTries = 100;
-    do {
-      int direction = random.nextBoolean() ? 1 : -1;
-      if (random.nextBoolean()) {
-        newX = mX + direction;
-      } else {
-        newY = mY + direction;
-      }
-    } while (!mSpace.isInField(newX, newY)
-        && (maxTries--) > 0);
-        
+    int direction = random.nextBoolean() ? 1 : -1;
+    if (random.nextBoolean()) {
+      newX = (mX + direction) % worldX;
+    } else {
+      newY = (mY + direction) % worldY;
+    }
+    
     if (mSpace.moveAgent(mX, mY, newX, newY)) {
       mX = newX;
       mY = newY;
@@ -84,7 +81,8 @@ public class RabbitsGrassSimulationAgent
    * @param threshold
    * @param startEnergy
    * @param energyLoss
-   * @return the newly created (and added) rabbit or null if none was created (or added).
+   * @return the newly created (and added) rabbit or null if none was created
+   *         (or added).
    */
   public RabbitsGrassSimulationAgent reproduce(
       int threshold, int startEnergy, int energyLoss) {
