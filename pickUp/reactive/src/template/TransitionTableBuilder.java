@@ -1,30 +1,36 @@
 package template;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
+
+import logist.plan.Action;
+import logist.task.TaskDistribution;
+import logist.topology.Topology.City;
 
 public class TransitionTableBuilder {
   
-    private HashSet<State> mStates;
-    private HashSet<Action> mActions;
-    private HashMap<Tuple<State, Action>, Double> mTable;
+  private HashMap<Triple<State, Action>, Double> mTable;
+  
+  public TransitionTableBuilder() {
+  }
+  
+  public TransitionTable generateTable(List<City> cities, TaskDistribution td) {
+    // TODO
     
-    public TransitionTableBuilder() {
-      mStates = new HashSet<>();
-      mActions = new HashSet<>();
-    }
-    
-    public void addEntry(State s, Action a, double result){
-      mStates.add(s);
-      mActions.add(a);
-      mTable.put(new Tuple<State, Action>(s, a), result);
-    }
-    
-    public TransitionTable build(){
-      return new TransitionTable(mStates.toArray(new State[mStates.size()]), mActions.toArray(new Action[mActions.size()]), mTable);
-    }
-    
-    
-    
-    
+    throw new RuntimeException("Not yet implemented");
+  }
+  
+  private void addEntry(State s, Action a, State nextState, double proba) {
+    mTable.put(new Triple<State, Action>(s, a, nextState), proba);
+  }
+  
+  private Triple<State, Action>[] generateKeys() {
+    // TODO
+    throw new RuntimeException("Not yet implemented");
+  }
+  
+  private State[] generateStates(List<City> cities) {
+    // TODO
+    throw new RuntimeException("Not yet implemented");
+  }
 }
