@@ -28,13 +28,13 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		// If the property is not present it defaults to 0.95
 		Double discount = agent.readProperty("discount-factor", Double.class,
 				0.95);
-		mActionTable = new ActionTableBuilder().generateActionTable(discount);
+		
+		mActionTable = new ActionTableBuilder().generateActionTable(topology.cities(), td, discount);
 		this.random = new Random(2015);
 		this.pPickup = discount;
 	}
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
-			
 		return mActionTable.get(new State(vehicle.getCurrentCity(), availableTask != null));
 
 //		if (availableTask == null || random.nextDouble() > pPickup) {
