@@ -10,11 +10,15 @@ import logist.topology.Topology.City;
 public class TransitionTableBuilder {
   
   private HashMap<Triple<State, Action>, Double> mTable;
+  private List<City> cities;
+  private TaskDistribution td;
   
-  public TransitionTableBuilder() {
+  public TransitionTableBuilder(List<City> cities, TaskDistribution td) {
+    this.cities = cities;
+    this.td = td;
   }
   
-  public TransitionTable generateTable(List<City> cities, TaskDistribution td) {
+  public TransitionTable generateTable() {
     // TODO
     
     throw new RuntimeException("Not yet implemented");
@@ -34,7 +38,7 @@ public class TransitionTableBuilder {
     throw new RuntimeException("Not yet implemented");
   }
   
-  public State[] generateStates(List<City> cities) {
+  public State[] generateStates() {
     // TODO
     throw new RuntimeException("Not yet implemented");
   }
