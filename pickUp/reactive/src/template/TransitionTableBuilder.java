@@ -29,7 +29,12 @@ public class TransitionTableBuilder {
     throw new RuntimeException("Not yet implemented");
   }
   
-  private State[] generateStates(List<City> cities) {
+  public Action[] generateActions(){
+    // TODO
+    throw new RuntimeException("Not yet implemented");
+  }
+  
+  public State[] generateStates(List<City> cities) {
     // TODO
     throw new RuntimeException("Not yet implemented");
   }
