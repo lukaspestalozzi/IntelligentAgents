@@ -29,7 +29,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		Double discount = agent.readProperty("discount-factor", Double.class,
 				0.95);
 		
-		mActionTable = new ActionTableBuilder().generateActionTable(topology.cities(), td, discount);
+		mActionTable = new ActionTableBuilder(topology.cities(), td).generateActionTable(topology.cities(), td, discount);
 		this.random = new Random(2015);
 		this.pPickup = discount;
 	}

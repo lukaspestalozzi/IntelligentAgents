@@ -5,14 +5,14 @@ import java.util.HashMap;
 import logist.plan.Action;
 
 public class TransitionTable {
-  private final HashMap<Triple<State, Action>, Double> mTable;
+  private final HashMap<Triple<State, DPAction>, Double> mTable;
   
   
-  public TransitionTable(HashMap<Triple<State, Action>, Double> t) {
+  public TransitionTable(HashMap<Triple<State, DPAction>, Double> t) {
     mTable = t;
   }
   
-  public double getProbability(State s, Action a, State nextState){
-    return mTable.get(new Triple<State, Action>(s, a, nextState));
+  public double getProbability(State s, DPAction action, State nextState){
+    return mTable.get(new Triple<State, DPAction>(s, action, nextState));
   }
 }
