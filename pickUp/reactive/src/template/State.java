@@ -5,24 +5,51 @@ import java.util.List;
 
 import logist.topology.Topology.City;
 
+/**
+ * 
+ * A vehicle in the City 'city' is in following state:</br>
+ * if a task from the 'city' to the 'to' city exists, then the vehicle is in the state (city, to, true).</br>
+ * if no task exists then the vehicle is in the state (city, null, false).</br>
+ *
+ */
 public class State {
   private final City mCity; // the city where the vehicle is right now
-  private final City mTo;
+  private final City mTo; // the city where the task goes (if it exists)
   private final boolean mHasTask;
   
-  public State(City from, City to, boolean hasTask) {
-    if(from == null || (to == null && hasTask)){
+  public State(City c, City to, boolean hasTask) {
+    if(c == null || (to == null && hasTask)){
       throw new IllegalArgumentException("'from' can not be null and 'to' can not be null if 'hasTask' is true");
     }
-    mCity = from;
+    mCity = c;
     mTo = to;
     mHasTask = hasTask;
   }
   
-  public City getCity() {
-    return mCity;
+  /**
+   * 
+   * @param allActions
+   * @return all actions that can be taken from the given state
+   */
+  public DPAction[] possibleActions(DPAction[] allActions) {
+    if(allActions == null || allActions.length == 0){
+      return new DPAction[0];
+    }
+    ArrayList<DPAction> possible = new ArrayList<>();
+    
+    for (DPAction a : allActions) {
+      if (mCity.equals(a.getFrom())) {
+        if(mHasTask && a.isDelivery() && mTo.equals(a.getTo())){ // the only delivery action that can be taken in this state
+          possible.add(a);
+        }else if(!mHasTask && a.isMove() && mCity.hasNeighbor(a.getTo())){ // the move actions
+          possible.add(a);
+        }
+      }
+    }
+    
+    return possible.toArray(new DPAction[possible.size()]);
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -43,6 +70,10 @@ public class State {
         && mTo.equals(other.getTo());
   }
   
+  public City getCity() {
+    return mCity;
+  }
+
   public City getTo() {
     return mTo;
   }
@@ -70,26 +101,5 @@ public class State {
       }
     }
     return states.toArray(new State[states.size()]);
-  }
-  
-  /**
-   * 
-   * @param allActions
-   * @return all actions that can be taken from the given state
-   */
-  public DPAction[] possibleActions(DPAction[] allActions) {
-    ArrayList<DPAction> possible = new ArrayList<>();
-    
-    for (DPAction a : allActions) {
-      if (mCity.equals(a.getFrom())) {
-        if(mHasTask && a.isDelivery() && mTo.equals(a.getTo())){ // the only delivery action that can be taken
-          possible.add(a);
-        }else if(!mHasTask && a.isMove() && mCity.hasNeighbor(a.getTo())){ // the move actions
-          possible.add(a);
-        }
-      }
-    }
-    
-    return possible.toArray(new DPAction[possible.size()]);
   }
 }

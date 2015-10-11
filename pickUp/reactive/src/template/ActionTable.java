@@ -18,7 +18,7 @@ public class ActionTable {
   /**
    * 
    * @param c the city the vehicle is in.
-   * @param availableTask, may be null if no task is available
+   * @param availableTask may be null if no task is available
    * @return the best action if the vehicle is in city c with the given task,
    */
   public Action bestAction(City c, Task availableTask){
@@ -28,11 +28,8 @@ public class ActionTable {
     }else{
       State s = new State(c, availableTask.deliveryCity, true);
       DPAction bestAction = best.get(s);
-      if(bestAction.isMove()){
-        return new Move(bestAction.getTo());
-      }else{
-        return new Pickup(availableTask);
-      }
+      return bestAction.isMove() ? new Move(bestAction.getTo()) : new Pickup(availableTask);
+      
     }
   }
 }

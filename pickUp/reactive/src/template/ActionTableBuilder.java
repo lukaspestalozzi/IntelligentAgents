@@ -29,13 +29,13 @@ public class ActionTableBuilder {
    * @return
    */
   public ActionTable generateActionTable(double gamma) {
-    
     return new ActionTable(Q_learning(gamma)); 
   }
   
   private HashMap<State, DPAction> Q_learning(double gamma) {
     State[] states = State.generateAllStates(mCities);
     DPAction[] actions = DPAction.generateAllActions(mCities);
+    
     HashMap<State, Double> V = new HashMap<State, Double>(); // 'value' of a state
     HashMap<State, DPAction> actionTable = new HashMap<State, DPAction>();
     
@@ -45,8 +45,9 @@ public class ActionTableBuilder {
     }
     
     boolean goodEnough = false;
-    
+    boolean changeInV;
     while (!goodEnough) {
+       changeInV = false;
       for (State state : states) {
         DPAction[] possibleActions = state.possibleActions(actions);
         
@@ -68,9 +69,12 @@ public class ActionTableBuilder {
             maxValue = q;
           }
         }
-        V.put(state, maxValue);
+        if(V.put(state, maxValue) != maxValue){
+          changeInV = true;
+        }
         actionTable.put(state, possibleActions[maxIndex]);
       }
+      goodEnough = !changeInV; // if V never changed, then the strategy is good enough.
     }
     
     return actionTable;

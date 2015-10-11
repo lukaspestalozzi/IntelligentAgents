@@ -4,11 +4,10 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology.City;
 
 public class RewardTable {
-  private TaskDistribution td;
-  // private ActionGetter mActionGetter =  new ActionGetter();
+  private TaskDistribution mTd;
   
   public RewardTable(TaskDistribution td) {
-    this.td = td;
+    this.mTd = td;
   }
   
   /**
@@ -17,12 +16,11 @@ public class RewardTable {
    * @param a
    * @return
    */
-  public long reward(State s, DPAction a/*, Vehicle v*/) { //TODO do without vehicle?
+  public long reward(State s, DPAction a/*, Vehicle v*/) {
     City from = s.getCity();
     City to = a.getTo();
     assert(from.equals(a.getFrom()));
-    // City to = a.accept(mActionGetter);
     
-    return ((a.isMove()) ? 0 : td.reward(from, to)) - from.distanceUnitsTo(to)/**v.costPerKm()*/;
+    return ((a.isMove()) ? 0 : mTd.reward(from, to)) - from.distanceUnitsTo(to)/*v.costPerKm()*/;
   }
 }

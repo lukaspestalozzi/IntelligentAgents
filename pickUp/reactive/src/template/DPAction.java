@@ -6,9 +6,9 @@ import java.util.List;
 import logist.topology.Topology.City;
 
 public class DPAction {
-  private final City from;
-  private final City to;
-  private final boolean isDelivery;
+  private final City mFrom;
+  private final City mTo;
+  private final boolean mIsDelivery;
   
   
 
@@ -16,14 +16,13 @@ public class DPAction {
     if(from == null || to == null){
       throw new IllegalArgumentException("'from' and 'to' can not be null.");
     }
-    this.from = from;
-    this.to = to;
-    this.isDelivery = isDelivery;
+    this.mFrom = from;
+    this.mTo = to;
+    this.mIsDelivery = isDelivery;
   }
   
   public static DPAction[] generateAllActions(List<City> cities) {
     HashSet<DPAction> actions = new HashSet<DPAction>();
-    
     
     for (City orig : cities) {
       // Move from origin to all neighbors
@@ -47,9 +46,9 @@ public class DPAction {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((from == null) ? 0 : from.hashCode());
-    result = prime * result + (isDelivery ? 1231 : 1237);
-    result = prime * result + ((to == null) ? 0 : to.hashCode());
+    result = prime * result + ((mFrom == null) ? 0 : mFrom.hashCode());
+    result = prime * result + (mIsDelivery ? 1231 : 1237);
+    result = prime * result + ((mTo == null) ? 0 : mTo.hashCode());
     return result;
   }
 
@@ -61,24 +60,24 @@ public class DPAction {
     if (!(obj instanceof DPAction)) { return false; }
     DPAction other = (DPAction) obj;
     
-    return this.from.equals(other.getFrom()) 
-        && this.to.equals(other.getTo()) 
-        && isDelivery == other.isDelivery;
+    return this.mFrom.equals(other.getFrom()) 
+        && this.mTo.equals(other.getTo()) 
+        && mIsDelivery == other.mIsDelivery;
   }
   
   public boolean isMove(){
-    return ! this.isDelivery;
+    return ! mIsDelivery;
   }
   
   public City getFrom() {
-    return from;
+    return mFrom;
   }
 
   public City getTo() {
-    return to;
+    return mTo;
   }
 
   public boolean isDelivery() {
-    return isDelivery;
+    return mIsDelivery;
   }
 }
