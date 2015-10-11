@@ -9,7 +9,7 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 
 
-public class ReactiveTemplate implements ReactiveBehavior {
+public class ReactiveAgent implements ReactiveBehavior {
 
 //	private Random random;
 //	private double pPickup;
@@ -27,7 +27,9 @@ public class ReactiveTemplate implements ReactiveBehavior {
 	}
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
-	  return mActionTable.bestAction(vehicle.getCurrentCity(), availableTask);
+	  Action best = mActionTable.bestAction(vehicle.getCurrentCity(), availableTask);
+	  System.out.println(best.toLongString());
+	  return best;
 		
 
 //		if (availableTask == null || random.nextDouble() > pPickup) {

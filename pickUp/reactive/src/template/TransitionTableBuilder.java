@@ -14,8 +14,9 @@ public class TransitionTableBuilder {
   private TaskDistribution mTd;
   
   public TransitionTableBuilder(List<City> cities, TaskDistribution td) {
-    this.mCities = cities;
-    this.mTd = td;
+    mCities = cities;
+    mTd = td;
+    mTable = new HashMap<Triple<State, DPAction>, Double>();
   }
   
   public TransitionTable generateTable() {

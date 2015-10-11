@@ -80,4 +80,17 @@ public class DPAction {
   public boolean isDelivery() {
     return mIsDelivery;
   }
+  
+  @Override
+  public String toString() {
+    return new StringBuilder()
+        .append("A(")
+        .append(mFrom.name)
+        .append(", ")
+        .append(mTo.name)
+        .append(", ")
+        .append(mIsDelivery ? "Delivery" : "Move")
+        .append(")")
+        .toString();
+  }
 }

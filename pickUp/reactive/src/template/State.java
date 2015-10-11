@@ -41,7 +41,7 @@ public class State {
       if (mCity.equals(a.getFrom())) {
         if(mHasTask && a.isDelivery() && mTo.equals(a.getTo())){ // the only delivery action that can be taken in this state
           possible.add(a);
-        }else if(!mHasTask && a.isMove() && mCity.hasNeighbor(a.getTo())){ // the move actions
+        }else if(a.isMove() && mCity.hasNeighbor(a.getTo())){ // the move actions
           possible.add(a);
         }
       }
@@ -66,8 +66,13 @@ public class State {
     if (obj == null) { return false; }
     if (!(obj instanceof State)) { return false; }
     State other = (State) obj;
-    return mHasTask == other.hasTask() && mCity.equals(other.getCity())
-        && mTo.equals(other.getTo());
+    if(mHasTask != other.hasTask()){return false;}
+    if(! mCity.equals(other.getCity())){return false;}
+    if(mTo == null){
+      return other.getTo() == null;
+    }else{
+      return mTo.equals(other.getTo());
+    }
   }
   
   public City getCity() {
@@ -80,6 +85,19 @@ public class State {
   
   public boolean hasTask() {
     return mHasTask;
+  }
+  
+  @Override
+  public String toString() {
+    return new StringBuilder()
+        .append("C(")
+        .append(mCity.name)
+        .append(", ")
+        .append(mTo == null ? "null" : mTo.name)
+        .append(", ")
+        .append(hasTask() ? "HasTask" : "NoTaks")
+        .append(")")
+        .toString();
   }
   
   /**

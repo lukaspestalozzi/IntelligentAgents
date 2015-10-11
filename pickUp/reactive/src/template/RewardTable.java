@@ -16,11 +16,10 @@ public class RewardTable {
    * @param a
    * @return
    */
-  public long reward(State s, DPAction a/*, Vehicle v*/) {
+  public double reward(State s, DPAction a/*, Vehicle v*/) {
     City from = s.getCity();
     City to = a.getTo();
-    assert(from.equals(a.getFrom()));
     
-    return ((a.isMove()) ? 0 : mTd.reward(from, to)) - from.distanceUnitsTo(to)/*v.costPerKm()*/;
+    return ((a.isMove()) ? 0 : mTd.reward(from, to)) - (from.distanceUnitsTo(to)*0.001);
   }
 }

@@ -6,7 +6,19 @@
 	<!-- #### REACTIVE AGENTS ### -->
 	<agent name="reactive-random">
 		<set class-path="bin/"/>
-		<set class-name="template.ReactiveTemplate"/>
+		<set class-name="template.ReactiveRandom"/>
+		<set discount-factor=".85"/>
+	</agent>
+	
+	<agent name="reactive-own">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveAgent"/>
+		<set discount-factor=".95"/>
+	</agent>
+	
+		<agent name="reactive-greedy">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveGreedy"/>
 		<set discount-factor=".85"/>
 	</agent>
 	
