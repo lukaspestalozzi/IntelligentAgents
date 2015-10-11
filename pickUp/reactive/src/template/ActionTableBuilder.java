@@ -5,74 +5,64 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import logist.plan.Action;
+import logist.plan.Action.Delivery;
+import logist.plan.Action.Move;
+import logist.plan.Action.Pickup;
 import logist.task.TaskDistribution;
 import logist.topology.Topology.City;
 
 public class ActionTableBuilder {
   private RewardTable mRewardTable;
-  private TransitionTable T;
+  private TransitionTable mT;
   private List<City> mCities;
   
   public ActionTableBuilder(List<City> cities, TaskDistribution td) {
     mRewardTable = new RewardTable(td);
-    this.mCities = cities;
-    T = new TransitionTableBuilder(cities, td).generateTable();
+    mCities = cities;
+    mT = new TransitionTableBuilder(cities, td).generateTable();
   }
   
   /**
-   * Generates a map mapping a state to the best DPAction for the state.
+   * Generates a optimal transition table on the given map (cities).
    * 
    * @param discount
    * @return
    */
-  public HashMap<State, Action> generateActionTable(List<City> cities,
-      TaskDistribution td, double discount) {
-    TransitionTableBuilder trBuilder = new TransitionTableBuilder(cities, td);
-    TransitionTable tr = trBuilder.generateTable();
+  public ActionTable generateActionTable(double gamma) {
     
-    HashMap<State, Action> best = mapDpToAction(Q_learning(0.8)); // TODO put gamma into the xml file.
-    
-    
-    return best;
-  }
-  
-  private HashMap<State, Action> mapDpToAction(HashMap<State, DPAction> dpMap){
-    HashMap<State, Action> map = new HashMap<State, Action>();
-    for(Entry<State, DPAction> e : dpMap.entrySet()){
-      // TODO
-    }
-    
+    return new ActionTable(Q_learning(gamma)); 
   }
   
   private HashMap<State, DPAction> Q_learning(double gamma) {
     State[] states = State.generateAllStates(mCities);
-    DPAction[] actions = new DPAction[0]; // TODO
-    HashMap<State, Double> V = new HashMap<State, Double>(); // value of a state
+    DPAction[] actions = DPAction.generateAllActions(mCities);
+    HashMap<State, Double> V = new HashMap<State, Double>(); // 'value' of a state
     HashMap<State, DPAction> actionTable = new HashMap<State, DPAction>();
     
     // init V
     for (State s : states) {
-      V.put(s, 0.0);
+      V.put(s, 1.0); // each state has initially the value 1.
     }
     
     boolean goodEnough = false;
+    
     while (!goodEnough) {
-      for (int s = 0; s < states.length; s++) {
-        State state = states[s];
-        DPAction[] possibleActions = states[s].possibleActions(actions);
+      for (State state : states) {
+        DPAction[] possibleActions = state.possibleActions(actions);
         
         int maxIndex = -1; // index of the best move for the state
-        double maxValue = Integer.MIN_VALUE; // value of taking the best move
+        double maxValue = Double.MIN_VALUE; // value of taking the best move
+        
         for (int a = 0; a < possibleActions.length; a++) {
           DPAction action = actions[a];
           
-          double sum = mRewardTable.reward(state, action); // sum = immediate reward of taking the DPAction
+          double sum = mRewardTable.reward(state, action); // sum = immediate reward of taking the action
           for(State nextS : states){
-            sum += T.getProbability(state, action, nextS)*V.get(nextS); // sum of all the possible DPAction in this state
+            sum += mT.getProbability(state, action, nextS)*V.get(nextS); // sum of all the possible actions in this state
           }
           double q = sum * gamma;
           
-          // update maxValue & index if the DPAction is better
+          // update maxValue & index if the action is better than any before.
           if(maxValue < q){
             maxIndex = a;
             maxValue = q;

@@ -13,6 +13,9 @@ public class DPAction {
   
 
   public DPAction(City from, City to, boolean isDelivery) {
+    if(from == null || to == null){
+      throw new IllegalArgumentException("'from' and 'to' can not be null.");
+    }
     this.from = from;
     this.to = to;
     this.isDelivery = isDelivery;
@@ -22,16 +25,16 @@ public class DPAction {
     HashSet<DPAction> actions = new HashSet<DPAction>();
     
     
-    for (City c : cities) {
-      // Move
-      for (City n : c.neighbors()) {
-        actions.add(new DPAction(c, n, false));
+    for (City orig : cities) {
+      // Move from origin to all neighbors
+      for (City dest : orig.neighbors()) {
+        actions.add(new DPAction(orig, dest, false));
       }
       
-      // Delivery
-      for (City cs : cities) {
-        if(! c.equals(cs)){
-          actions.add(new DPAction(c, cs, true));
+      // Delivery to all other cities
+      for (City dest : cities) {
+        if(! orig.equals(dest)){
+          actions.add(new DPAction(orig, dest, true));
         }
       }
     }
