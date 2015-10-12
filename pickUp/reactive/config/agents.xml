@@ -7,13 +7,13 @@
 	<agent name="reactive-random">
 		<set class-path="bin/"/>
 		<set class-name="template.ReactiveRandom"/>
-		<set discount-factor=".85"/>
+		<set discount-factor=".8"/>
 	</agent>
 	
 	<agent name="reactive-own">
 		<set class-path="bin/"/>
 		<set class-name="template.ReactiveAgent"/>
-		<set discount-factor=".95"/>
+		<set discount-factor=".99"/>
 	</agent>
 	
 		<agent name="reactive-greedy">
