@@ -16,7 +16,7 @@ public class ActionTableBuilder {
   public ActionTableBuilder(List<City> cities, TaskDistribution td) {
     mRewardTable = new RewardTable(td);
     mCities = cities;
-    mT = new TransitionTableBuilder(cities, td).generateTable();
+    mT = new TransitionTable(td);
   }
   
   /**

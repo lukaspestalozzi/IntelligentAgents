@@ -63,10 +63,6 @@ public class TransitionTableBuilder {
     return new TransitionTable(mTable);
   }
   
-  private void addEntry(State s, DPAction a, State nextState, double proba) {
-    mTable.put(new Triple<State, DPAction>(s, a, nextState), proba);
-  }
-  
   /**
    * throws an AssertionError if the boolean is false
    * 

@@ -25,9 +25,9 @@ public class ReactiveAgent implements ReactiveBehavior {
     // If the property is not present it defaults to 0.85
     Double gamma = agent.readProperty("discount-factor", Double.class, 0.85);
     mActionTables = new HashMap<>();
-    
+    ActionTableBuilder tableBuilder = new ActionTableBuilder(topology.cities(), td);
     for (Vehicle vehicle : agent.vehicles()) {
-    	mActionTables.put(vehicle.costPerKm(), new ActionTableBuilder(topology.cities(), td).generateActionTable(gamma, vehicle));
+    	mActionTables.put(vehicle.costPerKm(), tableBuilder.generateActionTable(gamma, vehicle));
     }
   }
   
