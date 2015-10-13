@@ -2,7 +2,6 @@ package template;
 
 import java.util.HashMap;
 
-import logist.plan.Action;
 
 public class TransitionTable {
   private final HashMap<Triple<State, DPAction>, Double> mTable;

@@ -1,5 +1,7 @@
 package template;
 
+import java.util.HashMap;
+
 import logist.agent.Agent;
 import logist.behavior.ReactiveBehavior;
 import logist.plan.Action;
@@ -10,7 +12,7 @@ import logist.topology.Topology;
 
 public class ReactiveAgent implements ReactiveBehavior {
   
-  private ActionTable mActionTable;
+  private HashMap<Vehicle, ActionTable> mActionTables;
   // this variable keeps reference of the Agent object
   Agent agent;
   // this variable counts how many actions have passed so far
@@ -22,9 +24,11 @@ public class ReactiveAgent implements ReactiveBehavior {
     // Reads the discount factor from the agents.xml file.
     // If the property is not present it defaults to 0.95
     Double gamma = agent.readProperty("discount-factor", Double.class, 0.95);
+    mActionTables = new HashMap<>();
     
-    mActionTable = new ActionTableBuilder(topology.cities(), td)
-        .generateActionTable(gamma);
+    for (Vehicle vehicle : agent.vehicles()) {
+    	mActionTables.put(vehicle, new ActionTableBuilder(topology.cities(), td).generateActionTable(gamma, vehicle));
+    }
   }
   
   @Override
@@ -41,7 +45,7 @@ public class ReactiveAgent implements ReactiveBehavior {
     }
     counterSteps++;
     
-    Action best = mActionTable.bestAction(vehicle.getCurrentCity(), availableTask);
+    Action best = mActionTables.get(vehicle).bestAction(vehicle.getCurrentCity(), availableTask);
     // System.out.println(best.toLongString());
     return best;
     

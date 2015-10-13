@@ -3,7 +3,6 @@ package template;
 import java.util.HashMap;
 import java.util.List;
 
-import logist.plan.Action;
 import logist.task.TaskDistribution;
 import logist.topology.Topology.City;
 

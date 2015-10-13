@@ -2,13 +2,9 @@ package template;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import cern.colt.Arrays;
-import logist.plan.Action;
-import logist.plan.Action.Delivery;
-import logist.plan.Action.Move;
-import logist.plan.Action.Pickup;
+import logist.simulation.Vehicle;
 import logist.task.TaskDistribution;
 import logist.topology.Topology.City;
 
@@ -29,11 +25,11 @@ public class ActionTableBuilder {
    * @param discount
    * @return
    */
-  public ActionTable generateActionTable(double gamma) {
-    return new ActionTable(Q_learning(gamma)); 
+  public ActionTable generateActionTable(double gamma, Vehicle vehicle) {
+    return new ActionTable(Q_learning(gamma, vehicle)); 
   }
   
-  private HashMap<State, DPAction> Q_learning(double gamma) {
+  private HashMap<State, DPAction> Q_learning(double gamma, Vehicle vehicle) {
     State[] states = State.generateAllStates(mCities);
     DPAction[] actions = DPAction.generateAllActions(mCities);
     
@@ -65,7 +61,7 @@ public class ActionTableBuilder {
           DPAction action = possibleActions[a];
           System.out.println("actions: "+action.toString());
           
-          double sum = mRewardTable.reward(state, action); // sum = immediate reward of taking the action
+          double sum = mRewardTable.reward(state, action, vehicle); // sum = immediate reward of taking the action
           System.out.println("reward: "+sum);
           for(State nextS : states){
             sum += mT.getProbability(state, action, nextS)*V.get(nextS); // sum of all the possible actions in this state
