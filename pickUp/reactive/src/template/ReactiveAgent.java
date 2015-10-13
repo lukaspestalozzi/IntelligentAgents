@@ -12,7 +12,7 @@ import logist.topology.Topology;
 
 public class ReactiveAgent implements ReactiveBehavior {
   
-  private HashMap<Vehicle, ActionTable> mActionTables;
+  private HashMap<Integer, ActionTable> mActionTables;
   // this variable keeps reference of the Agent object
   Agent agent;
   // this variable counts how many actions have passed so far
@@ -27,7 +27,7 @@ public class ReactiveAgent implements ReactiveBehavior {
     mActionTables = new HashMap<>();
     
     for (Vehicle vehicle : agent.vehicles()) {
-    	mActionTables.put(vehicle, new ActionTableBuilder(topology.cities(), td).generateActionTable(gamma, vehicle));
+    	mActionTables.put(vehicle.costPerKm(), new ActionTableBuilder(topology.cities(), td).generateActionTable(gamma, vehicle));
     }
   }
   
@@ -45,7 +45,7 @@ public class ReactiveAgent implements ReactiveBehavior {
     }
     counterSteps++;
     
-    Action best = mActionTables.get(vehicle).bestAction(vehicle.getCurrentCity(), availableTask);
+    Action best = mActionTables.get(vehicle.costPerKm()).bestAction(vehicle.getCurrentCity(), availableTask);
     // System.out.println(best.toLongString());
     return best;
     
