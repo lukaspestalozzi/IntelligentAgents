@@ -22,8 +22,8 @@ public class ReactiveAgent implements ReactiveBehavior {
   public void setup(Topology topology, TaskDistribution td, Agent agent) {
     this.agent = agent;
     // Reads the discount factor from the agents.xml file.
-    // If the property is not present it defaults to 0.95
-    Double gamma = agent.readProperty("discount-factor", Double.class, 0.95);
+    // If the property is not present it defaults to 0.85
+    Double gamma = agent.readProperty("discount-factor", Double.class, 0.85);
     mActionTables = new HashMap<>();
     
     for (Vehicle vehicle : agent.vehicles()) {

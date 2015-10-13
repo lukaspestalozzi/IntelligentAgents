@@ -61,13 +61,13 @@ public class ActionTableBuilder {
           DPAction action = possibleActions[a];
           System.out.println("actions: "+action.toString());
           
-          double sum = mRewardTable.reward(state, action, vehicle); // sum = immediate reward of taking the action
+          double sum = 0;
           System.out.println("reward: "+sum);
           for(State nextS : states){
             sum += mT.getProbability(state, action, nextS)*V.get(nextS); // sum of all the possible actions in this state
           
           }
-          double q = sum * gamma;
+          double q = (sum * gamma) + mRewardTable.reward(state, action, vehicle); // sum = immediate reward of taking the action;
           
           System.out.println("q: "+q+" val:"+maxValue+"->"+(maxValue < q));
           
