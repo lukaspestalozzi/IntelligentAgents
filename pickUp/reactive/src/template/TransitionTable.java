@@ -22,23 +22,22 @@ public class TransitionTable {
   public double getProbability(State s, DPAction action, State nextState) {
     // TODO can be made more efficient. (without the contains condition), but
     // then the mTable must be filled completely.
-    if(s.isLegalAction(action)){
-      
-      if(nextState.hasTask()){
-        return mTd.probability(nextState.getCity(),
-            nextState.getTo());
-      }else{
-        return mTd.probability(nextState.getCity(), null);
+    if (s.isLegalAction(action) && s.hasTask()) {
+      City to = action.isDelivery() ? s.getTo() : ((DPMove) action).getTo();
+      if (to.equals(nextState.getCity())) {
+        return nextState.hasTask() ? mTd.probability(nextState.getCity(),
+            nextState.getTo()) : mTd.probability(nextState.getCity(), null);
       }
-    }else{
-      return 0.0;
     }
-    
-//    if (action.getTo().equals(nextState.getCity()) && action.isDelivery() && s.hasTask()) {
-//      return nextState.hasTask() ? mTd.probability(nextState.getCity(),
-//          nextState.getTo()) : mTd.probability(nextState.getCity(), null);
-//    } else {
-//      return 0.0;
-//    }
+    return 0.0;
   }
+
+  // if (action.getTo().equals(nextState.getCity()) && action.isDelivery() &&
+  // s.hasTask()) {
+  // return nextState.hasTask() ? mTd.probability(nextState.getCity(),
+  // nextState.getTo()) : mTd.probability(nextState.getCity(), null);
+  // } else {
+  // return 0.0;
+  // }
+
 }
