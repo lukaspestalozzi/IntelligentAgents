@@ -33,6 +33,10 @@ public class ActionTableBuilder {
     State[] states = State.generateAllStates(mCities);
     DPAction[] actions = DPAction.generateAllActions(mCities);
     
+    System.out.println("States: "+Arrays.toString(states));
+    System.out.println();
+    System.out.println("Actions"+Arrays.toString(actions));
+    
     // Value of a state
     HashMap<State, Double> V = new HashMap<State, Double>();
     // best action for a state
@@ -40,56 +44,69 @@ public class ActionTableBuilder {
     
     // init V
     for (State s : states) {
-      V.put(s, 1.0); // each state has initially the value 1. // TODO is there a
+      V.put(s, 0.0); // each state has initially the value 1. // TODO is there a
                      // better init value?
     }
     
     boolean goodEnough = false;
     boolean changeInV;
+    
     while (!goodEnough) {
-      
       changeInV = false;
       
       for (State state : states) {
-        int maxIndex = -1; // index of the best move for the state
+        System.out.println("State: " + state.toString());
+        int maxIndex = -1; // index of the best action for the state
         double maxValue = Double.NEGATIVE_INFINITY;
         
         // loop over all actions
         for (int a = 0; a < actions.length; a++) {
           DPAction action = actions[a];
-          if (state.isLegalAction(action)) {
-            
-            double sum = 0;
-            for (State nextS : states) {
-              sum += mT.getProbability(state, action, nextS) * V.get(nextS);
+          if (!state.isLegalAction(action)) {
+            continue;
+          }
+//          System.out.println("Action: " + action.toString());
+          
+          double sum = 0;
+          for (State nextS : states) {
+            double proba = mT.getProbability(state, action, nextS);
+            if (proba == 0) {
+              continue;
             }
-            double immediateReward = mRewardTable.reward(state, action, vehicle);
-            double q = (sum * gamma) + immediateReward;
+            double valNextS = V.get(nextS);
+            double toAdd = proba * valNextS;
+            sum += toAdd;
             
-            System.err.println(String.format("sum: %f\n"
-                + "gamma: %f\n"
-                + "sum*gamma: %f\n"
-                + "immediate reward: %f\n"
-                + "q: %f\n",
-                sum, gamma, sum*gamma,immediateReward, q));
-            
-            
-            // update maxValue & index if the action is better than any before.
-            if (maxValue < q) {
-              maxIndex = a;
-              maxValue = q;
-              System.out.println("updated max to: index:" + a + " val:" + q);
-            }
+//            System.out.println("  " + nextS.toString());
+//            System.out.println(String.format("  proba: %f, val: %f, proba*val: %f", proba,
+//                valNextS, toAdd));
+          }
+          
+          double immediateReward = mRewardTable.reward(state, action, vehicle);
+          double q = (sum * gamma) + immediateReward;
+          
+          System.out
+              .println(String.format(
+                  "sum: %f\n" + "gamma: %f\n" + "sum*gamma: %f\n"
+                      + "immediate reward: %f\n" + "q: %f\n",
+                  sum, gamma, sum * gamma, immediateReward, q));
+                  
+          // update maxValue & index if the action is better than any before.
+          if (maxValue < q) {
+            maxIndex = a;
+            maxValue = q;
           }
         }
+        
+        System.out.println("State: " + state + " has new val: " + maxValue);
+        System.out.println("==========\n");
         
         if (V.put(state, maxValue) != maxValue) {
           changeInV = true;
         }
-        System.out.println();
-        System.out.println("maxIndex: " + maxIndex + " maxVal: " + maxValue);
         actionTable.put(state, actions[maxIndex]);
       }
+      
       goodEnough = !changeInV; // if V never changed, then the strategy is good
                                // enough.
     }

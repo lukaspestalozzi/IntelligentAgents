@@ -22,8 +22,11 @@ public class TransitionTable {
   public double getProbability(State s, DPAction action, State nextState) {
     // TODO can be made more efficient. (without the contains condition), but
     // then the mTable must be filled completely.
-    if (s.isLegalAction(action) && s.hasTask()) {
+    
+    if (s.isLegalAction(action)) {
+      
       City to = action.isDelivery() ? s.getTo() : ((DPMove) action).getTo();
+      
       if (to.equals(nextState.getCity())) {
         return nextState.hasTask() ? mTd.probability(nextState.getCity(),
             nextState.getTo()) : mTd.probability(nextState.getCity(), null);

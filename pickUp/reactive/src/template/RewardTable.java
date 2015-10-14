@@ -21,7 +21,6 @@ public class RewardTable {
   public double reward(State s, DPAction a, Vehicle v) {
     City from = s.getCity();
     City to = a.isDelivery() ? s.getTo() : ((DPMove)a).getTo();
-//    City to = a.getTo();
     
     return ((a.isMove()) ? 0 : mTd.reward(from, to)) - (Measures.unitsToKM(from.distanceUnitsTo(to))*v.costPerKm());
   }
