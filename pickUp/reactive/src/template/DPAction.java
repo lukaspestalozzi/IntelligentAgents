@@ -13,9 +13,6 @@ public class DPAction {
   
 
   public DPAction(City from, City to, boolean isDelivery) {
-    if(from == null || to == null){
-      throw new IllegalArgumentException("'from' and 'to' can not be null.");
-    }
     this.mFrom = from;
     this.mTo = to;
     this.mIsDelivery = isDelivery;
@@ -31,12 +28,8 @@ public class DPAction {
       }
       
       // Delivery to all other cities
-      for (City dest : cities) {
-        if(! orig.equals(dest)){
-          actions.add(new DPAction(orig, dest, true));
-        }
-      }
     }
+    actions.add(new DPAction(null, null, true));
     
     return actions.toArray(new DPAction[actions.size()]);
     
