@@ -21,11 +21,7 @@ public class TransitionTable {
   public double getProbability(State s, DPAction action, State nextState) {
     // TODO can be made more efficient. (without the contains condition), but
     // then the mTable must be filled completely.
-    // Triple<State, DPAction> t = new Triple<State, DPAction>(s, action,
-    // nextState);
-    // return mTable.containsKey(t) ? mTable.get(t) : 0.0;
-    if (action.getTo().equals(nextState.getCity())) {
-      System.err.println("bite" + nextState.hasTask());
+    if (action.getTo().equals(nextState.getCity()) && action.isDelivery() && s.hasTask()) {
       return nextState.hasTask() ? mTd.probability(nextState.getCity(),
           nextState.getTo()) : mTd.probability(nextState.getCity(), null);
     } else {

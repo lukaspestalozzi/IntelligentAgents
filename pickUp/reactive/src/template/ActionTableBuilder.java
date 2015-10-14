@@ -65,15 +65,14 @@ public class ActionTableBuilder {
           System.out.println("reward: "+sum);
           for(State nextS : states){
             sum += mT.getProbability(state, action, nextS)*V.get(nextS); // sum of all the possible actions in this state
-          
           }
           double q = (sum * gamma) + mRewardTable.reward(state, action, vehicle); // sum = immediate reward of taking the action;
-          
+          System.err.println("Sum: " + sum*gamma + "  Immediate reward " + mRewardTable.reward(state, action, vehicle) +
+              "  sum > ? " + (sum*gamma > mRewardTable.reward(state, action, vehicle)));
           System.out.println("q: "+q+" val:"+maxValue+"->"+(maxValue < q));
           
           // update maxValue & index if the action is better than any before.
           if(maxValue < q){
-            //System.out.println(String.format("q: %f, a: %d, maxindex: %d, maxVal: %f", q, a, maxIndex, maxValue));
             maxIndex = a;
             maxValue = q;
             System.out.println("updated max to: index:"+a+" val:"+q);
