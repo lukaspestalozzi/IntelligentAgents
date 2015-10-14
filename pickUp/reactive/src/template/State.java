@@ -26,28 +26,47 @@ public class State {
     mHasTask = hasTask;
   }
   
-  /**
-   * 
-   * @param allActions
-   * @return all actions that can be taken from the given state
-   */
-  public DPAction[] possibleActions(DPAction[] allActions) {
-    if(allActions == null || allActions.length == 0){
-      return new DPAction[0];
-    }
-    ArrayList<DPAction> possible = new ArrayList<>();
-    
-    for (DPAction a : allActions) {
-      if (mCity.equals(a.getFrom())) {
-        if(mHasTask && a.isDelivery() && mTo.equals(a.getTo())){ // the only delivery action that can be taken in this state
-          possible.add(a);
-        }else if(a.isMove() && mCity.hasNeighbor(a.getTo())){ // the move actions
-          possible.add(a);
-        }
+//  /**
+//   * 
+//   * @param allActions
+//   * @return all actions that can be taken from the given state
+//   */
+//  public DPAction[] possibleActions(DPAction[] allActions) {
+//    if(allActions == null || allActions.length == 0){
+//      return new DPAction[0];
+//    }
+//    ArrayList<DPAction> possible = new ArrayList<>();
+//    
+//    for (DPAction a : allActions) {
+//      if (mCity.equals(a.getFrom())) {
+//        if(mHasTask && a.isDelivery() && mTo.equals(a.getTo())){ // the only delivery action that can be taken in this state
+//          possible.add(a);
+//        }else if(a.isMove() && mCity.hasNeighbor(a.getTo())){ // the move actions
+//          possible.add(a);
+//        }
+//      }
+//    }
+//    
+//    return possible.toArray(new DPAction[possible.size()]);
+//  }
+  
+  public boolean isLegalAction(DPAction a){
+    // TODO write nicer
+    if(mHasTask){
+      if(a.isDelivery()){
+        return true;
+      }else{
+        DPMove ma = (DPMove)a;
+        return ma.getCity().equals(mCity);
+      }
+    }else{
+      if(a.isDelivery()){
+        return false;
+      }else{
+        DPMove ma = (DPMove)a;
+        return ma.getCity().equals(mCity);
       }
     }
-    
-    return possible.toArray(new DPAction[possible.size()]);
   }
 
   @Override

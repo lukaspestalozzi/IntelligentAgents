@@ -24,11 +24,11 @@ public class ActionTable {
   public Action bestAction(City c, Task availableTask){
     if(availableTask == null){
       State s = new State(c, null, false);
-      return new Move(best.get(s).getTo());
+      return new Move(((DPMove) best.get(s)).getTo());
     }else{
       State s = new State(c, availableTask.deliveryCity, true);
       DPAction bestAction = best.get(s);
-      return bestAction.isMove() ? new Move(bestAction.getTo()) : new Pickup(availableTask);
+      return bestAction.isMove() ? new Move(((DPMove) bestAction).getTo()) : new Pickup(availableTask);
       
     }
   }
