@@ -17,7 +17,9 @@ import logist.topology.Topology.City;
 @SuppressWarnings("unused")
 public class DeliberativeTemplate implements DeliberativeBehavior {
 
-	enum Algorithm { BFS, ASTAR }
+	enum Algorithm { BFS, ASTAR}
+	
+	public static Package[] allPackages;
 	
 	/* Environment */
 	Topology topology;
@@ -35,6 +37,8 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		this.topology = topology;
 		this.td = td;
 		this.agent = agent;
+		
+		// TODO init all Packages array!
 		
 		// initialize the planner
 		int capacity = agent.vehicles().get(0).capacity();

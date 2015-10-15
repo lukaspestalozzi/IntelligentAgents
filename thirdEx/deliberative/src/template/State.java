@@ -3,25 +3,27 @@ package template;
 import logist.topology.Topology.City;
 
 public class State {
-  private City mCurrent;
-  private City mDestination;
-  private Boolean mIsFull;
   //TODO Determine exactly what's needed to represent a state
   
-  public State (City current, Boolean isFull, City destination) {
-   mCurrent = current;
-   mDestination = destination;
-  }
+  private final City mVehiclePosition; 
+  private final double mFreeLoad;
+  private final Position[] mPackagePositions;
   
-  public City getCurrentCity() {
-    return mCurrent;
-  }
-  
-  public City getDestination() {
-    return mDestination;
-  }
-  
-  public Boolean isFull() {
-    return mIsFull;
+  /**
+   * 
+   * @param vehiclePosition
+   * @param freeLoad
+   * @param packagePositions
+   */
+  public State (City vehiclePosition, double freeLoad, Position[] packagePositions) {
+    if(packagePositions.length != DeliberativeTemplate.allPackages.length){
+      throw new IllegalArgumentException("...");
+    }
+    
+    mFreeLoad = freeLoad;
+    mPackagePositions = packagePositions;
+    mVehiclePosition = vehiclePosition;
+    
+    
   }
 }
