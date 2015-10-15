@@ -33,10 +33,6 @@ public class ActionTableBuilder {
     State[] states = State.generateAllStates(mCities);
     DPAction[] actions = DPAction.generateAllActions(mCities);
     
-    System.out.println("States: "+Arrays.toString(states));
-    System.out.println();
-    System.out.println("Actions"+Arrays.toString(actions));
-    
     // Value of a state
     HashMap<State, Double> V = new HashMap<State, Double>();
     // best action for a state
@@ -54,7 +50,6 @@ public class ActionTableBuilder {
       changeInV = false;
       
       for (State state : states) {
-        System.out.println("State: " + state.toString());
         int maxIndex = -1; // index of the best action for the state
         double maxValue = Double.NEGATIVE_INFINITY;
         DPAction[] possibleActions = state.getLegalActions(actions);
@@ -77,11 +72,6 @@ public class ActionTableBuilder {
           double immediateReward = mRewardTable.reward(state, action, vehicle);
           double q = (sum * gamma) + immediateReward;
           
-          System.out
-              .println(String.format(
-                  "sum: %f\n" + "gamma: %f\n" + "sum*gamma: %f\n"
-                      + "immediate reward: %f\n" + "q: %f\n",
-                  sum, gamma, sum * gamma, immediateReward, q));
                   
           // update maxValue & index if the action is better than any before.
           if (maxValue < q) {
@@ -89,9 +79,6 @@ public class ActionTableBuilder {
             maxValue = q;
           }
         }
-        
-        System.out.println("State: " + state + " has new val: " + maxValue);
-        System.out.println("==========\n");
         
         if (V.put(state, maxValue) != maxValue) {
           changeInV = true;
