@@ -57,10 +57,11 @@ public class ActionTableBuilder {
         System.out.println("State: " + state.toString());
         int maxIndex = -1; // index of the best action for the state
         double maxValue = Double.NEGATIVE_INFINITY;
+        DPAction[] possibleActions = state.getLegalActions(actions);
         
         // loop over all actions
-        for (int a = 0; a < actions.length; a++) {
-          DPAction action = actions[a];
+        for (int a = 0; a < possibleActions.length; a++) {
+          DPAction action = possibleActions[a];
           if (!state.isLegalAction(action)) {
             continue;
           }
@@ -98,7 +99,7 @@ public class ActionTableBuilder {
         if (V.put(state, maxValue) != maxValue) {
           changeInV = true;
         }
-        actionTable.put(state, actions[maxIndex]);
+        actionTable.put(state, possibleActions[maxIndex]);
       }
       
       goodEnough = !changeInV; 

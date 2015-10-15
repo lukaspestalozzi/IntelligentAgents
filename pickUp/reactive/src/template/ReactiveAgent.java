@@ -27,7 +27,10 @@ public class ReactiveAgent implements ReactiveBehavior {
     mActionTables = new HashMap<>();
     ActionTableBuilder tableBuilder = new ActionTableBuilder(topology.cities(), td);
     for (Vehicle vehicle : agent.vehicles()) {
-    	mActionTables.put(vehicle.costPerKm(), tableBuilder.generateActionTable(gamma, vehicle));
+      if (!mActionTables.containsKey(vehicle.costPerKm())) {
+        mActionTables.put(vehicle.costPerKm(),
+            tableBuilder.generateActionTable(gamma, vehicle));
+      }
     }
   }
   
@@ -45,7 +48,8 @@ public class ReactiveAgent implements ReactiveBehavior {
     }
     counterSteps++;
     
-    Action best = mActionTables.get(vehicle.costPerKm()).bestAction(vehicle.getCurrentCity(), availableTask);
+    Action best = mActionTables.get(vehicle.costPerKm())
+        .bestAction(vehicle.getCurrentCity(), availableTask);
     return best;
     
   }
