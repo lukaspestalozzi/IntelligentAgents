@@ -18,6 +18,7 @@ public class State {
   private final City mTo; // the city where the task goes (if it exists)
   private final boolean mHasTask;
   private DPAction[] legalActions = null;
+  private State[] possibleNextStates = null;
   
   public State(City c, City to, boolean hasTask) {
     if (c == null || (to == null && hasTask)) { throw new IllegalArgumentException(
@@ -47,6 +48,26 @@ public class State {
     }
     
     return legalActions;
+    
+  }
+  
+  public State[] getPossibleNextStates(State[] allStates){
+    if (possibleNextStates == null) {
+      ArrayList<State> all = new ArrayList<>();
+      for (State s : allStates) {
+        if (isPossibleNextState(s)) {
+          all.add(s);
+        }
+      }
+      possibleNextStates = all.toArray(new State[all.size()]);
+    }
+    
+    return possibleNextStates;
+  }
+  
+  private boolean isPossibleNextState(State s){
+    
+    return mHasTask ? mTo.equals(s.getCity()) : mCity.hasNeighbor(s.getCity());
     
   }
   

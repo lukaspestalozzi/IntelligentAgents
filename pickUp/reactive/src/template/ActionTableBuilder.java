@@ -62,9 +62,6 @@ public class ActionTableBuilder {
         // loop over all actions
         for (int a = 0; a < possibleActions.length; a++) {
           DPAction action = possibleActions[a];
-          if (!state.isLegalAction(action)) {
-            continue;
-          }
           
           double sum = 0;
           for (State nextS : states) {
