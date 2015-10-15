@@ -44,8 +44,7 @@ public class ActionTableBuilder {
     
     // init V
     for (State s : states) {
-      V.put(s, 0.0); // each state has initially the value 1. // TODO is there a
-                     // better init value?
+      V.put(s, 0.0); // each state has initially the value 1.
     }
     
     boolean goodEnough = false;
@@ -65,7 +64,6 @@ public class ActionTableBuilder {
           if (!state.isLegalAction(action)) {
             continue;
           }
-//          System.out.println("Action: " + action.toString());
           
           double sum = 0;
           for (State nextS : states) {
@@ -76,10 +74,6 @@ public class ActionTableBuilder {
             double valNextS = V.get(nextS);
             double toAdd = proba * valNextS;
             sum += toAdd;
-            
-//            System.out.println("  " + nextS.toString());
-//            System.out.println(String.format("  proba: %f, val: %f, proba*val: %f", proba,
-//                valNextS, toAdd));
           }
           
           double immediateReward = mRewardTable.reward(state, action, vehicle);
@@ -107,8 +101,8 @@ public class ActionTableBuilder {
         actionTable.put(state, actions[maxIndex]);
       }
       
-      goodEnough = !changeInV; // if V never changed, then the strategy is good
-                               // enough.
+      goodEnough = !changeInV; 
+      // if V never changed, then the strategy is good enough.
     }
     
     return actionTable;

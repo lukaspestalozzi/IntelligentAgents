@@ -16,6 +16,42 @@
 		<set discount-factor=".95"/>
 	</agent>
 	
+	<agent name="reactive-own70">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveAgent"/>
+		<set discount-factor=".70"/>
+	</agent>
+	
+	<agent name="reactive-own75">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveAgent"/>
+		<set discount-factor=".75"/>
+	</agent>
+	
+	<agent name="reactive-own85">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveAgent"/>
+		<set discount-factor=".85"/>
+	</agent>
+	
+	<agent name="reactive-own80">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveAgent"/>
+		<set discount-factor=".80"/>
+	</agent>
+	
+	<agent name="reactive-own50">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveAgent"/>
+		<set discount-factor=".50"/>
+	</agent>
+	
+	<agent name="reactive-own20">
+		<set class-path="bin/"/>
+		<set class-name="template.ReactiveAgent"/>
+		<set discount-factor=".20"/>
+	</agent>
+	
 		<agent name="reactive-greedy">
 		<set class-path="bin/"/>
 		<set class-name="template.ReactiveGreedy"/>

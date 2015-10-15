@@ -22,8 +22,8 @@ public class ReactiveAgent implements ReactiveBehavior {
   public void setup(Topology topology, TaskDistribution td, Agent agent) {
     this.agent = agent;
     // Reads the discount factor from the agents.xml file.
-    // If the property is not present it defaults to 0.85
-    Double gamma = agent.readProperty("discount-factor", Double.class, 0.85);
+    // If the property is not present it defaults to 0.95
+    Double gamma = agent.readProperty("discount-factor", Double.class, 0.95);
     mActionTables = new HashMap<>();
     ActionTableBuilder tableBuilder = new ActionTableBuilder(topology.cities(), td);
     for (Vehicle vehicle : agent.vehicles()) {
@@ -46,7 +46,6 @@ public class ReactiveAgent implements ReactiveBehavior {
     counterSteps++;
     
     Action best = mActionTables.get(vehicle.costPerKm()).bestAction(vehicle.getCurrentCity(), availableTask);
-    // System.out.println(best.toLongString());
     return best;
     
   }
