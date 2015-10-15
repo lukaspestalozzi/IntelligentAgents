@@ -36,11 +36,6 @@ private final City to;
   }
 
   @Override
-  public boolean isDelivery() {
-    return false;
-  }
-
-  @Override
   public String toString() {
     return new StringBuilder()
         .append("Move(")

@@ -18,11 +18,6 @@ public final class DPDelivery extends DPAction {
   }
 
   @Override
-  public boolean isMove() {
-    return false;
-  }
-
-  @Override
   public boolean isDelivery() {
     return true;
   }
