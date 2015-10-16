@@ -1,10 +1,12 @@
 package template;
 
-/* import table */
-import logist.simulation.Vehicle;
+import java.util.Iterator;
+
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Plan;
+/* import table */
+import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.task.TaskSet;
@@ -19,24 +21,22 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 
 	enum Algorithm { BFS, ASTAR}
 	
-	public static Package[] allPackages;
-	
 	/* Environment */
-	Topology topology;
-	TaskDistribution td;
+	private Topology mTopology;
+	private TaskDistribution mTd;
 	
 	/* the properties of the agent */
-	Agent agent;
-	int capacity;
+	private Agent mAgent;
+	private int mCapacity;
 
 	/* the planning class */
-	Algorithm algorithm;
+	private Algorithm mAlgorithm;
 	
 	@Override
 	public void setup(Topology topology, TaskDistribution td, Agent agent) {
-		this.topology = topology;
-		this.td = td;
-		this.agent = agent;
+		mTopology = topology;
+		mTd = td;
+		mAgent = agent;
 		
 		// TODO init all Packages array!
 		
@@ -45,7 +45,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
 		
 		// Throws IllegalArgumentException if algorithm is unknown
-		algorithm = Algorithm.valueOf(algorithmName.toUpperCase());
+		mAlgorithm = Algorithm.valueOf(algorithmName.toUpperCase());
 		
 		// ...
 	}
@@ -55,7 +55,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		Plan plan;
 
 		// Compute the plan with the selected algorithm.
-		switch (algorithm) {
+		switch (mAlgorithm) {
 		case ASTAR:
 			// ...
 			plan = naivePlan(vehicle, tasks);
@@ -68,6 +68,23 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 			throw new AssertionError("Should not happen.");
 		}		
 		return plan;
+	}
+	
+	private Plan astar(Vehicle vehicle, TaskSet tasks){
+	  
+	  final Package[] allPackages = new Package[tasks.size()];
+	  Position[] initialPositions = new Position[tasks.size()];
+	  
+	  Iterator<Task> it = tasks.iterator();
+	  while(it.hasNext()){
+	    Task t = it.next();
+	    allPackages[t.id] = new Package(t.weight);
+	    initialPositions[t.id] = new Position(t.pickupCity);
+	  }
+	  
+	  // initial state:
+	  State initialState = new State(vehicle.getCurrentCity(), vehicle.capacity(), initialPositions);
+	  
 	}
 	
 	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {

@@ -3,12 +3,7 @@ package template;
 import logist.simulation.Vehicle;
 import logist.topology.Topology.City;
 
-public class Position {
-  public final City city;
-  
-  public Position(City city) {
-    this.city = city;
-  }
+public abstract class Position {
   
   public boolean isInDelivery(){
     return false;
@@ -29,7 +24,7 @@ class InDelivery extends Position {
   public final Vehicle vehicle;
 
   public InDelivery(Vehicle vehicle) {
-    super(null);
+    super();
     this.vehicle = vehicle;
   }
   
@@ -41,9 +36,11 @@ class InDelivery extends Position {
 }
 
 class Delivered extends Position {
+  public final City city;
 
   public Delivered(City city) {
-    super(city);
+    super();
+    this.city = city;
   }
   
   @Override
@@ -54,9 +51,11 @@ class Delivered extends Position {
 }
 
 class Waiting extends Position {
+  public final City city;
 
   public Waiting(City city) {
-    super(city);
+    super();
+    this.city = city;
   }
   
   @Override
