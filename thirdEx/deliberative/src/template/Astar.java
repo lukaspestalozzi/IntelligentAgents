@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-
-import logist.plan.Action;
 
 public abstract class Astar<S> {
   
@@ -24,7 +21,7 @@ public abstract class Astar<S> {
     mClosed = new HashMap<SearchNode<S>, SearchNode<S>>();
     mOpenList = new LinkedList<SearchNode<S>>();
     mOpenSet = new HashSet<SearchNode<S>>();
-    mRoot = new SearchNode<S>(mInitialState);
+    mRoot = new SearchNode<S>(mInitialState, "ROOT");
   }
   /**
    * 
@@ -37,7 +34,7 @@ public abstract class Astar<S> {
    * @param s
    * @return a list of all child nodes of the state s.
    */
-  public abstract Set<SearchNode<S>> children(SearchNode<S> s);
+  public abstract List<SearchNode<S>> children(SearchNode<S> s);
   /**
    * 
    * @param s
@@ -59,11 +56,12 @@ public abstract class Astar<S> {
    * @return the cost to go from the 'from' node to 'to' node.
    */
   public abstract double cost(SearchNode<S> from, SearchNode<S> to);
+  
   /**
-   * 
+   * searches from the root node until it finds a goal or all reachable nodes have been reached. 
    * @return A list of actions leading from the initial state to a goal state. null if none was found.
    */
-  public List<SearchNode<S>> search(){
+  public final List<SearchNode<S>> search(){
     mRoot.setG(0.0);
     mRoot.setH(heuristic(mRoot));
     mOpenList.push(mRoot);
@@ -81,7 +79,7 @@ public abstract class Astar<S> {
         return generatePath(x);
       }
       
-      Set<SearchNode<S>> kids = children(x);
+      List<SearchNode<S>> kids = children(x);
       for(SearchNode<S> k : kids){
         if(mClosed.containsKey(k)){
           // prevents that multiple versions of the same node.
@@ -104,13 +102,13 @@ public abstract class Astar<S> {
     return null;
   }
   
-  public void attachAndEval(SearchNode<S> kid, SearchNode<S> parent){
+  public final void attachAndEval(SearchNode<S> kid, SearchNode<S> parent){
     kid.setBestParent(parent);
     kid.setG(parent.getG() + cost(parent, kid));
     kid.setH(heuristic(kid));
   }
   
-  public void propagatePathImprovements(SearchNode<S> node){
+  public final void propagatePathImprovements(SearchNode<S> node){
     for(SearchNode<S> kid : node.getKids()){
       if(node.getG() + cost(node, kid) < kid.getG()){
         kid.setBestParent(node);
@@ -120,7 +118,7 @@ public abstract class Astar<S> {
     }
   }
   
-  public List<SearchNode<S>> generatePath(SearchNode<S> node){
+  public final List<SearchNode<S>> generatePath(SearchNode<S> node){
     LinkedList<SearchNode<S>> path = new LinkedList<SearchNode<S>>();
     
     path.add(node);

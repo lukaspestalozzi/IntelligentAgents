@@ -1,6 +1,7 @@
 package template;
 
 import java.util.Iterator;
+import java.util.List;
 
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
@@ -17,19 +18,16 @@ import logist.topology.Topology.City;
  * An optimal planner for one vehicle.
  */
 @SuppressWarnings("unused")
-public class DeliberativeTemplate implements DeliberativeBehavior {
+public class DeliberativeAgent implements DeliberativeBehavior {
 
-	enum Algorithm { BFS, ASTAR}
+	enum Algorithm { BFS, ASTAR, NAIVE}
 	
-	/* Environment */
 	private Topology mTopology;
 	private TaskDistribution mTd;
 	
-	/* the properties of the agent */
 	private Agent mAgent;
 	private int mCapacity;
 
-	/* the planning class */
 	private Algorithm mAlgorithm;
 	
 	@Override
@@ -38,16 +36,12 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		mTd = td;
 		mAgent = agent;
 		
-		// TODO init all Packages array!
-		
 		// initialize the planner
 		int capacity = agent.vehicles().get(0).capacity();
 		String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
 		
-		// Throws IllegalArgumentException if algorithm is unknown
 		mAlgorithm = Algorithm.valueOf(algorithmName.toUpperCase());
-		
-		// ...
+		System.out.println("using "+mAlgorithm);
 	}
 	
 	@Override
@@ -57,33 +51,40 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		// Compute the plan with the selected algorithm.
 		switch (mAlgorithm) {
 		case ASTAR:
-			// ...
-			plan = naivePlan(vehicle, tasks);
-			break;
+			// TODO
+		  throw new IllegalArgumentException("Not yet implemented");
+			//break;
 		case BFS:
 			// ...
-			plan = naivePlan(vehicle, tasks);
+			plan = bfsPlan(vehicle, tasks);
 			break;
+		case NAIVE:
+		  plan = naivePlan(vehicle, tasks);
+		  break;
 		default:
 			throw new AssertionError("Should not happen.");
 		}		
 		return plan;
 	}
 	
-	private Plan astar(Vehicle vehicle, TaskSet tasks){
+	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks){
 	  
 	  final Package[] allPackages = new Package[tasks.size()];
 	  Position[] initialPositions = new Position[tasks.size()];
-	  
-	  Iterator<Task> it = tasks.iterator();
-	  while(it.hasNext()){
-	    Task t = it.next();
-	    allPackages[t.id] = new Package(t.weight);
-	    initialPositions[t.id] = new Waiting(t.pickupCity);
-	  }
-	  
-	  // initial state:
-	  State initialState = new State(vehicle.getCurrentCity(), vehicle.capacity(), initialPositions);
+    
+    Iterator<Task> it = tasks.iterator();
+    while(it.hasNext()){
+      Task t = it.next();
+      allPackages[t.id] = new Package(t.weight, t.id);
+      initialPositions[t.id] = new Waiting(t.pickupCity);
+    }
+    
+    // initial state:
+    State initialState = new State(vehicle.getCurrentCity(), vehicle.capacity(), initialPositions);
+    
+    PickupBFS bfs = new PickupBFS(initialState, vehicle, tasks, allPackages);
+    List<SearchNode<State>> path = bfs.search();
+    return pathToPlan(path, vehicle, tasks);
 	  
 	}
 	
@@ -118,5 +119,37 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 			// you will need to consider the carriedTasks when the next
 			// plan is computed.
 		}
+	}
+	
+	public Plan pathToPlan(List<SearchNode<State>> path, Vehicle vehicle, TaskSet tasks){
+	  Plan plan = new Plan(vehicle.getCurrentCity());
+    for(SearchNode<State> n : path){
+      String as = n.getActionFromParent();
+      if(as.contains(PickupBFS.MOVE_ACTION)){
+        City c = mTopology.parseCity(as.split(";")[1]);
+        plan.appendMove(c);
+        
+      }else if(as.contains(PickupBFS.PICKUP_ACTION)){
+        int id = Integer.valueOf(as.split(";")[1]);
+        plan.appendPickup(getTask(tasks, id));
+        
+      }else if(as.contains(PickupBFS.DELIVER_ACTION)){
+        int id = Integer.valueOf(as.split(";")[1]);
+        plan.appendDelivery(getTask(tasks, id));
+        
+      }else{
+        throw new RuntimeException("Never happens");
+      }
+    }
+    return plan;
+  }
+	
+	private static Task getTask(TaskSet tasks, int id){
+	  for(Task t : tasks){
+	    if(t.id == id){
+	      return t;
+	    }
+	  }
+	  throw new IllegalArgumentException(id+ "is no valid id");
 	}
 }

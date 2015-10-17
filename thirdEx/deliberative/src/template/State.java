@@ -60,7 +60,7 @@ public class State {
             && ((Waiting) packagePosition).city.equals(mVehiclePosition)) {
           
           // The task can be picked up in this state.
-          return new State(mVehiclePosition, mFreeLoad - task.weight, copyPositions(task.id, new InDelivery(vehicle)));
+          return new State(mVehiclePosition, mFreeLoad - task.weight, copyPackagePositions(task.id, new InDelivery(vehicle)));
           
         }
         return null; // the task can NOT be picked up in this state.
@@ -77,7 +77,7 @@ public class State {
           // of the agent */)
           
           // The task can be delivered in this state.
-          return new State(mVehiclePosition, mFreeLoad + task.weight, copyPositions(task.id, new Delivered(mVehiclePosition)));
+          return new State(mVehiclePosition, mFreeLoad + task.weight, copyPackagePositions(task.id, new Delivered(mVehiclePosition)));
           
         }
         return null; // the task can NOT be delivered in this state.
@@ -103,10 +103,22 @@ public class State {
    * @param newPos
    * @return a copy of the position-array of this state. With the element newPos at the given index.
    */
-  public Position[] copyPositions(int index, Position newPos) {
+  public Position[] copyPackagePositions(int index, Position newPos) {
     Position[] pos = copyPositions();
     pos[index] = newPos;
     return pos;
+  }
+  
+  public Position[] getPackagePositions() {
+    return mPackagePositions;
+  }
+  
+  public City getVehiclePosition() {
+    return mVehiclePosition;
+  }
+  
+  public double getFreeLoad() {
+    return mFreeLoad;
   }
 
   @Override

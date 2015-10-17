@@ -12,15 +12,21 @@ public class SearchNode<S> {
   private Status mStatus;
   private SearchNode<S> mBestParent;
   private HashSet<SearchNode<S>> mKids;
+  private final String mActionFromParent;
   
-  public SearchNode(S state) {
+  /**
+   * 
+   * @param state
+   * @param actionFromParent helps to keep track how to go from the parent to this node.
+   */
+  public SearchNode(S state, String actionFromParent) {
     mState = state;
     mG  = 0.0;
     mH  = 0.0;
     mF = mG + mH;
     mStatus = null;
     mBestParent = null;
-    
+    mActionFromParent = actionFromParent;
   }
   
   /**
@@ -83,6 +89,10 @@ public class SearchNode<S> {
   
   public S getState() {
     return mState;
+  }
+  
+  public String getActionFromParent() {
+    return mActionFromParent;
   }
 
   @Override

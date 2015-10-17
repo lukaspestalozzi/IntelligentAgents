@@ -3,11 +3,10 @@ package template;
 public class Package {
   public final int mId;
   
-  public static int nextId = 1;
   public final double mWeight;
   
-  public Package(double weight) {
-    mId = nextId++;
+  public Package(double weight, int id) {
+    mId = id;
     mWeight = weight;
   }
 
