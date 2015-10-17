@@ -6,13 +6,7 @@
 	<!-- #### DELIBERATIVE AGENTS ### -->
 	<agent name="deliberative-random">
 		<set class-path="bin/"/>
-		<set class-name="template.DeliberativeRandom"/>
-		<set algorithm="BFS"/>
-	</agent>
-	
-	<agent name="deliberative-own">
-		<set class-path="bin/"/>
-		<set class-name="template.DeliberativeAgent"/>
+		<set class-name="template.DeliberativeTemplate"/>
 		<set algorithm="BFS"/>
 	</agent>
 	
