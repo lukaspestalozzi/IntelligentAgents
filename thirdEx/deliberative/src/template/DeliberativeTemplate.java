@@ -79,7 +79,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	  while(it.hasNext()){
 	    Task t = it.next();
 	    allPackages[t.id] = new Package(t.weight);
-	    initialPositions[t.id] = new Position(t.pickupCity);
+	    initialPositions[t.id] = new Waiting(t.pickupCity);
 	  }
 	  
 	  // initial state:

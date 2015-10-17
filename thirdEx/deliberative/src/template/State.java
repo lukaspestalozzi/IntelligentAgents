@@ -1,5 +1,7 @@
 package template;
 
+import java.util.Arrays;
+
 import logist.plan.Action;
 import logist.plan.ActionHandler;
 import logist.simulation.Vehicle;
@@ -41,9 +43,11 @@ public class State {
       
       @Override
       public State moveTo(City city) {
+        if(mVehiclePosition.equals(city)){
+          return null;
+        }
         // TODO does the city have to be a neighbor city?
-        // nothing
-        // changes, except the vehicles position.
+        // nothing changes, except the vehicles position.
         return new State(city, mFreeLoad, mPackagePositions);
       }
       
@@ -104,5 +108,35 @@ public class State {
     pos[index] = newPos;
     return pos;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(mFreeLoad);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(mPackagePositions);
+    result = prime * result
+        + ((mVehiclePosition == null) ? 0 : mVehiclePosition.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) { return true; }
+    if (obj == null) { return false; }
+    if (!(obj instanceof State)) { return false; }
+    State other = (State) obj;
+    if (Double.doubleToLongBits(mFreeLoad) != Double
+        .doubleToLongBits(other.mFreeLoad)) { return false; }
+    if (!Arrays.equals(mPackagePositions, other.mPackagePositions)) { return false; }
+    if (mVehiclePosition == null) {
+      if (other.mVehiclePosition != null) { return false; }
+    } else if (!mVehiclePosition.equals(other.mVehiclePosition)) { return false; }
+    return true;
+  }
+  
+  
   
 }

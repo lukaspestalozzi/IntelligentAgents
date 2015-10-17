@@ -16,6 +16,12 @@ public abstract class Position {
   public boolean isWaiting(){
     return false;
   }
+  
+  @Override
+  public abstract int hashCode();
+  
+  @Override
+  public abstract boolean equals(Object other);
 
 }
 
@@ -32,15 +38,40 @@ class InDelivery extends Position {
   public boolean isInDelivery() {
     return true;
   }
+  
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof InDelivery && this.vehicle.equals(((InDelivery)obj).vehicle);
+  }
+  
+  @Override
+  public int hashCode() {
+    return vehicle.hashCode();
+  }
 
 }
 
-class Delivered extends Position {
+/**
+ * A stationary position. eg. waiting or delivered.
+ */
+abstract class Stationary extends Position{
   public final City city;
 
-  public Delivered(City city) {
+  public Stationary(City city) {
     super();
     this.city = city;
+  }
+  
+  @Override
+  public int hashCode() {
+    return this.city.hashCode();
+  }
+}
+
+class Delivered extends Stationary {
+
+  public Delivered(City city) {
+    super(city);
   }
   
   @Override
@@ -48,19 +79,27 @@ class Delivered extends Position {
     return true;
   }
 
+  @Override
+  public boolean equals(Object other) {
+    return other instanceof Delivered && this.city.equals(((Delivered)other).city);
+  }
+
 }
 
-class Waiting extends Position {
-  public final City city;
+class Waiting extends Stationary {
 
   public Waiting(City city) {
-    super();
-    this.city = city;
+    super(city);
   }
   
   @Override
   public boolean isWaiting() {
     return true;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    return other instanceof Waiting && this.city.equals(((Waiting)other).city);
   }
 
 }
