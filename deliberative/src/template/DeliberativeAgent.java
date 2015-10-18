@@ -51,9 +51,8 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		// Compute the plan with the selected algorithm.
 		switch (mAlgorithm) {
 		case ASTAR:
-			// TODO
-		  throw new IllegalArgumentException("Not yet implemented");
-			//break;
+			plan = bestFSPlan(vehicle, tasks);
+			break;
 		case BFS:
 			// ...
 			plan = bfsPlan(vehicle, tasks);
@@ -87,6 +86,27 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     return pathToPlan(path, vehicle, tasks);
 	  
 	}
+	
+private Plan bestFSPlan(Vehicle vehicle, TaskSet tasks){
+    
+    final Package[] allPackages = new Package[tasks.size()];
+    Position[] initialPositions = new Position[tasks.size()];
+    
+    Iterator<Task> it = tasks.iterator();
+    while(it.hasNext()){
+      Task t = it.next();
+      allPackages[t.id] = new Package(t.weight, t.id);
+      initialPositions[t.id] = new Waiting(t.pickupCity);
+    }
+    
+    // initial state:
+    State initialState = new State(vehicle.getCurrentCity(), vehicle.capacity(), initialPositions);
+    
+    PickupBestFs bestFs = new PickupBestFs(initialState, vehicle, tasks, allPackages);
+    List<SearchNode<State>> path = bestFs.search();
+    return pathToPlan(path, vehicle, tasks);
+    
+  }
 	
 	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
 		City current = vehicle.getCurrentCity();
@@ -137,10 +157,13 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         int id = Integer.valueOf(as.split(";")[1]);
         plan.appendDelivery(getTask(tasks, id));
         
+      }else if (as.contains("ROOT")){
+        // Nothing to add here.
       }else{
         throw new RuntimeException("Never happens");
       }
     }
+    System.out.println("plan: "+plan.toString());
     return plan;
   }
 	

@@ -13,6 +13,12 @@
 	<agent name="deliberative-own">
 		<set class-path="bin/"/>
 		<set class-name="template.DeliberativeAgent"/>
+		<set algorithm="ASTAR"/>
+	</agent>
+	
+	<agent name="deliberative-own-bfs">
+		<set class-path="bin/"/>
+		<set class-name="template.DeliberativeAgent"/>
 		<set algorithm="BFS"/>
 	</agent>
 	

@@ -45,33 +45,28 @@ public abstract class PickupAstar extends Astar<State> {
     List<SearchNode<State>> kids = new LinkedList<SearchNode<State>>();
     City c = state.getVehiclePosition();
     
+    // Move
+    for(City nabo : c.neighbors()){
+      State next = state.transition(new Move(nabo), mVehicle);
+      if (next != null) {
+        kids.add(new SearchNode<State>(next, moveString(nabo)));
+      }
+    }
+    
     for (Task t : mTasks) {
-      
       // Deliver
       if (t.deliveryCity.equals(c)) {
         State next = state.transition(new Delivery(t), mVehicle);
         if (next != null) {
           kids.add(new SearchNode<State>(next, deliverString(t)));
         }
-      } else {
-        // Move
-        State next = state.transition(new Move(t.deliveryCity), mVehicle);
-        if (next != null) {
-          kids.add(new SearchNode<State>(next, moveString(t.deliveryCity)));
-        }
-      }
+      } 
       
       // Pickup
       if (t.pickupCity.equals(c)) {
         State next = state.transition(new Pickup(t), mVehicle);
         if (next != null) {
           kids.add(new SearchNode<State>(next, pickUpString(t)));
-        }
-      } else {
-        // Move
-        State next = state.transition(new Move(t.pickupCity), mVehicle);
-        if (next != null) {
-          kids.add(new SearchNode<State>(next, moveString(t.pickupCity)));
         }
       }
     }
