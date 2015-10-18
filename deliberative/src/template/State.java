@@ -9,7 +9,7 @@ import logist.task.Task;
 import logist.topology.Topology.City;
 import uchicago.src.sim.space.Torus;
 
-public class State {
+public class State{
   
   private final City mVehiclePosition;
   private final double mFreeLoad;

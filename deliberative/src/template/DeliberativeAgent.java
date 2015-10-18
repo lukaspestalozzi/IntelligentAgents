@@ -125,15 +125,15 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 	  Plan plan = new Plan(vehicle.getCurrentCity());
     for(SearchNode<State> n : path){
       String as = n.getActionFromParent();
-      if(as.contains(PickupBFS.MOVE_ACTION)){
+      if(as.contains(PickupAstar.MOVE_ACTION)){
         City c = mTopology.parseCity(as.split(";")[1]);
         plan.appendMove(c);
         
-      }else if(as.contains(PickupBFS.PICKUP_ACTION)){
+      }else if(as.contains(PickupAstar.PICKUP_ACTION)){
         int id = Integer.valueOf(as.split(";")[1]);
         plan.appendPickup(getTask(tasks, id));
         
-      }else if(as.contains(PickupBFS.DELIVER_ACTION)){
+      }else if(as.contains(PickupAstar.DELIVER_ACTION)){
         int id = Integer.valueOf(as.split(";")[1]);
         plan.appendDelivery(getTask(tasks, id));
         

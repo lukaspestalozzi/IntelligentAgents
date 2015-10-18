@@ -84,14 +84,17 @@ public abstract class Astar<S> {
       List<SearchNode<S>> kids = children(x);
       for(SearchNode<S> k : kids){
         if(mClosed.containsKey(k)){
-          // prevents that multiple versions of the same node.
+          // prevents that multiple versions of the same node exist.
           k = mClosed.get(k);
         }
+        
         x.addKid(k);
         if(!mOpenSet.contains(k) && !mClosed.containsKey(k)){
           // k is a newly discovered node.
           attachAndEval(k, x);
           insertOpen(k, mOpenList);
+          mOpenSet.add(k);
+          
         }else if(x.getG() + cost(x, k) < k.getG()){
           // better path is found
           attachAndEval(k, x);

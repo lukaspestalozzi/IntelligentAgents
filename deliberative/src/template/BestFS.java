@@ -3,7 +3,11 @@ package template;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public abstract class BestFS<S extends Comparable<S>> extends Astar<S> {
+/**
+ * 
+ * Generic Best first search algorithm.
+ */
+public abstract class BestFS<S> extends Astar<S> {
 
   public BestFS(S start) {
     super(start);
@@ -12,12 +16,12 @@ public abstract class BestFS<S extends Comparable<S>> extends Astar<S> {
   @Override
   public void insertOpen(SearchNode<S> k, LinkedList<SearchNode<S>> openList) {
     Iterator<SearchNode<S>> it = openList.iterator();
-    S kstate = k.getState();
+    double f = k.getF();
     int index = 0;
-    S state;
-    while(it.hasNext()){
-      state = it.next().getState();
-      if(kstate.compareTo(state) >= 0){
+    double otherF;
+    while (it.hasNext()) {
+      otherF = it.next().getF();
+      if (f >= otherF) {
         break;
       }
       index++;

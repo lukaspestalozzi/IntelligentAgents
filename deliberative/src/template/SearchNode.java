@@ -1,10 +1,8 @@
 package template;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
-public class SearchNode<S> {
+public class SearchNode<S> { // TODO ev. implement comparable interface (to compare the F values)
   enum Status {OPEN, CLOSED};
   
   private final S mState;
@@ -31,6 +29,8 @@ public class SearchNode<S> {
     mActionFromParent = actionFromParent;
     mKids = new HashSet<SearchNode<S>>();
   }
+  
+  
   
   @Override
   public String toString() {
