@@ -79,6 +79,8 @@ public abstract class Astar<S> {
         return generatePath(x);
       }
       
+      System.out.println("looking at: "+x.toString());
+      
       List<SearchNode<S>> kids = children(x);
       for(SearchNode<S> k : kids){
         if(mClosed.containsKey(k)){

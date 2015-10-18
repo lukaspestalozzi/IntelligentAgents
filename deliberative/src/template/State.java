@@ -7,6 +7,7 @@ import logist.plan.ActionHandler;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.topology.Topology.City;
+import uchicago.src.sim.space.Torus;
 
 public class State {
   
@@ -30,6 +31,20 @@ public class State {
     for (int i = 0; i < packagePositions.length; i++) {
       mPackagePositions[i] = packagePositions[i];
     }
+  }
+  
+  @Override
+  public String toString() {
+    return new StringBuilder()
+        .append("S[")
+        .append("free: ")
+        .append(mFreeLoad)
+        .append(" pos: ")
+        .append(mVehiclePosition.toString())
+        .append(" packages: ")
+        .append(Arrays.toString(mPackagePositions))
+        .append("]")
+        .toString();
   }
   
   /**

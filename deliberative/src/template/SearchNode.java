@@ -1,6 +1,8 @@
 package template;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class SearchNode<S> {
   enum Status {OPEN, CLOSED};
@@ -11,7 +13,7 @@ public class SearchNode<S> {
   private double mF;
   private Status mStatus;
   private SearchNode<S> mBestParent;
-  private HashSet<SearchNode<S>> mKids;
+  private final HashSet<SearchNode<S>> mKids;
   private final String mActionFromParent;
   
   /**
@@ -27,6 +29,23 @@ public class SearchNode<S> {
     mStatus = null;
     mBestParent = null;
     mActionFromParent = actionFromParent;
+    mKids = new HashSet<SearchNode<S>>();
+  }
+  
+  @Override
+  public String toString() {
+    return new StringBuilder()
+        .append("N[")
+        .append(" G: ")
+        .append(mG)
+        .append(" H: ")
+        .append(mH)
+        .append(" F: ")
+        .append(mF)
+        .append(" state: ")
+        .append(mState.toString())
+        .append("]")
+        .toString();
   }
   
   /**
@@ -104,6 +123,10 @@ public class SearchNode<S> {
   public boolean equals(Object obj) {
     return obj instanceof SearchNode && ((SearchNode)obj).getState().equals(mState);
   }
+
+  
+  
+  
   
   
 }

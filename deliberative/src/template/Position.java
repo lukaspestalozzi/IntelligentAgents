@@ -17,6 +17,8 @@ public abstract class Position {
     return false;
   }
   
+  
+  
   @Override
   public abstract int hashCode();
   
@@ -32,6 +34,11 @@ class InDelivery extends Position {
   public InDelivery(Vehicle vehicle) {
     super();
     this.vehicle = vehicle;
+  }
+  
+  @Override
+  public String toString() {
+    return "InDelivery";
   }
   
   @Override
@@ -75,6 +82,11 @@ class Delivered extends Stationary {
   }
   
   @Override
+  public String toString() {
+    return "Delivered";
+  }
+  
+  @Override
   public boolean isDelivered() {
     return true;
   }
@@ -90,6 +102,10 @@ class Waiting extends Stationary {
 
   public Waiting(City city) {
     super(city);
+  }
+  @Override
+  public String toString() {
+    return "Waiting";
   }
   
   @Override
