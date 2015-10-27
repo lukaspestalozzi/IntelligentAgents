@@ -4,3 +4,6 @@
 	<agents>
 		<agent name="deliberative-own">
 			<vehicle name="Vehicle 1"/>
+		</agent>
+		<agent name="deliberative-own">
+			<vehicle name="Vehicle 2"/>
