@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import logist.simulation.Vehicle;
 import logist.task.TaskSet;
+import logist.topology.Topology.City;
 
 public class PickupBestFs extends PickupAstar {
   
@@ -15,7 +16,16 @@ public class PickupBestFs extends PickupAstar {
   
   @Override
   public double heuristic(SearchNode<State> s) {
-    return (s.getState().getPackagePositions().length - nbrDelivered(s));
+    City from = s.getState().getVehiclePosition();
+    City to = s.getState().getVehiclePosition();
+    for(Position pos : s.getState().getPackagePositions()) {
+      if(pos.isInDelivery()) {
+        InDelivery delivery = (InDelivery) pos;
+        to = delivery.vehicle.getCurrentCity();
+        break;
+      }
+    }
+    return (from.distanceTo(to));
   }
   
   /**
