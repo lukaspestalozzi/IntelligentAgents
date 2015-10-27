@@ -14,7 +14,7 @@ public class PickupBestFs extends PickupAstar {
   }
   
   @Override
-  public double heuristic(SearchNode<State> s) {
+  public double heuristic(SearchNode<State> s) { // the smaller the closer to the goal.
     return (s.getState().getPackagePositions().length - nbrDelivered(s));
   }
   
