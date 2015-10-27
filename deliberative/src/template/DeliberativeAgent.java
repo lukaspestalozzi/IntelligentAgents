@@ -54,7 +54,6 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 			plan = bestFSPlan(vehicle, tasks);
 			break;
 		case BFS:
-			// ...
 			plan = bfsPlan(vehicle, tasks);
 			break;
 		case NAIVE:
@@ -95,6 +94,7 @@ private Plan bestFSPlan(Vehicle vehicle, TaskSet tasks){
     Iterator<Task> it = tasks.iterator();
     while(it.hasNext()){
       Task t = it.next();
+      System.out.println("tid: "+t.id);
       allPackages[t.id] = new Package(t.weight, t.id);
       initialPositions[t.id] = new Waiting(t.pickupCity);
     }

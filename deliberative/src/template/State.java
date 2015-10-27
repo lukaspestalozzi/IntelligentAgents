@@ -61,7 +61,10 @@ public class State{
         if(mVehiclePosition.equals(city)){
           return null;
         }
-        // TODO does the city have to be a neighbor city?
+        if(!mVehiclePosition.hasNeighbor(city)){
+          return null;
+        }
+        
         // nothing changes, except the vehicles position.
         return new State(city, mFreeLoad, mPackagePositions);
       }
