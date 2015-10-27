@@ -1,5 +1,6 @@
 package template;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,20 +68,21 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 	
 	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks){
 	  
-	  final Package[] allPackages = new Package[tasks.size()];
-	  Position[] initialPositions = new Position[tasks.size()];
+	  final HashMap<Integer, Package> allPackages = new HashMap<>(tasks.size());
+    HashMap<Integer, Position> initialPositions = new HashMap<>();
     
     Iterator<Task> it = tasks.iterator();
     while(it.hasNext()){
       Task t = it.next();
-      allPackages[t.id] = new Package(t.weight, t.id);
-      initialPositions[t.id] = new Waiting(t.pickupCity);
+      System.out.println("tid: "+t.id);
+      allPackages.put(t.id, new Package(t.weight, t.id) );
+      initialPositions.put(t.id, new Waiting(t.pickupCity));
     }
     
     // initial state:
     State initialState = new State(vehicle.getCurrentCity(), vehicle.capacity(), initialPositions);
     
-    PickupBFS bfs = new PickupBFS(initialState, vehicle, tasks, allPackages);
+    PickupBFS bfs = new PickupBFS(initialState, vehicle, tasks);
     List<SearchNode<State>> path = bfs.search();
     return pathToPlan(path, vehicle, tasks);
 	  
@@ -88,21 +90,21 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 	
 private Plan bestFSPlan(Vehicle vehicle, TaskSet tasks){
     
-    final Package[] allPackages = new Package[tasks.size()];
-    Position[] initialPositions = new Position[tasks.size()];
+    final HashMap<Integer, Package> allPackages = new HashMap<>(tasks.size());
+    HashMap<Integer, Position> initialPositions = new HashMap<>();
     
     Iterator<Task> it = tasks.iterator();
     while(it.hasNext()){
       Task t = it.next();
       System.out.println("tid: "+t.id);
-      allPackages[t.id] = new Package(t.weight, t.id);
-      initialPositions[t.id] = new Waiting(t.pickupCity);
+      allPackages.put(t.id, new Package(t.weight, t.id) );
+      initialPositions.put(t.id, new Waiting(t.pickupCity));
     }
     
     // initial state:
     State initialState = new State(vehicle.getCurrentCity(), vehicle.capacity(), initialPositions);
     
-    PickupBestFs bestFs = new PickupBestFs(initialState, vehicle, tasks, allPackages);
+    PickupBestFs bestFs = new PickupBestFs(initialState, vehicle, tasks);
     List<SearchNode<State>> path = bestFs.search();
     return pathToPlan(path, vehicle, tasks);
     

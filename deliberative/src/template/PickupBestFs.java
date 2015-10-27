@@ -1,5 +1,6 @@
 package template;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -8,14 +9,13 @@ import logist.task.TaskSet;
 
 public class PickupBestFs extends PickupAstar {
   
-  public PickupBestFs(State start, Vehicle vehicle, TaskSet tasks,
-      Package[] allPackages) {
-    super(start, vehicle, tasks, allPackages);
+  public PickupBestFs(State start, Vehicle vehicle, TaskSet tasks) {
+    super(start, vehicle, tasks);
   }
-  
+
   @Override
   public double heuristic(SearchNode<State> s) { // the smaller the closer to the goal.
-    return (s.getState().getPackagePositions().length - nbrDelivered(s));
+    return (s.getState().getPackagePositions().size() - nbrDelivered(s));
   }
   
   /**
@@ -25,7 +25,7 @@ public class PickupBestFs extends PickupAstar {
    */
   private double nbrDelivered(SearchNode<State> s){
     int counter = 0;
-    for(Position p : s.getState().getPackagePositions()){
+    for(Position p : s.getState().getPackagePositions().values()){
       if(p.isDelivered()){
         counter++;
       }

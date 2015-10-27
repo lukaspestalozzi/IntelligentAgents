@@ -1,5 +1,6 @@
 package template;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,22 +18,21 @@ public abstract class PickupAstar extends Astar<State> {
   public static final String DELIVER_ACTION = "DELIVER";
   public static final String PICKUP_ACTION = "PICKUP";
   
-  private final Package[] mAllPackages;
+
   private final TaskSet mTasks;
   private final Vehicle mVehicle;
   
-  public PickupAstar(State start, Vehicle vehicle, TaskSet tasks, Package[] allPackages) {
+  public PickupAstar(State start, Vehicle vehicle, TaskSet tasks) {
     super(start);
-    mAllPackages = allPackages;
     mTasks = tasks;
     mVehicle = vehicle;
   }
   
   @Override
   public boolean isGoal(SearchNode<State> s) {
-    Position[] ps = s.getState().getPackagePositions();
-    for (Task t : mTasks) {
-      if (!ps[t.id].isDelivered()) { return false; }
+    HashMap<Integer, Position> ps = s.getState().getPackagePositions();
+    for(Position p : ps.values()){
+      if( !p.isDelivered()){return false;};
     }
     return true;
   }
