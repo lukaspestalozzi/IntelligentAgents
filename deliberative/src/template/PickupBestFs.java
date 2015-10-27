@@ -24,6 +24,10 @@ public class PickupBestFs extends PickupAstar {
         to = delivery.vehicle.getCurrentCity();
         break;
       }
+      else if(pos.isWaiting()) {
+        to = ((Waiting) pos).city;
+        break;
+      }
     }
     return (from.distanceTo(to));
   }
