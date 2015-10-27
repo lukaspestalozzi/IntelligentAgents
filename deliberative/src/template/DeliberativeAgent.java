@@ -51,12 +51,14 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   
   @Override
   public Plan plan(Vehicle vehicle, TaskSet tasks) {
+    if(mCarriedTasks != null){
+      tasks = TaskSet.union(tasks, mCarriedTasks);
+    }
     if(tasks.isEmpty()){
       return new Plan(vehicle.getCurrentCity());
     }
     Plan plan;
     System.out.println("Calculate plan...");
-    System.out.println("Tasks: "+tasks.toString());
     
     // Compute the plan with the selected algorithm.
     switch (mAlgorithm) {
@@ -77,14 +79,22 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   
   private State createInitialState(Vehicle vehicle, TaskSet tasks) {
     HashMap<Integer, Position> initialPositions = new HashMap<>();
+    int capacity = vehicle.capacity();
+    
+    
+    
     if(mCarriedTasks != null){
       // remove all tasks that are carried at the moment from the tasks-set 
       // and put them InDelivery.
       tasks = TaskSet.intersectComplement(tasks, mCarriedTasks);
       for (Task t : mCarriedTasks) {
         initialPositions.put(t.id, new InDelivery(vehicle));
+        capacity -= t.weight;
       }
     }
+    
+//    System.out.println("Tasks: "+tasks.toString());
+//    System.out.println("Carried: "+(mCarriedTasks == null ? "-" : mCarriedTasks.toString()));
     
     Iterator<Task> it = tasks.iterator();
     for (Task t : tasks) {
@@ -92,7 +102,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     }
     
     // initial state:
-    State initialState = new State(vehicle.getCurrentCity(), vehicle.capacity(),
+    State initialState = new State(vehicle.getCurrentCity(), capacity,
         initialPositions);
         
     return initialState;
@@ -102,6 +112,8 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     
     // initial state:
     State initialState = createInitialState(vehicle, tasks);
+    
+    
     
     PickupBFS bfs = new PickupBFS(initialState, vehicle, tasks);
     List<SearchNode<State>> path = bfs.search();
@@ -114,6 +126,8 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     
     // initial state:
     State initialState = createInitialState(vehicle, tasks);
+    
+    
     
     PickupBestFs bestFs = new PickupBestFs(initialState, vehicle, tasks);
     List<SearchNode<State>> path = bestFs.search();
@@ -152,7 +166,6 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   
   public Plan pathToPlan(List<SearchNode<State>> path, Vehicle vehicle, TaskSet tasks) {
     Plan plan = new Plan(vehicle.getCurrentCity());
-    System.out.println("final path: "+path.toString());
     for (SearchNode<State> n : path) {
       String as = n.getActionFromParent();
       if (as.contains(PickupAstar.MOVE_ACTION)) {
@@ -173,7 +186,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         throw new RuntimeException("Never happens");
       }
     }
-    System.out.println("plan: " + plan.toString());
+//    System.out.println("plan: " + plan.toString());
     return plan;
   }
   

@@ -69,11 +69,13 @@ public abstract class Astar<S> {
     
     boolean continueSearch = true;
     while(continueSearch){
+      
       if(mOpenList.isEmpty()){
         return null;
       }
       SearchNode<S> x = mOpenList.pop();
       mClosed.put(x, x);
+      mOpenSet.remove(x);
       if(isGoal(x)){
         continueSearch = false;
         return generatePath(x);

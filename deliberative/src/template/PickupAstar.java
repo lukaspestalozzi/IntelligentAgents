@@ -48,12 +48,16 @@ public abstract class PickupAstar extends Astar<State> {
     // Move
     for(City nabo : c.neighbors()){
       State next = state.transition(new Move(nabo), mVehicle);
+      
+      
+      
       if (next != null) {
         kids.add(new SearchNode<State>(next, moveString(nabo)));
       }
     }
     
     for (Task t : mTasks) {
+
       // Deliver
       if (t.deliveryCity.equals(c)) {
         State next = state.transition(new Delivery(t), mVehicle);
