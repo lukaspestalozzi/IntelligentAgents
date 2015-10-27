@@ -1,5 +1,6 @@
 package template;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import logist.simulation.Vehicle;
@@ -7,8 +8,8 @@ import logist.task.TaskSet;
 
 public class PickupBFS extends PickupAstar{
 
-  public PickupBFS(State start, Vehicle vehicle, TaskSet tasks, Package[] allPackages) {
-    super(start, vehicle, tasks, allPackages);
+  public PickupBFS(State start, Vehicle vehicle, TaskSet tasks) {
+    super(start, vehicle, tasks);
   }
 
   @Override

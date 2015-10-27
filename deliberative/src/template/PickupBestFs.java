@@ -1,7 +1,9 @@
 package template;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 import logist.simulation.Vehicle;
 import logist.task.TaskSet;
@@ -9,16 +11,17 @@ import logist.topology.Topology.City;
 
 public class PickupBestFs extends PickupAstar {
   
-  public PickupBestFs(State start, Vehicle vehicle, TaskSet tasks,
-      Package[] allPackages) {
-    super(start, vehicle, tasks, allPackages);
+  public PickupBestFs(State start, Vehicle vehicle, TaskSet tasks) {
+    super(start, vehicle, tasks);
   }
-  
+
   @Override
   public double heuristic(SearchNode<State> s) {
     City from = s.getState().getVehiclePosition();
     City to = s.getState().getVehiclePosition();
-    for(Position pos : s.getState().getPackagePositions()) {
+    for(Map.Entry<Integer, Position> entry : s.getState().getPackagePositions().entrySet()) {
+      int id = entry.getKey();
+      Position pos = entry.getValue();
       if(pos.isInDelivery()) {
         InDelivery delivery = (InDelivery) pos;
         to = delivery.vehicle.getCurrentCity();
@@ -39,7 +42,7 @@ public class PickupBestFs extends PickupAstar {
    */
   private double nbrDelivered(SearchNode<State> s){
     int counter = 0;
-    for(Position p : s.getState().getPackagePositions()){
+    for(Position p : s.getState().getPackagePositions().values()){
       if(p.isDelivered()){
         counter++;
       }

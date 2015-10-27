@@ -1,35 +1,36 @@
 package template;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import logist.plan.Action;
 import logist.plan.ActionHandler;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.topology.Topology.City;
-import uchicago.src.sim.space.Torus;
 
 public class State{
   
   private final City mVehiclePosition;
   private final double mFreeLoad;
-  private final Position[] mPackagePositions;
+  private final HashMap<Integer, Position> mPackagePositions;
   
   /**
    * 
    * @param vehiclePosition
    * @param freeLoad
-   * @param packagePositions
+   * @param initialPositions
    */
-  public State(City vehiclePosition, double freeLoad, Position[] packagePositions) {
+  public State(City vehiclePosition, double freeLoad, HashMap<Integer, Position> initialPositions) {
     
     mFreeLoad = freeLoad;
     mVehiclePosition = vehiclePosition;
     
-    // copy the position-array so that it can't be manipulate from outside.
-    mPackagePositions = new Position[packagePositions.length];
-    for (int i = 0; i < packagePositions.length; i++) {
-      mPackagePositions[i] = packagePositions[i];
+    // copy the position-map so that it can't be manipulate from outside.
+    mPackagePositions = new HashMap<Integer, Position>(initialPositions.size());
+    for(Entry<Integer, Position> e : initialPositions.entrySet()){
+      mPackagePositions.put(e.getKey(), e.getValue());
     }
   }
   
@@ -42,7 +43,7 @@ public class State{
         .append(" pos: ")
         .append(mVehiclePosition.toString())
         .append(" packages: ")
-        .append(Arrays.toString(mPackagePositions))
+        .append(mPackagePositions.toString())
         .append("]")
         .toString();
   }
@@ -61,14 +62,17 @@ public class State{
         if(mVehiclePosition.equals(city)){
           return null;
         }
-        // TODO does the city have to be a neighbor city?
+        if(!mVehiclePosition.hasNeighbor(city)){
+          return null;
+        }
+        
         // nothing changes, except the vehicles position.
         return new State(city, mFreeLoad, mPackagePositions);
       }
       
       @Override
       public State pickup(Task task) {
-        Position packagePosition = mPackagePositions[task.id];
+        Position packagePosition = mPackagePositions.get(task.id);
         
         if (task.weight <= mFreeLoad && packagePosition.isWaiting()
             && ((Waiting) packagePosition).city.equals(task.pickupCity)
@@ -84,7 +88,7 @@ public class State{
       
       @Override
       public State deliver(Task task) {
-        Position packagePosition = mPackagePositions[task.id];
+        Position packagePosition = mPackagePositions.get(task.id);
         
         if (packagePosition.isInDelivery()
             && mVehiclePosition.equals(task.deliveryCity)) {
@@ -102,12 +106,12 @@ public class State{
   
   /**
    * 
-   * @return a copy of the position-array of this state.
+   * @return a copy of the position-map of this state.
    */
-  public Position[] copyPositions() {
-    Position[] pos = new Position[mPackagePositions.length];
-    for (int i = 0; i < mPackagePositions.length; i++) {
-      pos[i] = mPackagePositions[i];
+  public HashMap<Integer, Position> copyPositions() {
+    HashMap<Integer, Position> pos = new HashMap<>(mPackagePositions.size());
+    for (Entry<Integer, Position> e : mPackagePositions.entrySet()) {
+      pos.put(e.getKey(), e.getValue());
     }
     return pos;
   }
@@ -116,15 +120,15 @@ public class State{
    * 
    * @param index
    * @param newPos
-   * @return a copy of the position-array of this state. With the element newPos at the given index.
+   * @return a copy of the position-map of this state. With the element newPos at the given index.
    */
-  public Position[] copyPackagePositions(int index, Position newPos) {
-    Position[] pos = copyPositions();
-    pos[index] = newPos;
+  public HashMap<Integer, Position> copyPackagePositions(int taskId, Position newPos) {
+    HashMap<Integer, Position> pos = copyPositions();
+    pos.put(taskId, newPos);
     return pos;
   }
   
-  public Position[] getPackagePositions() {
+  public HashMap<Integer, Position> getPackagePositions() {
     return mPackagePositions;
   }
   
@@ -143,7 +147,7 @@ public class State{
     long temp;
     temp = Double.doubleToLongBits(mFreeLoad);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + Arrays.hashCode(mPackagePositions);
+    result = prime * result + mPackagePositions.hashCode();
     result = prime * result
         + ((mVehiclePosition == null) ? 0 : mVehiclePosition.hashCode());
     return result;
@@ -157,7 +161,7 @@ public class State{
     State other = (State) obj;
     if (Double.doubleToLongBits(mFreeLoad) != Double
         .doubleToLongBits(other.mFreeLoad)) { return false; }
-    if (!Arrays.equals(mPackagePositions, other.mPackagePositions)) { return false; }
+    if (mPackagePositions.equals(mPackagePositions)) { return false; }
     if (mVehiclePosition == null) {
       if (other.mVehiclePosition != null) { return false; }
     } else if (!mVehiclePosition.equals(other.mVehiclePosition)) { return false; }
