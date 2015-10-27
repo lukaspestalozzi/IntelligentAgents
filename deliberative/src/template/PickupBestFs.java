@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import logist.simulation.Vehicle;
+import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology.City;
 
@@ -17,22 +18,28 @@ public class PickupBestFs extends PickupAstar {
 
   @Override
   public double heuristic(SearchNode<State> s) {
-    City from = s.getState().getVehiclePosition();
-    City to = s.getState().getVehiclePosition();
+    double max = Double.MIN_VALUE;
     for(Map.Entry<Integer, Position> entry : s.getState().getPackagePositions().entrySet()) {
       int id = entry.getKey();
       Position pos = entry.getValue();
+      
+      Task myTask = null;
+      for(Task aTask : mTasks) {
+        if (aTask.id == id)
+          myTask = aTask;
+      }
+      City goal = myTask.deliveryCity;
+      double currentVal = Double.MAX_VALUE;
       if(pos.isInDelivery()) {
         InDelivery delivery = (InDelivery) pos;
-        to = delivery.vehicle.getCurrentCity();
-        break;
+        currentVal = delivery.vehicle.getCurrentCity().distanceTo(goal);
       }
       else if(pos.isWaiting()) {
-        to = ((Waiting) pos).city;
-        break;
+        currentVal = ((Waiting) pos).city.distanceTo(goal);
       }
+      max = currentVal > max ? currentVal : max;
     }
-    return (from.distanceTo(to));
+    return max;
   }
   
   /**

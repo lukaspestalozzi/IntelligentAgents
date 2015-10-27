@@ -19,7 +19,7 @@ public abstract class PickupAstar extends Astar<State> {
   public static final String PICKUP_ACTION = "PICKUP";
   
 
-  private final TaskSet mTasks;
+  protected final TaskSet mTasks;
   private final Vehicle mVehicle;
   
   public PickupAstar(State start, Vehicle vehicle, TaskSet tasks) {
