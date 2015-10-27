@@ -6,7 +6,7 @@
 *.sublime-workspace
 *.sublime-project
 
-*mac bullcrap*
+#mac bullcrap
 .DS_Store
 
 # eclipse specific git ignore
@@ -24,6 +24,9 @@ tmp/**/*
 local.properties
 .settings/
 .loadpath
+
+# files
+history.xml
 
 
 # External tool builders

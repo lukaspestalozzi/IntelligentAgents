@@ -1,6 +1,5 @@
 package template;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -92,8 +91,7 @@ public class State{
         
         if (packagePosition.isInDelivery()
             && mVehiclePosition.equals(task.deliveryCity)) {
-          // && ((InDelivery)packagePosition).vehicle.equals(/* the vehicle
-          // of the agent */)
+          
           
           // The task can be delivered in this state.
           return new State(mVehiclePosition, mFreeLoad + task.weight, copyPackagePositions(task.id, new Delivered(mVehiclePosition)));
@@ -147,7 +145,8 @@ public class State{
     long temp;
     temp = Double.doubleToLongBits(mFreeLoad);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + mPackagePositions.hashCode();
+    result = prime * result
+        + ((mPackagePositions == null) ? 0 : mPackagePositions.hashCode());
     result = prime * result
         + ((mVehiclePosition == null) ? 0 : mVehiclePosition.hashCode());
     return result;
@@ -161,7 +160,9 @@ public class State{
     State other = (State) obj;
     if (Double.doubleToLongBits(mFreeLoad) != Double
         .doubleToLongBits(other.mFreeLoad)) { return false; }
-    if (mPackagePositions.equals(mPackagePositions)) { return false; }
+    if (mPackagePositions == null) {
+      if (other.mPackagePositions != null) { return false; }
+    } else if (!mPackagePositions.equals(other.mPackagePositions)) { return false; }
     if (mVehiclePosition == null) {
       if (other.mVehiclePosition != null) { return false; }
     } else if (!mVehiclePosition.equals(other.mVehiclePosition)) { return false; }
