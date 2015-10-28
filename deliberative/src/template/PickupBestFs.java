@@ -43,7 +43,11 @@ public class PickupBestFs extends PickupAstar {
       maxC = valC > maxC ? valC : maxC;
       
     }
-    return (inDelivery > 0 ? maxC : maxW);
+    if(nbrP - delivered == 0){
+      return Double.NEGATIVE_INFINITY;
+    }
+    double max = (inDelivery > 0 ? maxC : maxW);
+    return Math.max(max - Math.pow(4, delivered), 0);
   }
   
 //  /**
