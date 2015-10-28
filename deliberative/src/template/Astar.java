@@ -84,10 +84,10 @@ public abstract class Astar<S> {
         return generatePath(x);
       }
       
-      if(visitedCounter % 1000 == 0){
-        System.out.println("Number of visited nodes so far: "+visitedCounter);
-        System.out.println("looking at: "+x.toString());
-      }
+//      if(visitedCounter % 1000 == 0){
+//        System.out.println("Number of visited nodes so far: "+visitedCounter);
+//        System.out.println("looking at: "+x.toString());
+//      }
       
       
       List<SearchNode<S>> kids = children(x);

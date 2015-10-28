@@ -60,11 +60,15 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     }
     Plan plan;
     System.out.println("Calculate plan...");
+    Long elapsedTime = 0L;
     
     // Compute the plan with the selected algorithm.
     switch (mAlgorithm) {
       case ASTAR:
+        long bef = System.nanoTime();
         plan = bestFSPlan(vehicle, tasks);
+        long aft = System.nanoTime();
+        elapsedTime = aft - bef;
         break;
       case BFS:
         plan = bfsPlan(vehicle, tasks);
@@ -75,6 +79,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
       default:
         throw new AssertionError("Should not happen.");
     }
+    System.out.println("Time elapsed to compute the plan: " + (elapsedTime / 1000000000.0) + "s");
     mCarriedTasks = null;
     return plan;
   }
