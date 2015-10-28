@@ -167,28 +167,24 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   }
   
   public Plan pathToPlan(List<SearchNode<State>> path, Vehicle vehicle, TaskSet tasks) {
-    System.out.println("Found path: "+path.toString());
+
     Plan plan = new Plan(vehicle.getCurrentCity());
     for (SearchNode<State> n : path) {
       String as = n.getActionFromParent();
-      System.out.print(as);
+
       if (as.contains(PickupAstar.MOVE_ACTION)) {
-        System.out.println("-> Move");
         City c = mTopology.parseCity(as.split(";")[1]);
         plan.appendMove(c);
         
       } else if (as.contains(PickupAstar.PICKUP_ACTION)) {
-        System.out.println("-> Pickup");
         int id = Integer.valueOf(as.split(";")[1]);
         plan.appendPickup(getTask(tasks, id));
         
       } else if (as.contains(PickupAstar.DELIVER_ACTION)) {
-        System.out.println("-> Deliver");
         int id = Integer.valueOf(as.split(";")[1]);
         plan.appendDelivery(getTask(tasks, id));
         
       } else if (as.contains("ROOT")) {
-        System.out.println("-> Root");
         // Nothing to add here.
       } else {
         throw new RuntimeException("Never happens");

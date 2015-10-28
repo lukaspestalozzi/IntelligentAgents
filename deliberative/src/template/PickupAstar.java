@@ -64,7 +64,9 @@ public abstract class PickupAstar extends Astar<State> {
         }
       }
     }
-    
+    if(!kids.isEmpty()){
+      return kids; // if at least one pickup can be made, make it.
+    }
     // Move
     for(City nabo : c.neighbors()){
       State next = state.transition(new Move(nabo), mVehicle);
