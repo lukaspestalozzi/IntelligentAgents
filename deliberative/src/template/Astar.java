@@ -88,7 +88,7 @@ public abstract class Astar<S> {
 //        System.out.println("Number of visited nodes so far: "+visitedCounter);
 //        System.out.println("looking at: "+x.toString());
 //      }
-      
+//      System.out.println("looking at: "+x.toString());
       
       List<SearchNode<S>> kids = children(x);
       for(SearchNode<S> k : kids){
@@ -112,6 +112,8 @@ public abstract class Astar<S> {
           }
         }
       }
+//      System.out.println(mOpenList);
+//      System.out.println();
     }
     return null;
   }

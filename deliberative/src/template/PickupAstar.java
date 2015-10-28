@@ -50,7 +50,7 @@ public abstract class PickupAstar extends Astar<State> {
         State next = state.transition(new Delivery(t), mVehicle);
         if (next != null) {
           kids = new LinkedList<SearchNode<State>>();
-          kids.add(new SearchNode<State>(next/*, deliverString(t)*/));
+          kids.add(new SearchNode<State>(next));
           return kids; // if a package can be delivered then this is the only action that can be taken.
         }
       } 
@@ -59,19 +59,17 @@ public abstract class PickupAstar extends Astar<State> {
       if (t.pickupCity.equals(c)) {
         State next = state.transition(new Pickup(t), mVehicle);
         if (next != null) {
-          kids.add(new SearchNode<State>(next/*, pickUpString(t)*/));
+          kids.add(new SearchNode<State>(next));
         }
       }
     }
-    if(!kids.isEmpty()){
-      return kids; // if at least one pickup can be made, make it.
-    }
+    
     // Move
     for(City nabo : c.neighbors()){
       State next = state.transition(new Move(nabo), mVehicle);
       
       if (next != null) {
-        kids.add(new SearchNode<State>(next/*, moveString(nabo)*/));
+        kids.add(new SearchNode<State>(next));
       }
     }
     
