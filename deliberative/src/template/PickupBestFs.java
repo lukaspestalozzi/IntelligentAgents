@@ -18,7 +18,8 @@ public class PickupBestFs extends PickupAstar {
 
   @Override
   public double heuristic(SearchNode<State> s) {
-    double max = Double.MIN_VALUE;
+    double min = Double.MAX_VALUE;
+    int delivered = 0;
     for(Map.Entry<Integer, Position> entry : s.getState().getPackagePositions().entrySet()) {
       int id = entry.getKey();
       Position pos = entry.getValue();
@@ -37,9 +38,12 @@ public class PickupBestFs extends PickupAstar {
       else if(pos.isWaiting()) {
         currentVal = ((Waiting) pos).city.distanceTo(goal);
       }
-      max = currentVal > max ? currentVal : max;
+      else {
+        delivered++;
+      }
+      min = currentVal < min ? currentVal : min;
     }
-    return max;
+    return min*(s.getState().getPackagePositions().size() - delivered);
   }
   
   /**
