@@ -22,8 +22,7 @@ public class PickupBestFs extends PickupAstar {
       City goal = pos.getGoal();
       double currentVal = Double.MAX_VALUE;
       if(pos.isInDelivery()) {
-        InDelivery delivery = (InDelivery) pos;
-        currentVal = delivery.vehicle.getCurrentCity().distanceTo(goal);
+        currentVal = ((InDelivery) pos).vehicle.getCurrentCity().distanceTo(goal);
       }
       else if(pos.isWaiting()) {
         currentVal = ((Waiting) pos).city.distanceTo(goal);
