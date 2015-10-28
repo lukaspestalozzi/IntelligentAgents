@@ -186,7 +186,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
         throw new RuntimeException("Never happens");
       }
     }
-//    System.out.println("plan: " + plan.toString());
+    System.out.println("plan: " + plan.toString());
     return plan;
   }
   
