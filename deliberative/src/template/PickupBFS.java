@@ -1,6 +1,5 @@
 package template;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import logist.simulation.Vehicle;

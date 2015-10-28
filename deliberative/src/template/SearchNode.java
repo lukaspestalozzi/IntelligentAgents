@@ -119,9 +119,10 @@ public class SearchNode<S> { // TODO ev. implement comparable interface (to comp
     return mState.hashCode();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof SearchNode && ((SearchNode)obj).getState().equals(mState);
+    return obj instanceof SearchNode && ((SearchNode<State>)obj).getState().equals(mState);
   }
 
   

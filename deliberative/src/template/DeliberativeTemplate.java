@@ -36,7 +36,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		this.agent = agent;
 		
 		// initialize the planner
-		int capacity = agent.vehicles().get(0).capacity();
+		// int capacity = agent.vehicles().get(0).capacity();
 		String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
 		
 		// Throws IllegalArgumentException if algorithm is unknown

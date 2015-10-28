@@ -1,12 +1,9 @@
 package template;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 
 import logist.simulation.Vehicle;
-import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology.City;
 
@@ -39,20 +36,20 @@ public class PickupBestFs extends PickupAstar {
     return min*(s.getState().getPackagePositions().size() - delivered);
   }
   
-  /**
-   * 
-   * @param s
-   * @return the number of packages that are already delivered in the given state.
-   */
-  private double nbrDelivered(SearchNode<State> s){
-    int counter = 0;
-    for(Position p : s.getState().getPackagePositions().values()){
-      if(p.isDelivered()){
-        counter++;
-      }
-    }
-    return counter;
-  }
+//  /**
+//   * 
+//   * @param s
+//   * @return the number of packages that are already delivered in the given state.
+//   */
+//  private double nbrDelivered(SearchNode<State> s){
+//    int counter = 0;
+//    for(Position p : s.getState().getPackagePositions().values()){
+//      if(p.isDelivered()){
+//        counter++;
+//      }
+//    }
+//    return counter;
+//  }
   
   
   

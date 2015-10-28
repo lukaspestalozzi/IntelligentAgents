@@ -18,20 +18,18 @@
 			</tasks>
 			<events>
 				<event id="0" time="0" vehicle="Vehicle 1" pickup="4"/>
-				<event id="1" time="299999996" vehicle="Vehicle 1" move="Sion"/>
-				<event id="2" time="1966666570" vehicle="Vehicle 1" pickup="2"/>
-				<event id="3" time="2266666553" vehicle="Vehicle 1" pickup="5"/>
-				<event id="4" time="2566666534" vehicle="Vehicle 1" move="Thun"/>
+				<event id="1" time="299999992" vehicle="Vehicle 1" move="Sion"/>
+				<event id="2" time="1966666565" vehicle="Vehicle 1" pickup="2"/>
 			</events>
 		</round>
 	</rounds>
 	<statistics>
 		<stat rank="1" agent="deliberative-own">
 			<total-tasks value="6"/>
-			<total-distance value="270.0"/>
-			<total-cost value="1350"/>
+			<total-distance value="150.0"/>
+			<total-cost value="750"/>
 			<total-reward value="0"/>
-			<total-profit value="-1350"/>
+			<total-profit value="-750"/>
 		</stat>
 	</statistics>
 </history>
