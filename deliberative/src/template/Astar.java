@@ -66,7 +66,6 @@ public abstract class Astar<S> {
     mRoot.setH(heuristic(mRoot));
     mOpenList.push(mRoot);
     mOpenSet.add(mRoot);
-    long visitedCounter = 0;
     
     boolean continueSearch = true;
     while(continueSearch){
@@ -75,20 +74,18 @@ public abstract class Astar<S> {
         return null;
       }
       SearchNode<S> x = mOpenList.pop();
-      visitedCounter++;
       mClosed.put(x, x);
       mOpenSet.remove(x);
       if(isGoal(x)){
         continueSearch = false;
         System.out.println("Number of unique visited states: "+mClosed.size());
-        System.out.println("Number of total visited states: "+visitedCounter);
         return generatePath(x);
       }
       
-      if(visitedCounter % 1000 == 0){
-        System.out.println("Number of visited nodes so far: "+visitedCounter);
-        System.out.println("looking at: "+x.toString());
-      }
+//      if(visitedCounter % 1000 == 0){
+//        System.out.println("Number of visited nodes so far: "+visitedCounter);
+//        System.out.println("looking at: "+x.toString());
+//      }
       
       
       List<SearchNode<S>> kids = children(x);

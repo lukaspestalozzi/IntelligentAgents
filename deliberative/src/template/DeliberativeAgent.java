@@ -165,6 +165,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   }
   
   public Plan pathToPlan(List<SearchNode<State>> path, Vehicle vehicle, TaskSet tasks) {
+    System.out.println("Found path: "+path.toString());
     Plan plan = new Plan(vehicle.getCurrentCity());
     for (SearchNode<State> n : path) {
       String as = n.getActionFromParent();
