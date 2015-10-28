@@ -88,7 +88,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
       // and put them InDelivery.
       tasks = TaskSet.intersectComplement(tasks, mCarriedTasks);
       for (Task t : mCarriedTasks) {
-        initialPositions.put(t.id, new InDelivery(vehicle));
+        initialPositions.put(t.id, new InDelivery(vehicle, t.deliveryCity));
         capacity -= t.weight;
       }
     }
@@ -98,7 +98,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     
     Iterator<Task> it = tasks.iterator();
     for (Task t : tasks) {
-      initialPositions.put(t.id, new Waiting(t.pickupCity));
+      initialPositions.put(t.id, new Waiting(t.pickupCity, t.deliveryCity));
     }
     
     // initial state:

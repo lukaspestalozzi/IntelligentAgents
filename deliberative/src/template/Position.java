@@ -4,6 +4,15 @@ import logist.simulation.Vehicle;
 import logist.topology.Topology.City;
 
 public abstract class Position {
+  private City mGoal;
+  
+  public Position(City goal) {
+    mGoal = goal;
+  }
+  
+  public City getGoal() {
+    return mGoal;
+  }
   
   public boolean isInDelivery(){
     return false;
@@ -31,8 +40,8 @@ class InDelivery extends Position {
   
   public final Vehicle vehicle;
 
-  public InDelivery(Vehicle vehicle) {
-    super();
+  public InDelivery(Vehicle vehicle, City goal) {
+    super(goal);
     this.vehicle = vehicle;
   }
   
@@ -64,8 +73,8 @@ class InDelivery extends Position {
 abstract class Stationary extends Position{
   public final City city;
 
-  public Stationary(City city) {
-    super();
+  public Stationary(City city, City goal) {
+    super(goal);
     this.city = city;
   }
   
@@ -77,8 +86,8 @@ abstract class Stationary extends Position{
 
 class Delivered extends Stationary {
 
-  public Delivered(City city) {
-    super(city);
+  public Delivered(City city, City goal) {
+    super(city, goal);
   }
   
   @Override
@@ -100,8 +109,8 @@ class Delivered extends Stationary {
 
 class Waiting extends Stationary {
 
-  public Waiting(City city) {
-    super(city);
+  public Waiting(City city, City goal) {
+    super(city, goal);
   }
   @Override
   public String toString() {

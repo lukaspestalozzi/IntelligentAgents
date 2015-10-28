@@ -20,16 +20,9 @@ public class PickupBestFs extends PickupAstar {
   public double heuristic(SearchNode<State> s) {
     double min = Double.MAX_VALUE;
     int delivered = 0;
-    for(Map.Entry<Integer, Position> entry : s.getState().getPackagePositions().entrySet()) {
-      int id = entry.getKey();
-      Position pos = entry.getValue();
-      
-      Task myTask = null;
-      for(Task aTask : mTasks) {
-        if (aTask.id == id)
-          myTask = aTask;
-      }
-      City goal = myTask.deliveryCity;
+    for(Position pos : s.getState().getPackagePositions().values()) {
+     
+      City goal = pos.getGoal();
       double currentVal = Double.MAX_VALUE;
       if(pos.isInDelivery()) {
         InDelivery delivery = (InDelivery) pos;
