@@ -57,12 +57,12 @@ class InDelivery extends Position {
   
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof InDelivery && this.vehicle.equals(((InDelivery)obj).vehicle);
+    return obj instanceof InDelivery && this.vehicle.equals(((InDelivery)obj).vehicle) && this.getGoal().equals(((Position)obj).getGoal());
   }
   
   @Override
   public int hashCode() {
-    return vehicle.hashCode();
+    return (17 * 31 + vehicle.hashCode()) * 31 + super.getGoal().hashCode();
   }
 
 }
@@ -80,7 +80,7 @@ abstract class Stationary extends Position{
   
   @Override
   public int hashCode() {
-    return this.city.hashCode();
+    return (17 * 31 + this.city.hashCode()) * 31 + super.getGoal().hashCode();
   }
 }
 
@@ -102,7 +102,8 @@ class Delivered extends Stationary {
 
   @Override
   public boolean equals(Object other) {
-    return other instanceof Delivered && this.city.equals(((Delivered)other).city);
+    return other instanceof Delivered && this.city.equals(((Delivered)other).city)
+        && this.getGoal().equals(((Position)other).getGoal());
   }
 
 }
@@ -124,7 +125,8 @@ class Waiting extends Stationary {
 
   @Override
   public boolean equals(Object other) {
-    return other instanceof Waiting && this.city.equals(((Waiting)other).city);
+    return other instanceof Waiting && this.city.equals(((Waiting)other).city)
+        && this.getGoal().equals(((Position)other).getGoal());
   }
 
 }

@@ -51,6 +51,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   
   @Override
   public Plan plan(Vehicle vehicle, TaskSet tasks) {
+    System.out.println("\nTasks: "+tasks.toString());
     if(mCarriedTasks != null){
       tasks = TaskSet.union(tasks, mCarriedTasks);
     }
@@ -74,6 +75,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
       default:
         throw new AssertionError("Should not happen.");
     }
+    mCarriedTasks = null;
     return plan;
   }
   
@@ -169,19 +171,24 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     Plan plan = new Plan(vehicle.getCurrentCity());
     for (SearchNode<State> n : path) {
       String as = n.getActionFromParent();
+      System.out.print(as);
       if (as.contains(PickupAstar.MOVE_ACTION)) {
+        System.out.println("-> Move");
         City c = mTopology.parseCity(as.split(";")[1]);
         plan.appendMove(c);
         
       } else if (as.contains(PickupAstar.PICKUP_ACTION)) {
+        System.out.println("-> Pickup");
         int id = Integer.valueOf(as.split(";")[1]);
         plan.appendPickup(getTask(tasks, id));
         
       } else if (as.contains(PickupAstar.DELIVER_ACTION)) {
+        System.out.println("-> Deliver");
         int id = Integer.valueOf(as.split(";")[1]);
         plan.appendDelivery(getTask(tasks, id));
         
       } else if (as.contains("ROOT")) {
+        System.out.println("-> Root");
         // Nothing to add here.
       } else {
         throw new RuntimeException("Never happens");
