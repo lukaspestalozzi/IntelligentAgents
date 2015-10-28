@@ -2,7 +2,7 @@ package template;
 
 import java.util.HashSet;
 
-public class SearchNode<S> { // TODO ev. implement comparable interface (to compare the F values)
+public class SearchNode<S> { 
   enum Status {OPEN, CLOSED};
   
   private final S mState;
@@ -36,14 +36,16 @@ public class SearchNode<S> { // TODO ev. implement comparable interface (to comp
   public String toString() {
     return new StringBuilder()
         .append("N[")
-        .append(" G: ")
+        .append(", G: ")
         .append(mG)
-        .append(" H: ")
+        .append(", H: ")
         .append(mH)
-        .append(" F: ")
+        .append(", F: ")
         .append(mF)
-        .append(" state: ")
+        .append(", state: ")
         .append(mState.toString())
+        .append("Action from Parent: ")
+        .append(mActionFromParent)
         .append("]")
         .toString();
   }
@@ -116,13 +118,17 @@ public class SearchNode<S> { // TODO ev. implement comparable interface (to comp
 
   @Override
   public int hashCode() {
-    return mState.hashCode();
+    return (17 * 31 + mState.hashCode()) * 31 + mActionFromParent.hashCode();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof SearchNode && ((SearchNode<State>)obj).getState().equals(mState);
+    if(obj instanceof SearchNode){
+      SearchNode<S> other = (SearchNode<S>)obj;
+      return other.getState().equals(mState) && other.getActionFromParent().equals(mActionFromParent);
+    }
+    return false;
   }
 
   

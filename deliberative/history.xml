@@ -5,8 +5,32 @@
 		<agent name="deliberative-own">
 			<vehicle name="Vehicle 1"/>
 		</agent>
-		<agent name="deliberative-own">
-			<vehicle name="Vehicle 2"/>
-		</agent>
-		<agent name="deliberative-own">
-			<vehicle name="Vehicle 3"/>
+	</agents>
+	<rounds>
+		<round id="1">
+			<tasks>
+				<task id="0" pickup="Aarau" delivery="Genève" weight="3" reward="36797"/>
+				<task id="1" pickup="Zürich" delivery="Sion" weight="3" reward="40875"/>
+				<task id="2" pickup="Sion" delivery="Genève" weight="3" reward="59223"/>
+				<task id="3" pickup="Basel" delivery="St-Gallen" weight="3" reward="59223"/>
+				<task id="4" pickup="Lausanne" delivery="St-Gallen" weight="3" reward="18448"/>
+				<task id="5" pickup="Sion" delivery="Basel" weight="3" reward="46991"/>
+				<task id="6" pickup="Luzern" delivery="Basel" weight="3" reward="69417"/>
+			</tasks>
+			<events>
+				<event id="0" time="0" vehicle="Vehicle 1" pickup="4"/>
+				<event id="1" time="299999996" vehicle="Vehicle 1" move="Sion"/>
+				<event id="2" time="1966666575" vehicle="Vehicle 1" pickup="2"/>
+			</events>
+		</round>
+	</rounds>
+	<statistics>
+		<stat rank="1" agent="deliberative-own">
+			<total-tasks value="7"/>
+			<total-distance value="150.0"/>
+			<total-cost value="750"/>
+			<total-reward value="0"/>
+			<total-profit value="-750"/>
+		</stat>
+	</statistics>
+</history>
