@@ -13,7 +13,7 @@ public class State{
   
   private final City mVehiclePosition;
   private final double mFreeLoad;
-  private final HashMap<Integer, Position> mPackagePositions;
+  private final HashMap<Integer, Position> mPackagePositions; // maps taskid -> position of the package (of the task)
   
   /**
    * 
@@ -43,7 +43,7 @@ public class State{
         .append(mVehiclePosition.toString())
         .append(" packages: ")
         .append(mPackagePositions.toString())
-        .append("]")
+        .append("]\n")
         .toString();
   }
   
@@ -168,7 +168,4 @@ public class State{
     } else if (!mVehiclePosition.equals(other.mVehiclePosition)) { return false; }
     return true;
   }
-  
-  
-  
 }

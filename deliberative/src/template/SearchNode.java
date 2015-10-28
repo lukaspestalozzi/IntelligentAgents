@@ -12,21 +12,21 @@ public class SearchNode<S> {
   private Status mStatus;
   private SearchNode<S> mBestParent;
   private final HashSet<SearchNode<S>> mKids;
-  private final String mActionFromParent;
+//  private final String mActionFromParent;
   
   /**
    * 
    * @param state
    * @param actionFromParent helps to keep track how to go from the parent to this node.
    */
-  public SearchNode(S state, String actionFromParent) {
+  public SearchNode(S state) {
     mState = state;
     mG  = 0.0;
     mH  = 0.0;
     mF = mG + mH;
     mStatus = null;
     mBestParent = null;
-    mActionFromParent = actionFromParent;
+//    mActionFromParent = actionFromParent;
     mKids = new HashSet<SearchNode<S>>();
   }
   
@@ -44,8 +44,8 @@ public class SearchNode<S> {
         .append(mF)
         .append(", state: ")
         .append(mState.toString())
-        .append("Action from Parent: ")
-        .append(mActionFromParent)
+//        .append("Action from Parent: ")
+//        .append(mActionFromParent)
         .append("]")
         .toString();
   }
@@ -112,23 +112,19 @@ public class SearchNode<S> {
     return mState;
   }
   
-  public String getActionFromParent() {
-    return mActionFromParent;
-  }
+//  public String getActionFromParent() {
+//    return mActionFromParent;
+//  }
 
   @Override
   public int hashCode() {
-    return (17 * 31 + mState.hashCode()) * 31 + mActionFromParent.hashCode();
+    return mState.hashCode();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(Object obj) {
-    if(obj instanceof SearchNode){
-      SearchNode<S> other = (SearchNode<S>)obj;
-      return other.getState().equals(mState) && other.getActionFromParent().equals(mActionFromParent);
-    }
-    return false;
+    return obj instanceof SearchNode && ((SearchNode<S>)obj).getState().equals(mState);
   }
 
   

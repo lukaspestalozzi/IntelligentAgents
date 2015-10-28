@@ -3,6 +3,7 @@ package template;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
@@ -172,31 +173,61 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   }
   
   public Plan pathToPlan(List<SearchNode<State>> path, Vehicle vehicle, TaskSet tasks) {
-
+    System.out.println(path.toString());
     Plan plan = new Plan(vehicle.getCurrentCity());
-    for (SearchNode<State> n : path) {
-      String as = n.getActionFromParent();
-
-      if (as.contains(PickupAstar.MOVE_ACTION)) {
-        City c = mTopology.parseCity(as.split(";")[1]);
-        plan.appendMove(c);
-        
-      } else if (as.contains(PickupAstar.PICKUP_ACTION)) {
-        int id = Integer.valueOf(as.split(";")[1]);
-        plan.appendPickup(getTask(tasks, id));
-        
-      } else if (as.contains(PickupAstar.DELIVER_ACTION)) {
-        int id = Integer.valueOf(as.split(";")[1]);
-        plan.appendDelivery(getTask(tasks, id));
-        
-      } else if (as.contains("ROOT")) {
-        // Nothing to add here.
-      } else {
-        throw new RuntimeException("Never happens");
+    Iterator<SearchNode<State>> it = path.iterator();
+    State last = it.next().getState(); // start at the root.
+    while(it.hasNext()){
+      State next = it.next().getState();
+      
+      // find move that leads from 'last' to 'next'
+      if(last.getVehiclePosition().equals(next.getVehiclePosition())){
+        // It was no move
+        if(last.getFreeLoad() > next.getFreeLoad()){
+          // Pickup
+          plan.appendPickup(getTask(tasks, last, next));
+        }else{
+          // Delivery
+          plan.appendDelivery(getTask(tasks, last, next));
+        }
+      }else{
+        // it was a move
+        plan.appendMove(next.getVehiclePosition());
       }
+      last = next;
     }
+//    for (SearchNode<State> n : path) {
+//      String as = n.getActionFromParent();
+//
+//      if (as.contains(PickupAstar.MOVE_ACTION)) {
+//        City c = mTopology.parseCity(as.split(";")[1]);
+//        plan.appendMove(c);
+//        
+//      } else if (as.contains(PickupAstar.PICKUP_ACTION)) {
+//        int id = Integer.valueOf(as.split(";")[1]);
+//        plan.appendPickup(getTask(tasks, id));
+//        
+//      } else if (as.contains(PickupAstar.DELIVER_ACTION)) {
+//        int id = Integer.valueOf(as.split(";")[1]);
+//        plan.appendDelivery(getTask(tasks, id));
+//        
+//      } else if (as.contains("ROOT")) {
+//        // Nothing to add here.
+//      } else {
+//        throw new RuntimeException("Never happens");
+//      }
+//    }
     System.out.println("plan: " + plan.toString());
     return plan;
+  }
+  
+  private static Task getTask(TaskSet tasks, State last, State next){
+    for(Integer k : last.getPackagePositions().keySet()){
+      if(! last.getPackagePositions().get(k).equals(next.getPackagePositions().get(k))){
+        return getTask(tasks, k);
+      }
+    }    
+    throw new IllegalArgumentException();
   }
   
   private static Task getTask(TaskSet tasks, int id) {

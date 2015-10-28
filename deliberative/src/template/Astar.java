@@ -21,7 +21,7 @@ public abstract class Astar<S> {
     mClosed = new HashMap<SearchNode<S>, SearchNode<S>>();
     mOpenList = new LinkedList<SearchNode<S>>();
     mOpenSet = new HashSet<SearchNode<S>>();
-    mRoot = new SearchNode<S>(mInitialState, "ROOT");
+    mRoot = new SearchNode<S>(mInitialState/*, "ROOT"*/);
   }
   /**
    * 
