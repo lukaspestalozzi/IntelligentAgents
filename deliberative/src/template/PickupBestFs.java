@@ -31,8 +31,10 @@ public class PickupBestFs extends PickupAstar {
         delivered++;
       }
       min = currentVal < min ? currentVal : min;
+
     }
-    return min*(s.getState().getPackagePositions().size() - delivered);
+    min = min == Double.MAX_VALUE ? 0 : min;
+    return min;//*(s.getState().getPackagePositions().size() - delivered);
   }
   
 //  /**
