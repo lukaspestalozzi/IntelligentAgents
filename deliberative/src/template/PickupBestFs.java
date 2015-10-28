@@ -16,27 +16,34 @@ public class PickupBestFs extends PickupAstar {
   @Override
   public double heuristic(SearchNode<State> s) {
 
-    double max = Double.NEGATIVE_INFINITY;
+    double maxW = 0;
+    double maxC = 0;
+    int nbrP = s.getState().getPackagePositions().size();
     int delivered = 0;
     int waiting = 0;
+    int inDelivery = 0;
+    
     for(Position pos : s.getState().getPackagePositions().values()) {
      
       City goal = pos.getGoal();
-      double currentVal = Double.NEGATIVE_INFINITY;
+      double valW = 0;
+      double valC = 0;
       if(pos.isInDelivery()) {
-        currentVal = ((InDelivery) pos).vehicle.getCurrentCity().distanceTo(goal);
+        valC = ((InDelivery) pos).vehicle.getCurrentCity().distanceTo(goal);
+        inDelivery++;
       }
-      else if(pos.isDelivered()) {
+      else if(pos.isWaiting()) {
+        valW = ((Waiting) pos).city.distanceTo(goal);
+        waiting++;
+      }
+      else {
         delivered++;
       }
-      max = currentVal > max ? currentVal : max;
-
+      maxW = valW > maxW ? valW : maxW;
+      maxC = valC > maxC ? valC : maxC;
+      
     }
-//    System.out.println(delivered);
-//    System.out.println(max);
-    
-    int nbrNotDelivered = (s.getState().getPackagePositions().size() - delivered);
-    return nbrNotDelivered == 0 ? 0: max; //*nbrNotDelivered;
+    return (inDelivery > 0 ? maxC : maxW);
   }
   
 //  /**
