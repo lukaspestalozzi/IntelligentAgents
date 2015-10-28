@@ -45,22 +45,15 @@ public abstract class PickupAstar extends Astar<State> {
     List<SearchNode<State>> kids = new LinkedList<SearchNode<State>>();
     City c = state.getVehiclePosition();
     
-    // Move
-    for(City nabo : c.neighbors()){
-      State next = state.transition(new Move(nabo), mVehicle);
-      
-      if (next != null) {
-        kids.add(new SearchNode<State>(next, moveString(nabo)));
-      }
-    }
-    
     for (Task t : mTasks) {
 
       // Deliver
       if (t.deliveryCity.equals(c)) {
         State next = state.transition(new Delivery(t), mVehicle);
         if (next != null) {
+          kids = new LinkedList<SearchNode<State>>();
           kids.add(new SearchNode<State>(next, deliverString(t)));
+          return kids; // if a package can be delivered then this is the only action that can be taken.
         }
       } 
       
@@ -72,6 +65,16 @@ public abstract class PickupAstar extends Astar<State> {
         }
       }
     }
+    
+    // Move
+    for(City nabo : c.neighbors()){
+      State next = state.transition(new Move(nabo), mVehicle);
+      
+      if (next != null) {
+        kids.add(new SearchNode<State>(next, moveString(nabo)));
+      }
+    }
+    
     return kids;
   }
   
