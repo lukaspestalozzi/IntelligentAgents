@@ -78,7 +78,7 @@ public class State{
             && ((Waiting) packagePosition).city.equals(mVehiclePosition)) {
           
           // The task can be picked up in this state.
-          return new State(mVehiclePosition, mFreeLoad - task.weight, copyPackagePositions(task.id, new InDelivery(vehicle)));
+          return new State(mVehiclePosition, mFreeLoad - task.weight, copyPackagePositions(task.id, new InDelivery(vehicle, task.deliveryCity)));
           
         }
         return null; // the task can NOT be picked up in this state.
@@ -94,7 +94,7 @@ public class State{
           
           
           // The task can be delivered in this state.
-          return new State(mVehiclePosition, mFreeLoad + task.weight, copyPackagePositions(task.id, new Delivered(mVehiclePosition)));
+          return new State(mVehiclePosition, mFreeLoad + task.weight, copyPackagePositions(task.id, new Delivered(mVehiclePosition, task.deliveryCity)));
           
         }
         return null; // the task can NOT be delivered in this state.
