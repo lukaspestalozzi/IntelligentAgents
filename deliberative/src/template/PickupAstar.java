@@ -7,7 +7,6 @@ import java.util.List;
 import logist.plan.Action.Delivery;
 import logist.plan.Action.Move;
 import logist.plan.Action.Pickup;
-import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskSet;
