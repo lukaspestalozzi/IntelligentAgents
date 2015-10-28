@@ -18,6 +18,7 @@ public class PickupBestFs extends PickupAstar {
 
     double max = Double.NEGATIVE_INFINITY;
     int delivered = 0;
+    int waiting = 0;
     for(Position pos : s.getState().getPackagePositions().values()) {
      
       City goal = pos.getGoal();
@@ -25,10 +26,7 @@ public class PickupBestFs extends PickupAstar {
       if(pos.isInDelivery()) {
         currentVal = ((InDelivery) pos).vehicle.getCurrentCity().distanceTo(goal);
       }
-      else if(pos.isWaiting()) {
-        currentVal = ((Waiting) pos).city.distanceTo(goal);
-      }
-      else {
+      else if(pos.isDelivered()) {
         delivered++;
       }
       max = currentVal > max ? currentVal : max;
