@@ -2,7 +2,7 @@ package template;
 
 import java.util.HashSet;
 
-public class SearchNode<S> { 
+public class SearchNode<S> implements Comparable{ 
   enum Status {OPEN, CLOSED};
   
   private final S mState;
@@ -28,6 +28,15 @@ public class SearchNode<S> {
     mBestParent = null;
 //    mActionFromParent = actionFromParent;
     mKids = new HashSet<SearchNode<S>>();
+  }
+  
+  @Override
+  public int compareTo(Object o) {
+    if(o instanceof SearchNode){
+      double otherF = ((SearchNode) o).getF();
+      return otherF == mF ? 0 : (otherF > mF ? -1 : 1);
+    }
+    throw new IllegalArgumentException();
   }
   
   
@@ -126,6 +135,10 @@ public class SearchNode<S> {
   public boolean equals(Object obj) {
     return obj instanceof SearchNode && ((SearchNode<S>)obj).getState().equals(mState);
   }
+
+
+
+  
 
   
   

@@ -1,9 +1,11 @@
 package template;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public abstract class Astar<S> {
   
@@ -13,16 +15,19 @@ public abstract class Astar<S> {
    * The set containing all discovered and finished nodes/states
    */
   private final HashMap<SearchNode<S>, SearchNode<S>> mClosed;
-  private final LinkedList<SearchNode<S>> mOpenList;
+  private final Queue<SearchNode<S>> mOpenList;
   private final HashSet<SearchNode<S>> mOpenSet;
   
   public Astar(S start) {
     mInitialState = start;
     mClosed = new HashMap<SearchNode<S>, SearchNode<S>>();
-    mOpenList = new LinkedList<SearchNode<S>>();
+    mOpenList = initOpenList();
     mOpenSet = new HashSet<SearchNode<S>>();
-    mRoot = new SearchNode<S>(mInitialState/*, "ROOT"*/);
+    mRoot = new SearchNode<S>(mInitialState);
   }
+  
+  public abstract Queue<SearchNode<S>> initOpenList();
+  
   /**
    * 
    * @param s
@@ -45,9 +50,9 @@ public abstract class Astar<S> {
   /**
    * insert the Node at the correct position in the openList.
    * @param k
-   * @param openList
+   * @param mOpenList2
    */
-  public abstract void insertOpen(SearchNode<S> k, LinkedList<SearchNode<S>> openList);
+  public abstract void insertOpen(SearchNode<S> k, Queue<SearchNode<S>> mOpenList2);
   
   /**
    * 
@@ -64,7 +69,7 @@ public abstract class Astar<S> {
   public final List<SearchNode<S>> search(){
     mRoot.setG(0.0);
     mRoot.setH(heuristic(mRoot));
-    mOpenList.push(mRoot);
+    mOpenList.add(mRoot);
     mOpenSet.add(mRoot);
     long visitedCounter = 0;
     
@@ -74,7 +79,7 @@ public abstract class Astar<S> {
       if(mOpenList.isEmpty()){
         return null;
       }
-      SearchNode<S> x = mOpenList.pop();
+      SearchNode<S> x = mOpenList.poll();
       mClosed.put(x, x);
       mOpenSet.remove(x);
       visitedCounter++;

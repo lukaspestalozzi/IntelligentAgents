@@ -1,6 +1,7 @@
 package template;
 
 import java.util.LinkedList;
+import java.util.Queue;
 
 import logist.simulation.Vehicle;
 import logist.task.TaskSet;
@@ -17,9 +18,14 @@ public class PickupBFS extends PickupAstar{
   }
 
   @Override
-  public void insertOpen(SearchNode<State> k, LinkedList<SearchNode<State>> openList) {
+  public void insertOpen(SearchNode<State> k, Queue<SearchNode<State>> openList) {
     openList.add(k); // FIFO -> Breath First Search.
     
+  }
+
+  @Override
+  public Queue<SearchNode<State>> initOpenList() {
+    return new LinkedList<SearchNode<State>>();
   }
 
 }

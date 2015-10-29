@@ -2,6 +2,8 @@ package template;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import logist.simulation.Vehicle;
 import logist.task.TaskSet;
@@ -70,19 +72,13 @@ public class PickupBestFs extends PickupAstar {
   
   
   @Override
-  public void insertOpen(SearchNode<State> k, LinkedList<SearchNode<State>> openList) {
-    Iterator<SearchNode<State>> it = openList.iterator();
-    double f = k.getF();
-    int index = 0;
-    double otherF;
-    while (it.hasNext()) {
-      otherF = it.next().getF();
-      if (f <= otherF) {
-        break;
-      }
-      index++;
-    }
-    openList.add(index, k);
+  public void insertOpen(SearchNode<State> k, Queue<SearchNode<State>> openList) {
+    openList.add(k);
+  }
+
+  @Override
+  public Queue<SearchNode<State>> initOpenList() {
+    return new PriorityQueue<SearchNode<State>>(200000);
   }
   
 }
