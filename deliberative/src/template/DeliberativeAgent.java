@@ -33,6 +33,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
   private int mCapacity;
   private TaskSet mCarriedTasks;
   
+  private boolean mAlwaysPickup;
   private Algorithm mAlgorithm;
   
   @Override
@@ -45,6 +46,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     // initialize the planner
     int capacity = agent.vehicles().get(0).capacity();
     String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
+    mAlwaysPickup = agent.readProperty("alwaysPickup", Boolean.class, false);
     
     mAlgorithm = Algorithm.valueOf(algorithmName.toUpperCase());
     System.out.println("using " + mAlgorithm);
@@ -66,8 +68,9 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     // Compute the plan with the selected algorithm.
     switch (mAlgorithm) {
       case ASTAR:
+        
         long bef = System.nanoTime();
-        plan = bestFSPlan(vehicle, tasks);
+        plan = bestFSPlan(vehicle, tasks, mAlwaysPickup);
         long aft = System.nanoTime();
         elapsedTime = aft - bef;
         break;
@@ -129,7 +132,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     
   }
   
-  private Plan bestFSPlan(Vehicle vehicle, TaskSet tasks) {
+  private Plan bestFSPlan(Vehicle vehicle, TaskSet tasks, boolean alwaysPickup) {
     
     
     // initial state:
@@ -137,7 +140,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
     
     
     
-    PickupBestFs bestFs = new PickupBestFs(initialState, vehicle, tasks);
+    PickupBestFs bestFs = new PickupBestFs(initialState, vehicle, tasks, alwaysPickup);
     List<SearchNode<State>> path = bestFs.search();
     return pathToPlan(path, vehicle, tasks);
     
