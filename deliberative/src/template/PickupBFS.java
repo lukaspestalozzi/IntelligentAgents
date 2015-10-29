@@ -8,7 +8,7 @@ import logist.task.TaskSet;
 public class PickupBFS extends PickupAstar{
 
   public PickupBFS(State start, Vehicle vehicle, TaskSet tasks) {
-    super(start, vehicle, tasks);
+    super(start, vehicle, tasks, false);
   }
 
   @Override

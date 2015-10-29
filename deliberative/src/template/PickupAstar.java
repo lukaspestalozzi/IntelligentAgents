@@ -20,11 +20,13 @@ public abstract class PickupAstar extends Astar<State> {
 
   protected final TaskSet mTasks;
   private final Vehicle mVehicle;
+  private final boolean mAlwaysPickup;
   
-  public PickupAstar(State start, Vehicle vehicle, TaskSet tasks) {
+  public PickupAstar(State start, Vehicle vehicle, TaskSet tasks, boolean alwaysPickup) {
     super(start);
     mTasks = tasks;
     mVehicle = vehicle;
+    mAlwaysPickup = alwaysPickup;
   }
   
   @Override
@@ -63,6 +65,10 @@ public abstract class PickupAstar extends Astar<State> {
         }
       }
     }
+    if(mAlwaysPickup && kids.size() > 0) {
+      return kids;
+    }
+    
     
     // Move
     for(City nabo : c.neighbors()){

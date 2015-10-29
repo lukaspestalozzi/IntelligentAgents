@@ -9,8 +9,8 @@ import logist.topology.Topology.City;
 
 public class PickupBestFs extends PickupAstar {
   
-  public PickupBestFs(State start, Vehicle vehicle, TaskSet tasks) {
-    super(start, vehicle, tasks);
+  public PickupBestFs(State start, Vehicle vehicle, TaskSet tasks, boolean alwaysPickup) {
+    super(start, vehicle, tasks, alwaysPickup);
   }
 
   @Override

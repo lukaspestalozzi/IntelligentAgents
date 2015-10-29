@@ -16,6 +16,13 @@
 		<set algorithm="ASTAR"/>
 	</agent>
 	
+		<agent name="deliberative-own-fast">
+		<set class-path="bin/"/>
+		<set class-name="template.DeliberativeAgent"/>
+		<set algorithm="ASTAR"/>
+		<set alwaysPickup="true"/>
+	</agent>
+	
 	<agent name="deliberative-own-bfs">
 		<set class-path="bin/"/>
 		<set class-name="template.DeliberativeAgent"/>
