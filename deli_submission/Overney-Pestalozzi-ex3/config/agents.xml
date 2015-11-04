@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<agents>
+	<!-- A list of agents and their behavior classes -->
+	
+	<!-- #### DELIBERATIVE AGENTS ### -->
+	<agent name="deliberative-random">
+		<set class-path="bin/"/>
+		<set class-name="template.DeliberativeTemplate"/>
+		<set algorithm="BFS"/>
+	</agent>
+	
+	<agent name="deliberative-own">
+		<set class-path="bin/"/>
+		<set class-name="template.DeliberativeAgent"/>
+		<set algorithm="ASTAR"/>
+	</agent>
+	
+		<agent name="deliberative-own-fast">
+		<set class-path="bin/"/>
+		<set class-name="template.DeliberativeAgent"/>
+		<set algorithm="ASTAR"/>
+		<set alwaysPickup="true"/>
+	</agent>
+	
+	<agent name="deliberative-own-bfs">
+		<set class-path="bin/"/>
+		<set class-name="template.DeliberativeAgent"/>
+		<set algorithm="BFS"/>
+	</agent>
+	
+</agents>
