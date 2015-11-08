@@ -1,5 +1,6 @@
 package template;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +26,27 @@ public class Assignment {
     this.times = times;
   }
 
-  public List<Plan> generatePlans() {
-    // TODO Auto-generated method stub
-    return null;
+  public List<Plan> generatePlans(List<Vehicle> vehicles) {
+    List<Plan> plans = new ArrayList<Plan>();
+    
+    for(Vehicle v : vehicles){
+      Plan p = new Plan(v.getCurrentCity());
+      if(firstAction.get(v) != null){
+        // the vehicle has at least one action to do (actually two since it has at least to pickup and deliver a package)
+        Action nextA = firstAction.get(v);
+        while(nextA != null){
+          if(nextA.isDelivery()){
+            p.appendDelivery(nextA.task);
+          }else if(nextA.isPickup()){
+            p.appendDelivery(nextA.task);
+          }else{
+            throw new RuntimeException("Should never happen");
+          }
+        }
+      }
+      plans.add(p);
+    }
+    return plans;
+    
   }
 }

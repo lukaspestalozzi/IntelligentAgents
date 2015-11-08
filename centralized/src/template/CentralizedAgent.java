@@ -36,8 +36,9 @@ public class CentralizedAgent implements CentralizedBehavior {
   private long mTimeout_setup;
   private long mTimeout_plan;
   private int mIter;
+  private double mProba;
   
-  private ArrayList<Constraint> allConstraints = new ArrayList<Constraint>();
+  private final List<Constraint> allConstraints = new ArrayList<Constraint>();
   
   @Override
   public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
@@ -54,6 +55,8 @@ public class CentralizedAgent implements CentralizedBehavior {
     mTimeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
     // the plan method cannot execute more than timeout_plan milliseconds
     mTimeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
+    
+    mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in xml file
     
     mIter = agent.readProperty("amnt_iter", int.class, 10000);
     
@@ -90,22 +93,27 @@ public class CentralizedAgent implements CentralizedBehavior {
   
   private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
     // TODO generate the Variables, constraint etc.
+    
     List<Variable> variables = computeVariables(vehicles, tasks);
-    List<Boolean> constraints = checkConstraints(variables);
-    ObjFunc objFunc = null;
-    Assignment oldA = selectInitalSolution(variables, constraints);
+    
+    ObjFunc objFunc = new ObjFunc();
+    Assignment oldA = selectInitalSolution(variables, allConstraints);
     Assignment newA = oldA;
     
     for (int i = 0; i < mIter; i++) {
-      PickupSls sls = new PickupSls(oldA, variables, constraints, objFunc);
+      PickupSls sls = new PickupSls(oldA, variables, allConstraints, objFunc, mProba);
       newA = sls.updateAssignment();
       oldA = newA;
+      if(false/*TODO insert termination condition*/){
+        break;
+      }
     }
-    return newA.generatePlans();
+    
+    return newA.generatePlans(vehicles);
   }
   
   private Assignment selectInitalSolution(List<Variable> variables,
-      List<Boolean> constraints) {
+      List<Constraint> constraints) {
     // TODO Auto-generated method stub
     return null;
   }

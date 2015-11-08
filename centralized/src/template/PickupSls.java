@@ -2,14 +2,17 @@ package template;
 
 import java.util.List;
 
+import constraints.Constraint;
+
 public class PickupSls {
   private Assignment mOldAssignment;
   private List<Variable> mVariables;
-  private List<Boolean> mConstraints;
+  private List<Constraint> mConstraints;
   private ObjFunc mObjFunc;
+  private double mProba;
 
   public PickupSls(Assignment oldA, List<Variable> variables,
-      List<Boolean> constraints, ObjFunc objFunc) {
+      List<Constraint> constraints, ObjFunc objFunc, double probability) {
     mOldAssignment = oldA;
     mVariables = variables;
     mConstraints = constraints;
@@ -23,14 +26,18 @@ public class PickupSls {
   }
 
   private Assignment chooseNeighbours(Assignment mOldAssignment2,
-      List<Variable> mVariables2, List<Boolean> mConstraints2, ObjFunc mObjFunc2) {
+      List<Variable> mVariables2, List<Constraint> mConstraints2, ObjFunc mObjFunc2) {
     // TODO Auto-generated method stub
     return null;
   }
 
   private Assignment localChoice(Assignment newA, ObjFunc objFunc) {
-    // TODO Auto-generated method stub
-    return null;
+    if(Math.random() < mProba){
+      // choose newA
+      return newA;
+    }else{
+      return mOldAssignment;
+    }
   }
 
 }
