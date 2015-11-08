@@ -9,10 +9,6 @@ public abstract class Action {
     this.task = task;
   }
   
-  public Task getTask() {
-    return task;
-  }
-  
   public boolean isPickup(){
     return false;
   }
@@ -30,12 +26,12 @@ class Pickup extends Action{
   
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof Pickup && ((Pickup)obj).getTask().equals(this.getTask());
+    return obj instanceof Pickup && ((Pickup)obj).task.equals(this.task);
   }
   
   @Override
   public int hashCode() {
-    return getTask().hashCode(); // same hashCode as the task
+    return this.task.hashCode(); // same hashCode as the task
   }
   
   @Override
@@ -53,12 +49,12 @@ class Deliver extends Action{
   
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof Deliver && ((Deliver)obj).getTask().equals(this.getTask());
+    return obj instanceof Deliver && ((Deliver)obj).task.equals(this.task);
   }
 
   @Override
   public int hashCode() {
-    return getTask().hashCode() * -1; // the negative hash code of the task. to distinguish it from the Pickup Action.
+    return this.task.hashCode() * -1; // the negative hash code of the task. to distinguish it from the Pickup Action.
   }
   
   @Override
