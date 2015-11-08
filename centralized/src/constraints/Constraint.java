@@ -9,6 +9,6 @@ abstract public class Constraint {
    * @param a
    * @return true iff it satisfies the constraint, false otherwise
    */
-  abstract boolean checkAssignment(Assignment a);
+  abstract public boolean checkAssignment(Assignment a);
 
 }

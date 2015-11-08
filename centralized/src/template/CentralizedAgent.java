@@ -173,6 +173,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     }
     // put last action -> null
     nextAction.put(last, null);
+    times.put(last, time++);
     
     return new Assignment(firstAction, nextAction, tv, times);
     
@@ -181,9 +182,13 @@ public class CentralizedAgent implements CentralizedBehavior {
     
   }
   
-  private List<Boolean> checkConstraints(List<Variable> variables) {
-    // TODO Auto-generated method stub
-    return null;
+  private boolean checkConstraints(Assignment a) {
+    for(Constraint c : allConstraints){
+      if(! c.checkAssignment(a)){
+        return false;
+      }
+    }
+    return true;
   }
   
   private List<Variable> computeVariables(List<Vehicle> vehicles, TaskSet tasks) {
