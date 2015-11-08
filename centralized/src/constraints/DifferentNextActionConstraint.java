@@ -1,0 +1,27 @@
+package constraints;
+
+import java.util.Map.Entry;
+
+import template.Action;
+import template.Assignment;
+
+/**
+ * 
+ * nextAction(a) != a
+ */
+public class DifferentNextActionConstraint extends Constraint {
+
+  @Override
+  boolean checkAssignment(Assignment a) {
+    for(Entry<Action, Action> e : a.getNextAction().entrySet()){
+      if(e.getKey().equals(e.getValue())){
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  
+
+}
