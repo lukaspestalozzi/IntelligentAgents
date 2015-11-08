@@ -102,7 +102,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     Assignment newA = oldA;
     
     for (int i = 0; i < mIter; i++) {
-      PickupSls sls = new PickupSls(oldA, variables, allConstraints, objFunc, mProba);
+      PickupSls sls = new PickupSls(oldA, allConstraints, objFunc, mProba);
       newA = sls.updateAssignment();
       oldA = newA;
       if (false/* TODO insert termination condition */) {
