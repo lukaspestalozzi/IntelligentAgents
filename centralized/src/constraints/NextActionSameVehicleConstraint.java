@@ -18,11 +18,11 @@ public class NextActionSameVehicleConstraint extends Constraint{
   @Override
   boolean checkAssignment(Assignment a) {
     
-    Map<Task, Vehicle> tv = a.getVehicles();
+    Map<Task, Vehicle> tv = a.vehicles;
     
-    for(Entry<Action, Action> e : a.getNextAction().entrySet()){
-      Vehicle v1 = tv.get(e.getKey().getTask());
-      Vehicle v2 = tv.get(e.getValue().getTask());
+    for(Entry<Action, Action> e : a.nextAction.entrySet()){
+      Vehicle v1 = tv.get(e.getKey().task);
+      Vehicle v2 = tv.get(e.getValue().task);
       
       if(! v1.equals(v2)){
         return false;

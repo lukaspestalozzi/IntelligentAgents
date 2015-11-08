@@ -13,7 +13,7 @@ public class DifferentNextActionConstraint extends Constraint {
 
   @Override
   boolean checkAssignment(Assignment a) {
-    for(Entry<Action, Action> e : a.getNextAction().entrySet()){
+    for(Entry<Action, Action> e : a.nextAction.entrySet()){
       if(e.getKey().equals(e.getValue())){
         return false;
       }

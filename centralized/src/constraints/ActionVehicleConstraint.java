@@ -16,11 +16,11 @@ import template.Assignment;
 public class ActionVehicleConstraint extends Constraint {
   @Override
   boolean checkAssignment(Assignment a) {
-    Map<Task, Vehicle> tv = a.getVehicles();
+    Map<Task, Vehicle> tv = a.vehicles;
     
-    for (Entry<Vehicle, Action> e : a.getFirstAction().entrySet()) {
+    for (Entry<Vehicle, Action> e : a.firstAction.entrySet()) {
       Action act = e.getValue();
-      Task t = act.getTask();
+      Task t = act.task;
       
       if(! tv.get(t).equals(e.getKey())){
         return false;

@@ -14,8 +14,8 @@ public class FirstActionTime1Constraint extends Constraint {
 
   @Override
   boolean checkAssignment(Assignment a) {
-    Map<Action, Long> times = a.getTimes();
-    for(Action fa : a.getFirstAction().values()){
+    Map<Action, Long> times = a.times;
+    for(Action fa : a.firstAction.values()){
       if(times.get(fa) != 1){
         return false;
       }

@@ -19,14 +19,14 @@ public class AllTasksMustBeDoneConstraint extends Constraint{
   boolean checkAssignment(Assignment a) {    
     // second nbr
     int finished = 0;
-    for(Action act : a.getNextAction().values()){
+    for(Action act : a.nextAction.values()){
       if(act == null){
         finished++;
       }
     }
     
     int started = 0;
-    for(Action act : a.getFirstAction().values()){
+    for(Action act : a.firstAction.values()){
       if(act != null){
         started++;
       }

@@ -15,9 +15,9 @@ public class PickupBeforeDeliveryConstraint extends Constraint{
 
   @Override
   boolean checkAssignment(Assignment a) {
-    for(Entry<Action, Long> e : a.getTimes().entrySet()){
+    for(Entry<Action, Long> e : a.times.entrySet()){
       if(e.getKey().isDelivery()){
-        long tpickup = a.getTimes().get(new Pickup(e.getKey().getTask()));
+        long tpickup = a.times.get(new Pickup(e.getKey().task));
         if(tpickup >= e.getValue()){
           return false;
         }

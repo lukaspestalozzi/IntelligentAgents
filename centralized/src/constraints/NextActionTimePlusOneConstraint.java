@@ -15,9 +15,9 @@ public class NextActionTimePlusOneConstraint extends Constraint{
 
   @Override
   boolean checkAssignment(Assignment a) {
-    Map<Action, Long> times = a.getTimes();
+    Map<Action, Long> times = a.times;
     
-    for(Entry<Action, Action> e : a.getNextAction().entrySet()){
+    for(Entry<Action, Action> e : a.nextAction.entrySet()){
       long time1 = times.get(e.getKey());
       long time2 = times.get(e.getValue());
       
