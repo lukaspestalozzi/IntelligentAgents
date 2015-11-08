@@ -1,12 +1,15 @@
 package template;
 
 import logist.task.Task;
+import logist.topology.Topology.City;
 
 public abstract class Action {
   public final Task task;
+  public final City actionCity;
   
-  public Action(Task task) {
+  public Action(Task task, City aCity) {
     this.task = task;
+    this.actionCity = aCity;
   }
   
   public boolean isPickup(){
@@ -21,7 +24,7 @@ public abstract class Action {
 class Pickup extends Action{
 
   public Pickup(Task task) {
-    super(task);
+    super(task, task.pickupCity);
   }
   
   @Override
@@ -44,7 +47,7 @@ class Pickup extends Action{
 class Deliver extends Action{
 
   public Deliver(Task task) {
-    super(task);
+    super(task, task.deliveryCity);
   }
   
   @Override
