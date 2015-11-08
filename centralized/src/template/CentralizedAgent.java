@@ -1,7 +1,9 @@
 package template;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import constraints.ActionVehicleConstraint;
 import constraints.AllTasksMustBeDoneConstraint;
@@ -56,7 +58,8 @@ public class CentralizedAgent implements CentralizedBehavior {
     // the plan method cannot execute more than timeout_plan milliseconds
     mTimeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
     
-    mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in xml file
+    mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in
+                                                                 // xml file
     
     mIter = agent.readProperty("amnt_iter", int.class, 10000);
     
@@ -94,17 +97,15 @@ public class CentralizedAgent implements CentralizedBehavior {
   private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
     // TODO generate the Variables, constraint etc.
     
-    List<Variable> variables = computeVariables(vehicles, tasks);
-    
     ObjFunc objFunc = new ObjFunc();
-    Assignment oldA = selectInitalSolution(variables, allConstraints);
+    Assignment oldA = selectInitalSolution(vehicles, tasks);
     Assignment newA = oldA;
     
     for (int i = 0; i < mIter; i++) {
       PickupSls sls = new PickupSls(oldA, variables, allConstraints, objFunc, mProba);
       newA = sls.updateAssignment();
       oldA = newA;
-      if(false/*TODO insert termination condition*/){
+      if (false/* TODO insert termination condition */) {
         break;
       }
     }
@@ -112,10 +113,72 @@ public class CentralizedAgent implements CentralizedBehavior {
     return newA.generatePlans(vehicles);
   }
   
-  private Assignment selectInitalSolution(List<Variable> variables,
-      List<Constraint> constraints) {
-    // TODO Auto-generated method stub
-    return null;
+  private Assignment selectInitalSolution(List<Vehicle> vehicles, TaskSet tasks) {
+    if(tasks == null || tasks.isEmpty() || vehicles == null || vehicles.isEmpty() ){
+      return null;
+    }
+    Map<Vehicle, Action> firstAction = new HashMap<Vehicle, Action>();
+    Map<Action, Action> nextAction = new HashMap<>();
+    Map<Task, Vehicle> tv = new HashMap<>();
+    Map<Action, Long> times = new HashMap<>();
+    
+    // initialize all to null and find vehicle with the biggest capacity.
+    double maxC = -1;
+    Vehicle maxV = null;
+    for(Vehicle v : vehicles){
+      firstAction.put(v, null);
+      if(v.capacity() > maxC){
+        maxC = v.capacity();
+        maxV = v;
+      }
+    }
+    // give all tasks to the maxV
+    // first make a list out of the taskset
+    List<Task> tasksList = new ArrayList<>();
+    for(Task t : tasks){
+      if(t.weight > maxC){
+        // no plan can be created since no vehicle can carry this task
+        return null;
+      }
+      tasksList.add(t);
+    }
+    
+    // add all to the max vehicle
+    Task t0 = tasksList.get(0);
+    Action firstpickup = new Pickup(t0);
+    firstAction.put(maxV, firstpickup);
+    Action last = new Deliver(t0);
+    nextAction.put(firstpickup, last);
+    
+    // update the vehicle for the task
+    tv.put(t0, maxV);
+    long time = 1;
+    times.put(firstpickup, time++);
+    times.put(last, time++);
+    
+    for(int i = 1; i < tasksList.size(); i++){
+      Task t = tasksList.get(i);
+      Action np = new Pickup(t);
+      Action nd = new Deliver(t);
+      nextAction.put(last, np);
+      nextAction.put(np, nd);
+      last = nd;
+      
+      // update the vehicle for the task
+      tv.put(t, maxV);
+      
+      // update times
+      times.put(np, time++);
+      times.put(nd, time++);
+    }
+    // put last action -> null
+    nextAction.put(last, null);
+    
+    return new Assignment(firstAction, nextAction, tv, times);
+    
+    
+    
+    
   }
   
   private List<Boolean> checkConstraints(List<Variable> variables) {
