@@ -11,13 +11,19 @@ public class PickupSls {
   }
 
   public Assignment updateAssignment(Assignment oldA) {
-    Assignment newA = chooseNeighbours(oldA); 
-    newA = localChoice(newA, oldA, mObjFunc);
-    return newA;
+    if(Math.random() < mProba){
+      return chooseNeighbours(oldA);
+    }else{
+      return oldA;
+    }
   }
 
   private Assignment chooseNeighbours(Assignment oldA) {
     ArrayList<Assignment> nabos = oldA.generateNeighbors();
+    if(nabos.isEmpty()){
+      return oldA;
+    }
+    
     int minindex = -1;
     double minval = Integer.MAX_VALUE;
     
@@ -31,13 +37,5 @@ public class PickupSls {
     }
     return nabos.get(minindex);
     
-  }
-
-  private Assignment localChoice(Assignment newA, Assignment oldA, ObjFunc objFunc) {
-    if(Math.random() < mProba){
-      return newA;
-    }else{
-      return oldA;
-    }
   }
 }

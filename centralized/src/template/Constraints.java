@@ -1,26 +1,26 @@
 package template;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
-import logist.plan.Action.Pickup;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 
 public class Constraints {
   
-  public static boolean checkAllConstraints(Assignment a){
+  /**
+   * 
+   * @param a
+   * @param nbrTasks the number of tasks there should be
+   * @return
+   */
+  public static boolean checkAllConstraints(Assignment a, int nbrTasks){
     if(! checkActionVehicleConstraint(a)){
       return false;
     }
     
-    else if(! checkAllTasksMustBeDoneConstraint(a)){
-      return false;
-    }
-    
-    else if(! checkDifferentNextActionConstraint(a)){
+    else if(! checkAllTasksMustBeDoneConstraint(a, nbrTasks)){
       return false;
     }
     
@@ -29,10 +29,6 @@ public class Constraints {
     }
     
     else if(! checkNextActionSameVehicleConstraint(a)){
-      return false;
-    }
-    
-    else if(! checkNextActionTimePlusOneConstraint(a)){
       return false;
     }
     
@@ -57,14 +53,12 @@ public class Constraints {
    * @return
    */
   public static boolean checkActionVehicleConstraint(Assignment a) {
-    Map<Task, Vehicle> tv = a.vehicles;
-    
-    for (Entry<Vehicle, Action> e : a.firstAction.entrySet()) {
-      Action act = e.getValue();
-      Task t = act.task;
-      
-      if (!tv.get(t).equals(e.getKey())) { return false; }
-      
+    for(Vehicle v : a.vehicleRoutes.keySet()){
+      for(Action act : a.vehicleRoutes.get(v)){
+        if(! a.vehicles.get(act.task).equals(v)){
+          return false;
+        }
+      }
     }
     return true;
   }
@@ -81,91 +75,87 @@ public class Constraints {
    * @param a
    * @return
    */
-  public static boolean checkAllTasksMustBeDoneConstraint(Assignment a) {
-    int finished = 0;
-    for(Action act : a.nextAction.values()){
-      if(act == null){
-        finished++;
-      }
+  public static boolean checkAllTasksMustBeDoneConstraint(Assignment a, int nbrTasks) {
+    int nbrActs = 0;
+    for(List<Action> l : a.vehicleRoutes.values()){
+      nbrActs += l.size();
+    }
+    if(nbrActs % 2 != 0){
+      return false;
     }
     
-    int started = 0;
-    for(Action act : a.firstAction.values()){
-      if(act != null){
-        started++;
-      }
-    }
-    
-    return finished == started;
+    return nbrActs/2 == nbrTasks;
   }
   
-  /**
-   * nextAction(a) != a
-   * @param a
-   * @return
-   */
-  public static boolean checkDifferentNextActionConstraint(Assignment a) {
-    for(Entry<Action, Action> e : a.nextAction.entrySet()){
-      if(e.getKey().equals(e.getValue())){
-        return false;
-      }
-    }
-    
-    return true;
-  }
+//  /**
+//   * nextAction(a) != a
+//   * @param a
+//   * @return
+//   */
+//  public static boolean checkDifferentNextActionConstraint(Assignment a) {
+//    for(List<Action> l : a.vehicleRoutes.values()){
+//      for(Action act : l){
+//        if(e.getKey().equals(e.getValue())){
+//          return false;
+//        }
+//      }
+//    }
+//    
+//    return true;
+//  }
   
   /**
-   * firstAction(v_k) = a_j => times(a_j) = 1
+   * indexes are correct
    * @param a
    * @return
    */
   public static boolean checkFirstActionTime1Constraint(Assignment a) {
-    Map<Action, Long> times = a.times;
-    for(Action fa : a.firstAction.values()){
-      if(times.get(fa) != 1){
-        return false;
+    for(List<Action> l : a.vehicleRoutes.values()){
+      int index = 0;
+      for(Action act : l){
+        if(a.indexOf.get(act) != index++){
+          return false;
+        }
       }
     }
     return true;
   }
   
   /**
-   * nextAction(a_i) = a_j => vehicle(a_j) = vehicle(a_i)
+   * all actions in a route belong to the correct vehicle
    * @param a
    * @return
    */
   public static boolean checkNextActionSameVehicleConstraint(Assignment a) {
-Map<Task, Vehicle> tv = a.vehicles;
-    
-    for(Entry<Action, Action> e : a.nextAction.entrySet()){
-      Vehicle v1 = tv.get(e.getKey().task);
-      Vehicle v2 = tv.get(e.getValue().task);
-      
-      if(! v1.equals(v2)){
-        return false;
+    for(Entry<Vehicle, List<Action>> e : a.vehicleRoutes.entrySet()){
+      Vehicle v = e.getKey();
+      for(Action act : e.getValue()){
+        if(! a.vehicles.get(act.task).equals(v)){
+          return false;
+        }
       }
     }
     return true;
   }
   
-  /**
-   * nextAction(a_i) = a_j => times(a_j) = times(a_i) + 1
-   * @param a
-   * @return
-   */
-  public static boolean checkNextActionTimePlusOneConstraint(Assignment a) {
-Map<Action, Long> times = a.times;
-    
-    for(Entry<Action, Action> e : a.nextAction.entrySet()){
-      long time1 = times.get(e.getKey());
-      long time2 = times.get(e.getValue());
-      
-      if(time1 != (time2+1)){
-        return false;
-      }
-    }    
-    return true;
-  }
+//  /**
+//   * nextAction(a_i) = a_j => times(a_j) = times(a_i) + 1
+//   * @param a
+//   * @return
+//   */
+//  public static boolean checkNextActionTimePlusOneConstraint(Assignment a) {
+//Map<Action, Long> times = a.indexOf;
+//    
+//    for(Entry<Action, Action> e : a.nextAction.entrySet()){
+//      long time1 = times.get(e.getKey());
+//      long time2 = times.get(e.getValue());
+//      
+//      if(time1 != (time2+1)){
+//        return false;
+//      }
+//    }    
+//    return true;
+//  }
   
   /**
    * load(a_i @ PickUp) > freeload(v_k) => vehicle(a_i) != v_k  
@@ -174,16 +164,23 @@ Map<Action, Long> times = a.times;
    */
   public static boolean checkNoVehicleOverloadedConstraint(Assignment a) {
     for(Vehicle v : a.vehicleRoutes.keySet()){
-      double freeLoad = v.capacity();
-      for(Action act : a.vehicleRoutes.get(v)){
-        if(act.isPickup()){
-          freeLoad -= act.task.weight;
-        }else{
-          freeLoad += act.task.weight;
-        }
-        if(freeLoad < 0){
-          return false;
-        }
+      if(! checkVehicleOverloadConstraint(a, v)){
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  public static boolean checkVehicleOverloadConstraint(Assignment a, Vehicle v){
+    double freeLoad = v.capacity();
+    for(Action act : a.vehicleRoutes.get(v)){
+      if(act.isPickup()){
+        freeLoad -= act.task.weight;
+      }else{
+        freeLoad += act.task.weight;
+      }
+      if(freeLoad < 0){
+        return false;
       }
     }
     return true;
@@ -195,10 +192,19 @@ Map<Action, Long> times = a.times;
    * @return
    */
   public static boolean checkPickupBeforeDeliveryConstraint(Assignment a) {
-    for (Entry<Action, Long> e : a.times.entrySet()) {
-      if (e.getKey().isDelivery()) {
-        long tpickup = a.times.get(new Pickup(e.getKey().task));
-        if (tpickup >= e.getValue()) { return false; }
+    
+    for(List<Action> l : a.vehicleRoutes.values()){
+      HashSet<Task> set = new HashSet<>();
+      for(Action act : l){
+        if(act.isPickup()){
+          if(! set.add(act.task)){
+            return false;
+          }
+        }else{
+          if(set.add(act.task)){
+            return false;
+          }
+        }
       }
     }
     return true;

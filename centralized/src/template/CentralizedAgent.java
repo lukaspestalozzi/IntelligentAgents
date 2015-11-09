@@ -78,13 +78,14 @@ public class CentralizedAgent implements CentralizedBehavior {
   
   private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
     
-    
     ObjFunc objFunc = new ObjFunc();
     Assignment oldA = selectInitalSolution(vehicles, tasks);
+    
     if(oldA == null){
       // TODO what to return if no plan is possible?
       return null;
     }
+    
     Assignment newA = oldA;
     PickupSls sls = new PickupSls(objFunc, mProba);
     
@@ -105,9 +106,9 @@ public class CentralizedAgent implements CentralizedBehavior {
     }
     Map<Vehicle, List<Action>> vehicleRoutes = new HashMap<Vehicle, List<Action>>();
     Map<Task, Vehicle> tv = new HashMap<>();
-    Map<Action, Long> times = new HashMap<>();
+    Map<Action, Integer> indexOf = new HashMap<>();
     
-    // initialize all to null and find vehicle with the biggest capacity.
+    // initialize all lists and find vehicle with the biggest capacity.
     double maxC = -1;
     Vehicle maxV = null;
     for(Vehicle v : vehicles){
@@ -117,53 +118,28 @@ public class CentralizedAgent implements CentralizedBehavior {
         maxV = v;
       }
     }
-    // give all tasks to the maxV
-    // first make a list out of the taskset
-    List<Task> tasksList = new ArrayList<>();
+    
+    // add all actions to the maxV indexOf and vehicles
+    List<Action> maxVRoute = vehicleRoutes.get(maxV);
+    int index = 0;
     for(Task t : tasks){
-      if(t.weight > maxC){
-        // no plan can be created since no vehicle can carry this task
-        return null;
-      }
-      tasksList.add(t);
-    }
-    
-    // add all to the max vehicle
-    Task t0 = tasksList.get(0);
-    Action firstpickup = new Pickup(t0);
-    vehicleRoutes.get(maxV).add(firstpickup);
-    Action last = new Deliver(t0);
-    vehicleRoutes.get(maxV).add(last);
-    
-    // update the vehicle for the task
-    tv.put(t0, maxV);
-    long time = 1;
-    times.put(firstpickup, time++);
-    times.put(last, time++);
-    
-    for(int i = 1; i < tasksList.size(); i++){
-      Task t = tasksList.get(i);
-      Action np = new Pickup(t);
-      Action nd = new Deliver(t);
-      vehicleRoutes.get(maxV).add(np);
-      vehicleRoutes.get(maxV).add(nd);
-      last = nd;
+      Pickup pick = new Pickup(t);
+      Deliver del = new Deliver(t);
       
-      // update the vehicle for the task
+      // add to route
+      maxVRoute.add(pick);
+      maxVRoute.add(del);
+      
+      // add to indexOf
+      indexOf.put(pick, index++);
+      indexOf.put(del, index++);
+      
+      // add to vehicle
       tv.put(t, maxV);
-      
-      // update times
-      times.put(np, time++);
-      times.put(nd, time++);
     }
-    // put last action -> null
     
-    return new Assignment(vehicleRoutes, tv, times);
+    return new Assignment(vehicleRoutes, tv, indexOf);
     
-  }
-  
-  private boolean checkConstraints(Assignment a) {
-    return Constraints.checkAllConstraints(a);
   }
   
   private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
