@@ -5,15 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import constraints.ActionVehicleConstraint;
-import constraints.AllTasksMustBeDoneConstraint;
-import constraints.Constraint;
-import constraints.DifferentNextActionConstraint;
-import constraints.FirstActionTime1Constraint;
-import constraints.NextActionSameVehicleConstraint;
-import constraints.NextActionTimePlusOneConstraint;
-import constraints.NoVehicleIsOverloadedConstraint;
-import constraints.PickupBeforeDeliveryConstraint;
 import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.CentralizedBehavior;

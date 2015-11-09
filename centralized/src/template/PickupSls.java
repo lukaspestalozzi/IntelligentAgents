@@ -1,9 +1,6 @@
 package template;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import constraints.Constraint;
 
 public class PickupSls {
   private Assignment mOldAssignment;
