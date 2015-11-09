@@ -82,98 +82,108 @@ public class Assignment {
    * puts the pick and del actions at the beginning of the toV vehicles plan.
    * @param pick
    * @param del
-   * @param a
    * @param fromV
    * @param toV
    * @return
    */
-  private static Assignment changeVehicle(Pickup pick, Deliver del, Assignment a, Vehicle fromV, Vehicle toV){
+  private void changeVehicle(Pickup pick, Deliver del, Vehicle fromV, Vehicle toV){
 
     // store some actions
-    Action oldFirstTo = a.firstAction.get(toV);
-    Action oldNextPick = a.nextAction.get(pick);
-    Action oldNextDel = a.nextAction.get(del);
-    Action oldPrevPick = a.findPrevious(pick);
-    Action oldPrevDel = a.findPrevious(del);
+    Action oldFirstTo = this.firstAction.get(toV);
+    Action oldNextPick = this.nextAction.get(pick);
+    Action oldNextDel = this.nextAction.get(del);
+    Action oldPrevPick = this.findPrevious(pick);
+    Action oldPrevDel = this.findPrevious(del);
     
     // remove pick and del from the 'fromV'
     if(oldNextPick.equals(del)){
       // they are next to each other
       if(oldPrevPick == null){
-        a.firstAction.put(fromV, oldNextDel);
+        this.firstAction.put(fromV, oldNextDel);
       }else{
-        a.nextAction.put(oldPrevPick, oldNextDel);
+        this.nextAction.put(oldPrevPick, oldNextDel);
       }
     }else{
       // there is at least one action between pick and del
       if(oldPrevPick == null){
-        a.firstAction.put(fromV, oldNextPick);
+        this.firstAction.put(fromV, oldNextPick);
       }else{
-        a.nextAction.put(oldPrevPick, oldNextPick);
+        this.nextAction.put(oldPrevPick, oldNextPick);
       }
-      a.nextAction.put(oldPrevDel, oldNextDel);
+      this.nextAction.put(oldPrevDel, oldNextDel);
     }
     
     // put them at the beginning of 'toV'
-    a.firstAction.put(toV, pick);
-    a.nextAction.put(pick, del);
-    a.nextAction.put(del, oldFirstTo);
+    this.firstAction.put(toV, pick);
+    this.nextAction.put(pick, del);
+    this.nextAction.put(del, oldFirstTo);
     
     // update task -> vehicle
-    a.vehicles.put(pick.task, toV);
+    this.vehicles.put(pick.task, toV);
     
     //update times
-    updateTimes(a, fromV, toV);
+    updateTimes(fromV, toV);
     
-    return a;
     
     
   }
   
 
   
-  private static Assignment swapActions(Action a1, Action a2, Assignment ass){
-    if(! ass.vehicles.get(a1.task).equals(ass.vehicles.get(a2)) ){
+  private void swapActions(Action a1, Action a2){
+    if(a1.equals(a2)){
+      throw new IllegalArgumentException("The actions must not be the same");
+    }
+    if(! this.vehicles.get(a1.task).equals(this.vehicles.get(a2.task)) ){
       throw new IllegalArgumentException("The actions must belong to the same vehicle");
     }
     
     // make sure a1 happens before a2
-    if(ass.times.get(a1) > ass.times.get(a2)){
-      return swapActions(a2, a1, ass);
+    if(this.times.get(a1) > this.times.get(a2)){
+      swapActions(a2, a1);
+      return;
     }
     
     // TODO if a1 is a pickup or a2 is a delivery, make sure the swap is legal.
+    if(a1.isPickup() || a2.isDelivery()){
+      // traverse all actions in between the two
+      Action act = this.nextAction.get(a1);
+      while(! act.equals(a2)){
+        if((act.isDelivery() && act.task.equals(a1.task)) 
+            || (act.isPickup() && act.task.equals(a2.task))){
+          throw new IllegalArgumentException("The swap violates the pickup before delivery constraint");
+        }
+      }
+    }
     
-    Vehicle v = ass.vehicles.get(a1.task);
-    Action preva1 = ass.findPrevious(a1);
-    Action preva2 = ass.findPrevious(a2);
-    Action nexta1 = ass.nextAction.get(a1);
-    Action nexta2 = ass.nextAction.get(a2);
+    Vehicle v = this.vehicles.get(a1.task);
+    Action preva1 = this.findPrevious(a1);
+    Action preva2 = this.findPrevious(a2);
+    Action nexta1 = this.nextAction.get(a1);
+    Action nexta2 = this.nextAction.get(a2);
     
     // swap 
     if(nexta1.equals(a2)){
       // they are next to each other
       if(preva1 == null){
-        ass.firstAction.put(v, a2);
+        this.firstAction.put(v, a2);
       }else{
-        ass.nextAction.put(preva1, a2);
+        this.nextAction.put(preva1, a2);
       }
-      ass.nextAction.put(a2, a1);
-      ass.nextAction.put(a1, nexta2);
+      this.nextAction.put(a2, a1);
+      this.nextAction.put(a1, nexta2);
       
     }else{
       // there is at least one in between
       if(preva1 == null){
-        ass.firstAction.put(v, a2);
+        this.firstAction.put(v, a2);
       }else{
-        ass.nextAction.put(preva1, a2);
+        this.nextAction.put(preva1, a2);
       }
-      ass.nextAction.put(a2, nexta1);
-      ass.nextAction.put(preva2, a1);
-      ass.nextAction.put(a1, nexta2);
+      this.nextAction.put(a2, nexta1);
+      this.nextAction.put(preva2, a1);
+      this.nextAction.put(a1, nexta2);
     }
-    
-    return ass;
     
   }
   
@@ -182,13 +192,13 @@ public class Assignment {
    * @param a
    * @param vs
    */
-  private static void updateTimes(Assignment a, Vehicle... vs){
+  private void updateTimes(Vehicle... vs){
     for(Vehicle v : vs){
       long time = 1;
-      Action act = a.firstAction.get(v);
+      Action act = this.firstAction.get(v);
       while(act != null){
-        a.times.put(act, time++);
-        act = a.nextAction.get(act);
+        this.times.put(act, time++);
+        act = this.nextAction.get(act);
       }
     }
   }
