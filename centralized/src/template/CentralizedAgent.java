@@ -86,6 +86,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     
     if(oldA == null){
       // TODO what to return if no plan is possible?
+      System.out.println("Plan not possible!!!");
       return null;
     }
     
@@ -103,7 +104,8 @@ public class CentralizedAgent implements CentralizedBehavior {
     List<Plan> plans =  newA.generatePlans(vehicles);
     System.out.println("Plans: ");
     for(Plan p : plans){
-      System.out.println(p.toString());
+      
+      System.out.println(p.toString()+" --> "+p.totalDistance());
       System.out.println();
     }
     

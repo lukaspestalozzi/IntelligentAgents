@@ -37,6 +37,12 @@ public class Assignment {
   public List<Plan> generatePlans(List<Vehicle> vehics) {
     List<Plan> plans = new ArrayList<Plan>();
     
+//    System.out.println("raw Plans:");
+//    for(List<Action> l : vehicleRoutes.values()){
+//      System.out.println(l.toString());
+//      System.out.println();
+//    }
+    
     for (Vehicle v : vehics) {
       Plan p = new Plan(v.getCurrentCity());
       if (!vehicleRoutes.get(v).isEmpty()) {
@@ -46,7 +52,7 @@ public class Assignment {
           if (nextA.isDelivery()) {
             p.appendDelivery(nextA.task);
           } else if (nextA.isPickup()) {
-            p.appendDelivery(nextA.task);
+            p.appendPickup(nextA.task);
           } else {
             throw new RuntimeException("Should never happen");
           }
@@ -54,8 +60,6 @@ public class Assignment {
       }
       plans.add(p);
     }
-    
-    
     
     return plans;
     
