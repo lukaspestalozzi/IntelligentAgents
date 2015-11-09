@@ -8,6 +8,7 @@ public class PickupSls {
 
   public PickupSls(ObjFunc objFunc, double probability) {
     mObjFunc = objFunc;
+    mProba = probability;
   }
 
   public Assignment updateAssignment(Assignment oldA) {
