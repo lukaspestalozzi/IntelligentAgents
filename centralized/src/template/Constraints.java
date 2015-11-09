@@ -1,5 +1,7 @@
 package template;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -171,8 +173,20 @@ Map<Action, Long> times = a.times;
    * @return
    */
   public static boolean checkNoVehicleOverloadedConstraint(Assignment a) {
-  //TODO
-    throw new RuntimeException("Not yet implemented");
+    for(Vehicle v : a.firstAction.keySet()){
+      double freeLoad = v.capacity();
+      for(Action act : a.getActionsForVehicle(v)){
+        if(act.isPickup()){
+          freeLoad -= act.task.weight;
+        }else{
+          freeLoad += act.task.weight;
+        }
+        if(freeLoad < 0){
+          return false;
+        }
+      }
+    }
+    return true;
   }
   
   /**
