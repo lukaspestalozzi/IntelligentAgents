@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import constraints.Constraint;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
@@ -26,10 +27,10 @@ public class Assignment {
     this.times = times;
   }
 
-  public List<Plan> generatePlans(List<Vehicle> vehicles) {
+  public List<Plan> generatePlans(List<Vehicle> vehics) {
     List<Plan> plans = new ArrayList<Plan>();
     
-    for(Vehicle v : vehicles){
+    for(Vehicle v : vehics){
       Plan p = new Plan(v.getCurrentCity());
       if(firstAction.get(v) != null){
         // the vehicle has at least one action to do (actually two since it has at least to pickup and deliver a package)
@@ -49,4 +50,18 @@ public class Assignment {
     return plans;
     
   }
+  
+  public ArrayList<Assignment> generateNeighbors(){
+    // TODO
+    
+  }
+  
+  private static Assignment changeVehicle(Pickup pick, Deliver del, Assignment a, Vehicle from, Vehicle to){
+    // TODO
+  }
+  
+  private static Assignment swapActions(Action a1, Action a2, Assignment ass){
+    // TODO
+  }
+  
 }

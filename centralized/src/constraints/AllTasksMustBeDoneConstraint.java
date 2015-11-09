@@ -16,8 +16,7 @@ import template.Assignment;
 public class AllTasksMustBeDoneConstraint extends Constraint{
 
   @Override
-  boolean checkAssignment(Assignment a) {    
-    // second nbr
+  public boolean checkAssignment(Assignment a) {    
     int finished = 0;
     for(Action act : a.nextAction.values()){
       if(act == null){

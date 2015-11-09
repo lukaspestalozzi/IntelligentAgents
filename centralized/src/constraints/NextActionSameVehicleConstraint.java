@@ -16,7 +16,7 @@ import template.Assignment;
 public class NextActionSameVehicleConstraint extends Constraint{
 
   @Override
-  boolean checkAssignment(Assignment a) {
+  public boolean checkAssignment(Assignment a) {
     
     Map<Task, Vehicle> tv = a.vehicles;
     

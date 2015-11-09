@@ -12,7 +12,7 @@ import template.Assignment;
 public class DifferentNextActionConstraint extends Constraint {
 
   @Override
-  boolean checkAssignment(Assignment a) {
+  public boolean checkAssignment(Assignment a) {
     for(Entry<Action, Action> e : a.nextAction.entrySet()){
       if(e.getKey().equals(e.getValue())){
         return false;

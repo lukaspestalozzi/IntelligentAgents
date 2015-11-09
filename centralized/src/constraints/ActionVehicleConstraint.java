@@ -15,7 +15,7 @@ import template.Assignment;
  */
 public class ActionVehicleConstraint extends Constraint {
   @Override
-  boolean checkAssignment(Assignment a) {
+  public boolean checkAssignment(Assignment a) {
     Map<Task, Vehicle> tv = a.vehicles;
     
     for (Entry<Vehicle, Action> e : a.firstAction.entrySet()) {

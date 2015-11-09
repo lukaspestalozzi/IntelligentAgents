@@ -12,7 +12,7 @@ import template.Assignment;
 public class NoVehicleIsOverloadedConstraint extends Constraint{
 
   @Override
-  boolean checkAssignment(Assignment a) {
+  public boolean checkAssignment(Assignment a) {
     //TODO
     throw new RuntimeException("Not yet implemented");
   }

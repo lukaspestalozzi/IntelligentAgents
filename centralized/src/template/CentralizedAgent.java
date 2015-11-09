@@ -40,7 +40,7 @@ public class CentralizedAgent implements CentralizedBehavior {
   private int mIter;
   private double mProba;
   
-  private final List<Constraint> allConstraints = new ArrayList<Constraint>();
+//  private final List<Constraint> allConstraints = new ArrayList<Constraint>();
   
   @Override
   public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
@@ -68,14 +68,14 @@ public class CentralizedAgent implements CentralizedBehavior {
     this.mAgent = agent;
     
     // Add all constraints:
-    allConstraints.add(new DifferentNextActionConstraint());
-    allConstraints.add(new FirstActionTime1Constraint());
-    allConstraints.add(new ActionVehicleConstraint());
-    allConstraints.add(new AllTasksMustBeDoneConstraint());
-    allConstraints.add(new NextActionSameVehicleConstraint());
-    allConstraints.add(new NextActionTimePlusOneConstraint());
-    allConstraints.add(new NoVehicleIsOverloadedConstraint());
-    allConstraints.add(new PickupBeforeDeliveryConstraint());
+//    allConstraints.add(new DifferentNextActionConstraint());
+//    allConstraints.add(new FirstActionTime1Constraint());
+//    allConstraints.add(new ActionVehicleConstraint());
+//    allConstraints.add(new AllTasksMustBeDoneConstraint());
+//    allConstraints.add(new NextActionSameVehicleConstraint());
+//    allConstraints.add(new NextActionTimePlusOneConstraint());
+//    allConstraints.add(new NoVehicleIsOverloadedConstraint());
+//    allConstraints.add(new PickupBeforeDeliveryConstraint());
     
   }
   
@@ -95,14 +95,18 @@ public class CentralizedAgent implements CentralizedBehavior {
   }
   
   private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
-    // TODO generate the Variables, constraint etc.
+    
     
     ObjFunc objFunc = new ObjFunc();
     Assignment oldA = selectInitalSolution(vehicles, tasks);
+    if(oldA == null){
+      // TODO what to return if no plan is possible?
+      return null;
+    }
     Assignment newA = oldA;
     
     for (int i = 0; i < mIter; i++) {
-      PickupSls sls = new PickupSls(oldA, allConstraints, objFunc, mProba);
+      PickupSls sls = new PickupSls(oldA, objFunc, mProba);
       newA = sls.updateAssignment();
       oldA = newA;
       if (false/* TODO insert termination condition */) {
@@ -177,23 +181,10 @@ public class CentralizedAgent implements CentralizedBehavior {
     
     return new Assignment(firstAction, nextAction, tv, times);
     
-    
-    
-    
   }
   
   private boolean checkConstraints(Assignment a) {
-    for(Constraint c : allConstraints){
-      if(! c.checkAssignment(a)){
-        return false;
-      }
-    }
-    return true;
-  }
-  
-  private List<Variable> computeVariables(List<Vehicle> vehicles, TaskSet tasks) {
-    // TODO Auto-generated method stub
-    return null;
+    return Constraints.checkAllConstraints(a);
   }
   
   private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {

@@ -14,7 +14,7 @@ import template.Assignment;
 public class NextActionTimePlusOneConstraint extends Constraint{
 
   @Override
-  boolean checkAssignment(Assignment a) {
+  public boolean checkAssignment(Assignment a) {
     Map<Action, Long> times = a.times;
     
     for(Entry<Action, Action> e : a.nextAction.entrySet()){

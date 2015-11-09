@@ -14,7 +14,7 @@ import template.Assignment;
 public class PickupBeforeDeliveryConstraint extends Constraint{
 
   @Override
-  boolean checkAssignment(Assignment a) {
+  public boolean checkAssignment(Assignment a) {
     for(Entry<Action, Long> e : a.times.entrySet()){
       if(e.getKey().isDelivery()){
         long tpickup = a.times.get(new Pickup(e.getKey().task));
