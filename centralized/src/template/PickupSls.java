@@ -3,23 +3,21 @@ package template;
 import java.util.ArrayList;
 
 public class PickupSls {
-  private Assignment mOldAssignment;
   private ObjFunc mObjFunc;
   private double mProba;
 
-  public PickupSls(Assignment oldA, ObjFunc objFunc, double probability) {
-    mOldAssignment = oldA;
+  public PickupSls(ObjFunc objFunc, double probability) {
     mObjFunc = objFunc;
   }
 
-  public Assignment updateAssignment() {
-    Assignment newA = chooseNeighbours(); 
-    newA = localChoice(newA, mObjFunc);
+  public Assignment updateAssignment(Assignment oldA) {
+    Assignment newA = chooseNeighbours(oldA); 
+    newA = localChoice(newA, oldA, mObjFunc);
     return newA;
   }
 
-  private Assignment chooseNeighbours() {
-    ArrayList<Assignment> nabos = mOldAssignment.generateNeighbors();
+  private Assignment chooseNeighbours(Assignment oldA) {
+    ArrayList<Assignment> nabos = oldA.generateNeighbors();
     int minindex = -1;
     double minval = Integer.MAX_VALUE;
     
@@ -35,11 +33,11 @@ public class PickupSls {
     
   }
 
-  private Assignment localChoice(Assignment newA, ObjFunc objFunc) {
+  private Assignment localChoice(Assignment newA, Assignment oldA, ObjFunc objFunc) {
     if(Math.random() < mProba){
       return newA;
     }else{
-      return mOldAssignment;
+      return oldA;
     }
   }
 }

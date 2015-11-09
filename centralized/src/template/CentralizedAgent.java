@@ -2,6 +2,7 @@ package template;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -85,10 +86,10 @@ public class CentralizedAgent implements CentralizedBehavior {
       return null;
     }
     Assignment newA = oldA;
+    PickupSls sls = new PickupSls(objFunc, mProba);
     
     for (int i = 0; i < mIter; i++) {
-      PickupSls sls = new PickupSls(oldA, objFunc, mProba);
-      newA = sls.updateAssignment();
+      newA = sls.updateAssignment(oldA);
       oldA = newA;
       if (false/* TODO insert termination condition */) {
         break;
@@ -102,8 +103,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     if(tasks == null || tasks.isEmpty() || vehicles == null || vehicles.isEmpty() ){
       return null;
     }
-    Map<Vehicle, Action> firstAction = new HashMap<Vehicle, Action>();
-    Map<Action, Action> nextAction = new HashMap<>();
+    Map<Vehicle, List<Action>> vehicleRoutes = new HashMap<Vehicle, List<Action>>();
     Map<Task, Vehicle> tv = new HashMap<>();
     Map<Action, Long> times = new HashMap<>();
     
@@ -111,7 +111,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     double maxC = -1;
     Vehicle maxV = null;
     for(Vehicle v : vehicles){
-      firstAction.put(v, null);
+      vehicleRoutes.put(v, new LinkedList<Action>());
       if(v.capacity() > maxC){
         maxC = v.capacity();
         maxV = v;
@@ -131,9 +131,9 @@ public class CentralizedAgent implements CentralizedBehavior {
     // add all to the max vehicle
     Task t0 = tasksList.get(0);
     Action firstpickup = new Pickup(t0);
-    firstAction.put(maxV, firstpickup);
+    vehicleRoutes.get(maxV).add(firstpickup);
     Action last = new Deliver(t0);
-    nextAction.put(firstpickup, last);
+    vehicleRoutes.get(maxV).add(last);
     
     // update the vehicle for the task
     tv.put(t0, maxV);
@@ -145,8 +145,8 @@ public class CentralizedAgent implements CentralizedBehavior {
       Task t = tasksList.get(i);
       Action np = new Pickup(t);
       Action nd = new Deliver(t);
-      nextAction.put(last, np);
-      nextAction.put(np, nd);
+      vehicleRoutes.get(maxV).add(np);
+      vehicleRoutes.get(maxV).add(nd);
       last = nd;
       
       // update the vehicle for the task
@@ -157,10 +157,8 @@ public class CentralizedAgent implements CentralizedBehavior {
       times.put(nd, time++);
     }
     // put last action -> null
-    nextAction.put(last, null);
-    times.put(last, time++);
     
-    return new Assignment(firstAction, nextAction, tv, times);
+    return new Assignment(vehicleRoutes, tv, times);
     
   }
   

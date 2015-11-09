@@ -173,9 +173,9 @@ Map<Action, Long> times = a.times;
    * @return
    */
   public static boolean checkNoVehicleOverloadedConstraint(Assignment a) {
-    for(Vehicle v : a.firstAction.keySet()){
+    for(Vehicle v : a.vehicleRoutes.keySet()){
       double freeLoad = v.capacity();
-      for(Action act : a.getActionsForVehicle(v)){
+      for(Action act : a.vehicleRoutes.get(v)){
         if(act.isPickup()){
           freeLoad -= act.task.weight;
         }else{

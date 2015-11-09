@@ -13,16 +13,14 @@ import logist.task.Task;
 
 public class Assignment {
   // The first action of a vehicle
-  public final Map<Vehicle, Action> firstAction;
-  public final Map<Action, Action> nextAction;
+  public final Map<Vehicle, List<Action>> vehicleRoutes;
   // The vehicle that does the task
   public final Map<Task, Vehicle> vehicles;
   // The time when a task is done.
   public final Map<Action, Long> times;
   
-  public Assignment(Map<Vehicle, Action> firstAction, Map<Action, Action> nextAction, Map<Task, Vehicle> vehicles, Map<Action, Long> times) {
-    this.firstAction = firstAction;
-    this.nextAction = nextAction;
+  public Assignment(Map<Vehicle, List<Action>> vehicleRoutes, Map<Task, Vehicle> vehicles, Map<Action, Long> times) {
+    this.vehicleRoutes = vehicleRoutes;
     this.vehicles = vehicles;
     this.times = times;
   }
@@ -32,11 +30,10 @@ public class Assignment {
     
     for (Vehicle v : vehics) {
       Plan p = new Plan(v.getCurrentCity());
-      if (firstAction.get(v) != null) {
+      if (!vehicleRoutes.get(v).isEmpty()) {
         // the vehicle has at least one action to do (actually two since it has
         // at least to pickup and deliver a package)
-        Action nextA = firstAction.get(v);
-        while (nextA != null) {
+        for (Action nextA : vehicleRoutes.get(v)) {
           if (nextA.isDelivery()) {
             p.appendDelivery(nextA.task);
           } else if (nextA.isPickup()) {
@@ -60,24 +57,17 @@ public class Assignment {
     ArrayList<Assignment> copies = new ArrayList<>(howMany);
     
     for (int i = 0; i < howMany; i++) {
-      Map<Vehicle, Action> fa = new HashMap<>();
-      Map<Action, Action> na = new HashMap<>();
+      Map<Vehicle, List<Action>> vr = new HashMap<>();
       Map<Task, Vehicle> vahics = new HashMap<>();
       Map<Action, Long> tms = new HashMap<>();
       
-      copies.add(new Assignment(fa, na, vahics, tms));
+      copies.add(new Assignment(vr, vahics, tms));
     }
     
     // fill the copies
-    for (Entry<Vehicle, Action> e : this.firstAction.entrySet()) {
+    for (Entry<Vehicle, List<Action>> e : vehicleRoutes.entrySet()) {
       for (Assignment ass : copies) {
-        ass.firstAction.put(e.getKey(), e.getValue());
-      }
-    }
-    
-    for (Entry<Action, Action> e : this.nextAction.entrySet()) {
-      for (Assignment ass : copies) {
-        ass.nextAction.put(e.getKey(), e.getValue());
+        ass.vehicleRoutes.put(e.getKey(), e.getValue());
       }
     }
     
@@ -94,21 +84,6 @@ public class Assignment {
     }
     
     return copies;
-  }
-  
-  /**
-   * 
-   * @param v
-   * @return the list of actions that the vehicle has to do in this assignment.
-   */
-  public ArrayList<Action> getActionsForVehicle(Vehicle v) {
-    ArrayList<Action> actions = new ArrayList<>();
-    Action act = this.firstAction.get(v);
-    while (act != null) {
-      actions.add(act);
-      act = this.nextAction.get(act);
-    }
-    return actions;
   }
   
   public ArrayList<Assignment> generateNeighbors() {
@@ -132,7 +107,7 @@ public class Assignment {
           v = vlist.get(r.nextInt(vlist.size())); // get another random vehicle
         }
         
-        List<Action> alist = getActionsForVehicle(v);
+        List<Action> alist = vehicleRoutes.get(v);
         
         boolean swapped = false;
         while (!swapped) {
@@ -174,27 +149,6 @@ public class Assignment {
   }
   
   /**
-   * finds the action that is done before the given action
-   * 
-   * @param act
-   * @return the previous action, or null if act is the first action (has no
-   *         previous)
-   */
-  public Action findPrevious(Action act) {
-    Vehicle v = this.vehicles.get(act.task);
-    Action candidate = this.firstAction.get(v);
-    if (candidate.equals(act)) { return null; // act is the first action of the
-                                              // vehicle
-    }
-    while (!candidate.equals(act)) {
-      candidate = this.nextAction.get(candidate);
-      if (candidate == null) { throw new IllegalStateException(); }
-    }
-    
-    return candidate;
-  }
-  
-  /**
    * puts the pick and del actions at the beginning of the toV vehicles plan.
    * throws IllegalArgumentException if the change would violate some constraints.
    * @param pick
@@ -213,7 +167,7 @@ public class Assignment {
     Deliver del = new Deliver(t);
     
     // check if can fit into the toV vehicle
-    List<Action> alist = this.getActionsForVehicle(toV);
+    List<Action> alist = vehicleRoutes.get(toV);
     alist.add(0, del);
     alist.add(0, pick);
     double freeLoad = toV.capacity();
@@ -228,38 +182,10 @@ public class Assignment {
       }
     }
     
-    
-    
-    
-    // store some actions
-    Action oldFirstTo = this.firstAction.get(toV);
-    Action oldNextPick = this.nextAction.get(pick);
-    Action oldNextDel = this.nextAction.get(del);
-    Action oldPrevPick = this.findPrevious(pick);
-    Action oldPrevDel = this.findPrevious(del);
-    
-    // remove pick and del from the 'fromV'
-    if (oldNextPick.equals(del)) {
-      // they are next to each other
-      if (oldPrevPick == null) {
-        this.firstAction.put(fromV, oldNextDel);
-      } else {
-        this.nextAction.put(oldPrevPick, oldNextDel);
-      }
-    } else {
-      // there is at least one action between pick and del
-      if (oldPrevPick == null) {
-        this.firstAction.put(fromV, oldNextPick);
-      } else {
-        this.nextAction.put(oldPrevPick, oldNextPick);
-      }
-      this.nextAction.put(oldPrevDel, oldNextDel);
-    }
-    
-    // put them at the beginning of 'toV'
-    this.firstAction.put(toV, pick);
-    this.nextAction.put(pick, del);
-    this.nextAction.put(del, oldFirstTo);
+    vehicleRoutes.get(toV).add(pick);
+    vehicleRoutes.get(fromV).remove(pick);
+    vehicleRoutes.get(toV).add(del);
+    vehicleRoutes.get(fromV).remove(del);
     
     // update task -> vehicle
     this.vehicles.put(pick.task, toV);
@@ -300,33 +226,6 @@ public class Assignment {
     }
     
     Vehicle v = this.vehicles.get(a1.task);
-    Action preva1 = this.findPrevious(a1);
-    Action preva2 = this.findPrevious(a2);
-    Action nexta1 = this.nextAction.get(a1);
-    Action nexta2 = this.nextAction.get(a2);
-    
-    // swap
-    if (nexta1.equals(a2)) {
-      // they are next to each other
-      if (preva1 == null) {
-        this.firstAction.put(v, a2);
-      } else {
-        this.nextAction.put(preva1, a2);
-      }
-      this.nextAction.put(a2, a1);
-      this.nextAction.put(a1, nexta2);
-      
-    } else {
-      // there is at least one in between
-      if (preva1 == null) {
-        this.firstAction.put(v, a2);
-      } else {
-        this.nextAction.put(preva1, a2);
-      }
-      this.nextAction.put(a2, nexta1);
-      this.nextAction.put(preva2, a1);
-      this.nextAction.put(a1, nexta2);
-    }
     
     updateTimes(v);
     
@@ -341,10 +240,8 @@ public class Assignment {
   private void updateTimes(Vehicle... vs) {
     for (Vehicle v : vs) {
       long time = 1;
-      Action act = this.firstAction.get(v);
-      while (act != null) {
+      for(Action act : vehicleRoutes.get(v)) {
         this.times.put(act, time++);
-        act = this.nextAction.get(act);
       }
     }
   }

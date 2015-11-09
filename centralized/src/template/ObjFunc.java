@@ -1,26 +1,29 @@
 package template;
 
+import java.util.List;
+import java.util.Map.Entry;
+
 import logist.simulation.Vehicle;
 
 public class ObjFunc {
 
   public double compute(Assignment a) {
-    // Sum for each task
-    double actionSum = 0;
-    for (Action act : a.nextAction.keySet()) {
-      Action nextA = a.nextAction.get(act);
-      // Length is not useful as we have split our task in two actions.
-      actionSum += (distance(act, nextA))
-          * a.vehicles.get(act.task).costPerKm();
+    
+    double sum = 0;
+    
+    for (Entry<Vehicle, List<Action>> e : a.vehicleRoutes.entrySet()) {
+      Vehicle v = e.getKey();
+      List<Action> route = e.getValue();
+      if(!route.isEmpty()) {
+        sum += distance(v, route.get(0)) * v.costPerKm();
+        Action lastAction = route.get(0);
+        for(Action act : route) {
+          sum += distance(lastAction, act) * v.costPerKm();
+        }
+      }
     }
-
-    // Sum for each vehicle
-    double vehicleSum = 0;
-    for (Vehicle v : a.firstAction.keySet()) {
-      Action firstA = a.firstAction.get(v);
-      vehicleSum += distance(v, firstA) * v.costPerKm();
-    }
-    return actionSum + vehicleSum;
+   
+    return sum;
   }
 
   private double distance(Vehicle v, Action a) {
