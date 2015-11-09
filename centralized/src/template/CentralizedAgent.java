@@ -40,7 +40,6 @@ public class CentralizedAgent implements CentralizedBehavior {
   private int mIter;
   private double mProba;
   
-//  private final List<Constraint> allConstraints = new ArrayList<Constraint>();
   
   @Override
   public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
@@ -66,16 +65,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     this.mTopology = topology;
     this.mDistribution = distribution;
     this.mAgent = agent;
-    
-    // Add all constraints:
-//    allConstraints.add(new DifferentNextActionConstraint());
-//    allConstraints.add(new FirstActionTime1Constraint());
-//    allConstraints.add(new ActionVehicleConstraint());
-//    allConstraints.add(new AllTasksMustBeDoneConstraint());
-//    allConstraints.add(new NextActionSameVehicleConstraint());
-//    allConstraints.add(new NextActionTimePlusOneConstraint());
-//    allConstraints.add(new NoVehicleIsOverloadedConstraint());
-//    allConstraints.add(new PickupBeforeDeliveryConstraint());
+
     
   }
   
