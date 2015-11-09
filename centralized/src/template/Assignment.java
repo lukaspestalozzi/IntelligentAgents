@@ -54,7 +54,7 @@ public class Assignment {
   
   public ArrayList<Assignment> generateNeighbors(){
     // TODO
-    
+    throw new RuntimeException("not yet implemented");
   }
   
   /**
@@ -133,7 +133,48 @@ public class Assignment {
 
   
   private static Assignment swapActions(Action a1, Action a2, Assignment ass){
-    // TODO
+    if(! ass.vehicles.get(a1.task).equals(ass.vehicles.get(a2)) ){
+      throw new IllegalArgumentException("The actions must belong to the same vehicle");
+    }
+    
+    // make sure a1 happens before a2
+    if(ass.times.get(a1) > ass.times.get(a2)){
+      return swapActions(a2, a1, ass);
+    }
+    
+    // TODO if a1 is a pickup or a2 is a delivery, make sure the swap is legal.
+    
+    Vehicle v = ass.vehicles.get(a1.task);
+    Action preva1 = ass.findPrevious(a1);
+    Action preva2 = ass.findPrevious(a2);
+    Action nexta1 = ass.nextAction.get(a1);
+    Action nexta2 = ass.nextAction.get(a2);
+    
+    // swap 
+    if(nexta1.equals(a2)){
+      // they are next to each other
+      if(preva1 == null){
+        ass.firstAction.put(v, a2);
+      }else{
+        ass.nextAction.put(preva1, a2);
+      }
+      ass.nextAction.put(a2, a1);
+      ass.nextAction.put(a1, nexta2);
+      
+    }else{
+      // there is at least one in between
+      if(preva1 == null){
+        ass.firstAction.put(v, a2);
+      }else{
+        ass.nextAction.put(preva1, a2);
+      }
+      ass.nextAction.put(a2, nexta1);
+      ass.nextAction.put(preva2, a1);
+      ass.nextAction.put(a1, nexta2);
+    }
+    
+    return ass;
+    
   }
   
   /**
