@@ -35,7 +35,11 @@ class Pickup extends Action{
   
   @Override
   public int hashCode() {
-    return this.task.hashCode(); // same hashCode as the task
+    final int prime = 31;
+    int result = 17;
+    result = prime * result + task.id;
+    result = prime * result + task.pickupCity.id;
+    return result;
   }
   
   @Override
@@ -58,7 +62,11 @@ class Deliver extends Action{
 
   @Override
   public int hashCode() {
-    return this.task.hashCode() * -1; // the negative hash code of the task. to distinguish it from the Pickup Action.
+    final int prime = 31;
+    int result = 17;
+    result = prime * result + task.id;
+    result = prime * result + task.deliveryCity.id;
+    return result;
   }
   
   @Override

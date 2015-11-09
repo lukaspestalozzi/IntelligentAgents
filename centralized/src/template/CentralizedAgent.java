@@ -1,6 +1,5 @@
 package template;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,14 +39,18 @@ public class CentralizedAgent implements CentralizedBehavior {
     LogistSettings ls = null;
     try {
       ls = Parsers.parseSettings("config\\settings_default.xml");
+   // the setup method cannot last more than timeout_setup milliseconds
+      mTimeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
+      // the plan method cannot execute more than timeout_plan milliseconds
+      mTimeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
     } catch (Exception exc) {
-      System.out.println("There was a problem loading the configuration file.");
+      System.out.println("There was a problem loading the configuration file. taking default");
+      // default 300 seconds
+      mTimeout_setup = 300000;
+      mTimeout_plan = 300000;
     }
     
-    // the setup method cannot last more than timeout_setup milliseconds
-    mTimeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
-    // the plan method cannot execute more than timeout_plan milliseconds
-    mTimeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
+    
     
     mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in
                                                                  // xml file
@@ -97,7 +100,14 @@ public class CentralizedAgent implements CentralizedBehavior {
       }
     }
     
-    return newA.generatePlans(vehicles);
+    List<Plan> plans =  newA.generatePlans(vehicles);
+    System.out.println("Plans: ");
+    for(Plan p : plans){
+      System.out.println(p.toString());
+      System.out.println();
+    }
+    
+    return plans;
   }
   
   private Assignment selectInitalSolution(List<Vehicle> vehicles, TaskSet tasks) {
@@ -138,7 +148,11 @@ public class CentralizedAgent implements CentralizedBehavior {
       tv.put(t, maxV);
     }
     
-    return new Assignment(vehicleRoutes, tv, indexOf);
+    Assignment a =  new Assignment(vehicleRoutes, tv, indexOf);
+    if( ! Constraints.checkAllConstraints(a, tasks.size())){
+      throw new IllegalStateException("Not all constraints are satisfied!");
+    }
+    return a;
     
   }
   
