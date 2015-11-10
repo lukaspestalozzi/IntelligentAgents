@@ -137,7 +137,7 @@ public class Assignment {
     
     // vehicle change
     if(mAllVehics.length > 1){
-      for(Vehicle v : this.vehicles.values()){
+      for(Vehicle v : this.vehicleRoutes.keySet()){
         if(v == null){
           throw new IllegalStateException("a value in the vehicles map can not be null");
         }
@@ -173,7 +173,7 @@ public class Assignment {
    */
   private Vehicle randomVehicle(Vehicle notV){
     Vehicle v = null;
-    while(notV.equals(v)){
+    while(notV.equals(v) || v == null){
       v = mAllVehics[rand.nextInt(mAllVehics.length)];
     }
     return v;
@@ -190,6 +190,7 @@ public class Assignment {
   private boolean changeVehicle(Vehicle fromV, Vehicle toV) {
     // input validation
     // the vehicles must be different
+
     if (fromV.equals(toV)) { return false;}
         
     // there must be a task
