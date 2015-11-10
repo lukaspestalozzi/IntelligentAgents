@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import logist.LogistPlatform;
 import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.CentralizedBehavior;
@@ -23,6 +24,8 @@ import logist.topology.Topology.City;
 @SuppressWarnings("unused")
 public class CentralizedAgent implements CentralizedBehavior {
   
+  public static Vehicle[] allVehicles;
+  
   private Topology mTopology;
   private TaskDistribution mDistribution;
   private Agent mAgent;
@@ -31,43 +34,40 @@ public class CentralizedAgent implements CentralizedBehavior {
   private int mIter;
   private double mProba;
   
-  
   @Override
   public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
     
     // this code is used to get the timeouts
     LogistSettings ls = null;
     try {
-      ls = Parsers.parseSettings("config\\settings_default.xml");
-   // the setup method cannot last more than timeout_setup milliseconds
+      ls = LogistPlatform.getSettings();
+      // ls = Parsers.parseSettings("config\\settings_default.xml");
+      // the setup method cannot last more than timeout_setup milliseconds
       mTimeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
       // the plan method cannot execute more than timeout_plan milliseconds
       mTimeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
     } catch (Exception exc) {
-      System.out.println("There was a problem loading the configuration file. taking default");
+      System.out.println(
+          "There was a problem loading the configuration file. taking default");
       // default 300 seconds
       mTimeout_setup = 300000;
       mTimeout_plan = 300000;
     }
     
-    
-    
     mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in
                                                                  // xml file
     
-    mIter = agent.readProperty("amnt_iter", int.class, 10000);
+    mIter = agent.readProperty("amnt_iter", int.class, 100);
     
     this.mTopology = topology;
     this.mDistribution = distribution;
     this.mAgent = agent;
-
-    
   }
   
   @Override
   public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
     long time_start = System.currentTimeMillis();
-    
+    allVehicles = vehicles.toArray(new Vehicle[vehicles.size()]);
     // System.out.println("Agent " + agent.id() + " has tasks " + tasks);
     
     List<Plan> plans = slsPlans(vehicles, tasks);
@@ -83,8 +83,8 @@ public class CentralizedAgent implements CentralizedBehavior {
     
     ObjFunc objFunc = new ObjFunc();
     Assignment oldA = selectInitalSolution(vehicles, tasks);
-    
-    if(oldA == null){
+    if (vehicles.size() == 1) { return oldA.generatePlans(vehicles); }
+    if (oldA == null) {
       // TODO what to return if no plan is possible?
       System.out.println("Plan not possible!!!");
       return null;
@@ -94,6 +94,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     PickupSls sls = new PickupSls(objFunc, mProba);
     
     for (int i = 0; i < mIter; i++) {
+      System.out.println("\n\nIteration: " + i);
       newA = sls.updateAssignment(oldA);
       oldA = newA;
       if (false/* TODO insert termination condition */) {
@@ -101,11 +102,11 @@ public class CentralizedAgent implements CentralizedBehavior {
       }
     }
     
-    List<Plan> plans =  newA.generatePlans(vehicles);
+    List<Plan> plans = newA.generatePlans(vehicles);
     System.out.println("Plans: ");
-    for(Plan p : plans){
+    for (Plan p : plans) {
       
-      System.out.println(p.toString()+" --> "+p.totalDistance());
+      System.out.println(p.toString() + " --> " + p.totalDistance());
       System.out.println();
     }
     
@@ -113,9 +114,8 @@ public class CentralizedAgent implements CentralizedBehavior {
   }
   
   private Assignment selectInitalSolution(List<Vehicle> vehicles, TaskSet tasks) {
-    if(tasks == null || tasks.isEmpty() || vehicles == null || vehicles.isEmpty() ){
-      return null;
-    }
+    if (tasks == null || tasks.isEmpty() || vehicles == null || vehicles
+        .isEmpty()) { return null; }
     Map<Vehicle, List<Action>> vehicleRoutes = new HashMap<Vehicle, List<Action>>();
     Map<Task, Vehicle> tv = new HashMap<>();
     Map<Action, Integer> indexOf = new HashMap<>();
@@ -123,9 +123,9 @@ public class CentralizedAgent implements CentralizedBehavior {
     // initialize all lists and find vehicle with the biggest capacity.
     double maxC = -1;
     Vehicle maxV = null;
-    for(Vehicle v : vehicles){
+    for (Vehicle v : vehicles) {
       vehicleRoutes.put(v, new LinkedList<Action>());
-      if(v.capacity() > maxC){
+      if (v.capacity() > maxC) {
         maxC = v.capacity();
         maxV = v;
       }
@@ -134,7 +134,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     // add all actions to the maxV indexOf and vehicles
     List<Action> maxVRoute = vehicleRoutes.get(maxV);
     int index = 0;
-    for(Task t : tasks){
+    for (Task t : tasks) {
       Pickup pick = new Pickup(t);
       Deliver del = new Deliver(t);
       
@@ -150,10 +150,10 @@ public class CentralizedAgent implements CentralizedBehavior {
       tv.put(t, maxV);
     }
     
-    Assignment a =  new Assignment(vehicleRoutes, tv, indexOf);
-    if( ! Constraints.checkAllConstraints(a, tasks.size())){
-      throw new IllegalStateException("Not all constraints are satisfied!");
-    }
+    Assignment a = new Assignment(vehicleRoutes, tv, indexOf);
+    if (!Constraints.checkAllConstraints(a, tasks
+        .size())) { throw new IllegalStateException(
+            "Not all constraints are satisfied!"); }
     return a;
     
   }

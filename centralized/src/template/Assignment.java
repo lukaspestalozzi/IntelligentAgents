@@ -1,6 +1,7 @@
 package template;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,26 +23,24 @@ public class Assignment {
   // project description
   public final Map<Action, Integer> indexOf;
   
-  private final Vehicle[] mAllVehics;
   
-  private Random rand = new Random(/*2015*/);
+  private Random rand = new Random(/* 2015 */);
   
   public Assignment(Map<Vehicle, List<Action>> vehicleRoutes, Map<Task, Vehicle> vehicles,
                     Map<Action, Integer> indexOf) {
     this.vehicleRoutes = vehicleRoutes;
     this.vehicles = vehicles;
     this.indexOf = indexOf;
-    mAllVehics = vehicleRoutes.keySet().toArray(new Vehicle[vehicleRoutes.keySet().size()]);
   }
   
   public List<Plan> generatePlans(List<Vehicle> vehics) {
     List<Plan> plans = new ArrayList<Plan>();
     
-//    System.out.println("raw Plans:");
-//    for(List<Action> l : vehicleRoutes.values()){
-//      System.out.println(l.toString());
-//      System.out.println();
-//    }
+    // System.out.println("raw Plans:");
+    // for(List<Action> l : vehicleRoutes.values()){
+    // System.out.println(l.toString());
+    // System.out.println();
+    // }
     
     for (Vehicle v : vehics) {
       Plan p = new Plan(v.getCurrentCity());
@@ -110,51 +109,50 @@ public class Assignment {
     
     return copies;
   }
-  
-  public ArrayList<Assignment> generateNeighbors() {
-    // make move and one vehicle swap per vehicle
-    int maxNabos = this.vehicleRoutes.size()*2;
-    ArrayList<Assignment> nabos = new ArrayList<>(maxNabos);
-    ArrayList<Assignment> copies = this.copy(maxNabos);
+  public ArrayList<Assignment> generateNeighbors(int nbrNabos) {
+    ArrayList<Assignment> nabos = new ArrayList<>(nbrNabos);
+    ArrayList<Assignment> copies = this.copy(nbrNabos);
     
-    // moves
-    for(List<Action> route : this.vehicleRoutes.values()){
-      if(route.isEmpty()){
-        continue;
+    while(nbrNabos > 0){
+      Assignment a = copies.remove(copies.size()-1);
+      boolean found = false;
+      if(rand.nextBoolean()){
+        found = a.moveRandomAction();
+      }else{
+        found = a.changeVehicleRandomAction();
       }
-      Assignment a = copies.remove(copies.size() - 1);
-      int maxTries = route.size()*4;
-      boolean moved = false;
-      while((! moved) && --maxTries >= 0){ // try until legal move found (or max tries)
-        Action act = randomAction(route);
-        moved = a.moveAction(act, rand.nextBoolean());
-      }
-      if(moved){
+      if(found){
         nabos.add(a);
       }
-      
-    }
-    
-    // vehicle change
-    if(mAllVehics.length > 1){
-      for(Vehicle v : this.vehicleRoutes.keySet()){
-        if(v == null){
-          throw new IllegalStateException("a value in the vehicles map can not be null");
-        }
-        Assignment a = copies.remove(copies.size() - 1);
-        int maxTries = mAllVehics.length*2;
-        boolean changed = false;
-        while((! changed) && --maxTries >= 0){ // try until legal move found (or max tries)
-          Vehicle v2 = randomVehicle(v);
-          a.changeVehicle(v, v2);
-        }
-        if(changed){
-          nabos.add(a);
-        }
-      }
+      nbrNabos--;
     }
     return nabos;
+  }
+  
+  private boolean moveRandomAction(){
+    // find random route
+    List<Action> route = null;
+    while(route == null || route.isEmpty()){
+      route = vehicleRoutes.get(randomVehicle(null));
+    }
     
+    // find random action
+    Action act = randomAction(route);
+    
+    // I like to ...move it move it 
+    return moveAction(act, rand.nextBoolean());
+  }
+  
+  
+  private boolean changeVehicleRandomAction(){
+    // find two (different) random vehicles
+    Vehicle v1 = null;
+    while(v1 == null || vehicleRoutes.get(v1).isEmpty()){
+      v1 = randomVehicle(null);
+    }
+    Vehicle v2 = randomVehicle(v1);
+    
+    return changeVehicle(v1, v2);
   }
   
   /**
@@ -162,7 +160,7 @@ public class Assignment {
    * @param route
    * @return a random action in the route
    */
-  private Action randomAction(List<Action> route){
+  private Action randomAction(List<Action> route) {
     return route.get(rand.nextInt(route.size()));
   }
   
@@ -171,10 +169,10 @@ public class Assignment {
    * @param notV
    * @return a random vehicle not equals to notV
    */
-  private Vehicle randomVehicle(Vehicle notV){
+  private Vehicle randomVehicle(Vehicle notV) {
     Vehicle v = null;
-    while(notV.equals(v) || v == null){
-      v = mAllVehics[rand.nextInt(mAllVehics.length)];
+    while (v == null || v.equals(notV)) {
+      v = CentralizedAgent.allVehicles[rand.nextInt(CentralizedAgent.allVehicles.length)];
     }
     return v;
   }
@@ -185,17 +183,18 @@ public class Assignment {
    * 
    * @param fromV
    * @param toV
-   * @return true iff the change is legal, false otherwise. Does not change the calling object if false is returned.
+   * @return true iff the change is legal, false otherwise. Does not change the
+   *         calling object if false is returned.
    */
   private boolean changeVehicle(Vehicle fromV, Vehicle toV) {
     // input validation
     // the vehicles must be different
-
-    if (fromV.equals(toV)) { return false;}
-        
+    
+    if (fromV.equals(toV)) { return false; }
+    
     // there must be a task
     if (this.vehicleRoutes.get(fromV).isEmpty()) { return false; }
-        
+    
     // find the pickup and deliver of the first task
     Action firstA = this.vehicleRoutes.get(fromV).get(0);
     if (firstA.isDelivery()) { throw new IllegalStateException(
@@ -222,7 +221,7 @@ public class Assignment {
     // update task -> vehicle
     this.vehicles.put(pick.task, toV);
     
-    // update times of the two lists TODO make more efficient
+    // update times of the two lists
     updateIndexes(fromV, toV);
     return true;
   }
@@ -237,7 +236,8 @@ public class Assignment {
    *          true -> move back in list (index + 1) false -> move towards the
    *          front (index - 1)
    *          
-   * @return true iff the change is legal, false otherwise. Does not change the calling object if false is returned.
+   * @return true iff the change is legal, false otherwise. Does not change the
+   *         calling object if false is returned.
    */
   private boolean moveAction(Action act, boolean moveRight) {
     int index = this.indexOf.get(act);
@@ -274,13 +274,14 @@ public class Assignment {
     boolean cviolated = false;
     if (swappedA.task.equals(act.task)) {
       cviolated = true;
-    }else if((moveRight && act.isDelivery() && swappedA.isPickup())
-      || (!moveRight && act.isPickup() && swappedA.isDelivery())){
+    } else if ((moveRight && act.isDelivery() && swappedA
+        .isPickup()) || (!moveRight && act.isPickup() && swappedA.isDelivery())) {
       // a pickup is moved before delivery -> may overload the vehicle
-      cviolated = !Constraints.checkVehicleOverloadConstraint(this, this.vehicles.get(act.task));
+      cviolated = !Constraints.checkVehicleOverloadConstraint(this, this.vehicles.get(
+          act.task));
     }
     
-    if(cviolated){
+    if (cviolated) {
       // put act back and return false
       if (moveRight) {
         it.previous();
@@ -292,7 +293,6 @@ public class Assignment {
     }
     
     it.add(act); // insert the act (after next or before previous)
-    
     
     // update the indexes
     this.indexOf.put(swappedA, index);
@@ -318,5 +318,32 @@ public class Assignment {
         this.indexOf.put(act, time++);
       }
     }
+  }
+  
+  @Override
+  public String toString() {
+    return new StringBuilder().append("Assignment: \n    vehicRoutes: ")
+        .append(vehicleRoutsString())
+//        .append("\n    vehicles: ")
+//        .append(vehicles.toString())
+        .append("\n    indexOf: ")
+        .append(indexOf.toString())
+        .append("\n\n").toString();
+  }
+  
+  public String vehicleRoutsString() {
+    StringBuilder sb = new StringBuilder();
+    for (Entry<Vehicle, List<Action>> e : vehicleRoutes.entrySet()) {
+      sb.append("vehicle ");
+      sb.append(e.getKey().id());
+      sb.append(": \n    ");
+      sb.append(vehicleRoutes.get(e.getKey()).toString());
+      sb.append("\n    ");
+      // for(Action act: e.getValue()){
+      //
+      // }
+    }
+    return sb.toString();
+    
   }
 }

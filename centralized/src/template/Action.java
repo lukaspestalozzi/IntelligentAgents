@@ -47,6 +47,11 @@ class Pickup extends Action{
     return true;
   }
   
+  @Override
+  public String toString() {
+    return "Pickup("+task.id+")";
+  }
+  
 }
 
 class Deliver extends Action{
@@ -72,6 +77,11 @@ class Deliver extends Action{
   @Override
   public boolean isDelivery() {
     return true;
+  }
+  
+  @Override
+  public String toString() {
+    return "Deliver("+task.id+")";
   }
   
 }
