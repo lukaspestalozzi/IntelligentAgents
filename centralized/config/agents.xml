@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <agents>
-	<!-- A list of agents and their behavior classes -->
-	
-	<!-- #### CENTRALIZED AGENTS ### -->
-	<agent name="centralized-random">
-		<set class-path="bin/"/>
-		<set class-name="template.CentralizedTemplate"/>
-	</agent>
-	
-	<agent name="centralized-sls">
-		<set class-path="bin/"/>
-		<set class-name="template.CentralizedAgent"/>
-	</agent>
-	
+  <!-- A list of agents and their behavior classes -->
+
+  <!-- #### CENTRALIZED AGENTS ### -->
+  <agent name="centralized-random">
+    <set class-path="bin/"/>
+    <set class-name="template.CentralizedTemplate"/>
+  </agent>
+
+  <agent name="centralized-sls">
+    <set class-path="bin/"/>
+    <set class-name="template.CentralizedAgent"/>
+    <set amnt_iter="500"/>
+    <set sls_proba="0.9"/>
+    <set annealing="1"/>
+  </agent>
+
 </agents>
