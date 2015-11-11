@@ -379,6 +379,7 @@ public class Assignment {
    * @param distance
    * @param it the list iterator that removed the action already. so the last call of it was it.remove(). and the removed Action was the action to be moved
    */
+  @Deprecated
   private void moveRight(Action act, int distance, ListIterator<Action> it){
     while(it.hasNext() && distance-- > 0 && !it.next().task.equals(act.task));
     it.previous();
@@ -390,6 +391,7 @@ public class Assignment {
    * @param distance
    * @param it the list iterator that removed the action already. so the last call of it was it.remove(). and the removed Action was the action to be moved
    */
+  @Deprecated
   private void moveLeft(Action act, int distance, ListIterator<Action> it){
     while(it.hasPrevious() && distance-- > 0 && !it.previous().task.equals(act.task));
     it.next();
@@ -410,6 +412,7 @@ public class Assignment {
    * @return true iff the change is legal, false otherwise. Does not change the
    *         calling object if false is returned.
    */
+  @Deprecated
   private boolean moveActionByOne(Action act, boolean moveRight) {
     int index = this.indexOf.get(act);
     List<Action> route = this.vehicleRoutes.get(this.vehicles.get(act.task));
@@ -525,4 +528,6 @@ public class Assignment {
   public boolean isCorrupt() {
     return ! mNotCorrupt;
   }
+  
+  
 }

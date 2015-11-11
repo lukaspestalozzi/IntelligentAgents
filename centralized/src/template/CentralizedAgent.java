@@ -54,7 +54,7 @@ public class CentralizedAgent implements CentralizedBehavior {
       mTimeout_plan = 300000;
     }
     
-    mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in
+    mProba = agent.readProperty("SLS_Proba", double.class, 0.9); // TODO put in
                                                                  // xml file
     
     mIter = agent.readProperty("amnt_iter", int.class, 10000);
@@ -89,17 +89,26 @@ public class CentralizedAgent implements CentralizedBehavior {
       System.out.println("Plan not possible!!!");
       return null;
     }
-    
+    Assignment bestA = null;
+    double bestCost = Double.MAX_VALUE;
     Assignment newA = oldA;
     PickupSls sls = new PickupSls(objFunc, mProba, mIter);
     
     for (int i = 0; i < mIter; i++) {
       System.out.println("\n\nIteration: " + i);
       newA = sls.updateAssignment(oldA);
+      
+      double val = objFunc.compute(newA);
+      if(bestCost > val){
+        bestCost = val;
+        bestA = newA;
+      }
+      
       oldA = newA;
     }
     
-    List<Plan> plans = newA.generatePlans(vehicles);
+    System.out.println("Final cost: "+bestCost);
+    List<Plan> plans = bestA.generatePlans(vehicles);
     System.out.println("Plans: ");
     for (Plan p : plans) {
       

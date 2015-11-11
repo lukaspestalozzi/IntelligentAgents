@@ -10,6 +10,7 @@ public class PickupSls {
   private final double mProba;
   private double mProbaAnh;
   private final int mNbrIterations;
+  private double mAnhStep;
   private final Comparator<Assignment> mAssigmentComp;
   private Random r = new Random(2015);
 
@@ -18,6 +19,7 @@ public class PickupSls {
     mProba = probability;
     mProbaAnh = mProba;
     mNbrIterations = nbrIterations;
+    mAnhStep = mProba/(mNbrIterations);
     
     mAssigmentComp = new Comparator<Assignment>() {
 
@@ -35,7 +37,7 @@ public class PickupSls {
   }
 
   public Assignment updateAssignment(Assignment oldA) {
-    TreeSet<Assignment> nabos = oldA.generateNeighbors(500, mAssigmentComp);
+    TreeSet<Assignment> nabos = oldA.generateNeighbors(200, mAssigmentComp);
 
     System.out.println("nbr nabos: "+nabos.size());
     if(nabos.size() == 1){
@@ -45,14 +47,15 @@ public class PickupSls {
     
     if(Math.random() < mProbaAnh){
       // suboptimal solution
-      newA = chooseSuboptimalNabo(nabos);
+//      newA = chooseSuboptimalNabo(nabos);
+      newA = chooseSuboptimalNaboGauss(nabos);
       System.out.println("--> suboptimal");
     }else{
       System.out.println("--> min");
       newA=  chooseMinNabo(nabos);
     }
     
-    mProbaAnh -= mProba/mNbrIterations;
+    mProbaAnh -= mAnhStep;
     
 //    System.out.println(newA.toString());
     System.out.println("anh proba: "+mProbaAnh);
@@ -62,8 +65,21 @@ public class PickupSls {
   
   private Assignment chooseSuboptimalNabo(TreeSet<Assignment> nabos){
     
-    int nbrCandidates = (int) Math.ceil(nabos.size()*0.4);
+    int nbrCandidates = (int) Math.ceil(nabos.size()*0.5);
     int index = r.nextInt(nbrCandidates);
+    
+    System.out.println("index: "+index);
+    // go to index
+    Iterator<Assignment> it = nabos.iterator();
+    while(it.hasNext() && --index > 0){it.next();}
+    return it.next();
+  }
+  
+  private Assignment chooseSuboptimalNaboGauss(TreeSet<Assignment> nabos){
+    
+    int nbrCandidates = (int) Math.ceil(nabos.size());
+    double rand = Math.min(Math.abs(r.nextGaussian()), 1);
+    int index = (int)Math.floor(rand*nbrCandidates);
     
     System.out.println("index: "+index);
     // go to index
