@@ -283,11 +283,11 @@ public class Assignment {
    * @param distance (positive if moving right, negative if moving left)
    * @return true iff move successful and no constraint is violated, false otherwise.
    */
-  private boolean moveAction(Action act, int maxdistance) {
+  private boolean moveAction(Action act, int distance) {
     if(act == null){
       return false;
     }
-    if(maxdistance == 0){
+    if(distance == 0){
       return true;
     }
     
@@ -308,15 +308,14 @@ public class Assignment {
     
     Action other = act.isDelivery() ? new Pickup(act.task) : new Deliver(act.task);
     int indexOther = indexOf.get(other);
-    int newIndex = Math.max(index + maxdistance, 0); // newIndex >= 0
-    newIndex = Math.min(newIndex, route.size()-1); // newIndex < route.size()    
+    int newIndex = index + distance;
+    if(newIndex < 0){return false;}
+    if(newIndex > route.size()-1){return false;} 
     
-    if(act.isPickup() && maxdistance > 0){
-      // moving right pickup, must not overtake the delivery
-      newIndex = Math.min(newIndex, indexOther);
-    }else if(act.isDelivery() && maxdistance < 0){
-      // moving left delivery, must not land before the pickup
-      newIndex = Math.max(indexOther+1, newIndex);
+    if(act.isPickup() && distance > 0){
+      if(newIndex > indexOther){return false;}
+    }else if(act.isDelivery() && distance < 0){
+      if(newIndex <= indexOther){return false;}
     }
     
     route.remove(index);
