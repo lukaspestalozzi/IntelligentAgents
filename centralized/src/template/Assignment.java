@@ -1,7 +1,7 @@
 package template;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +9,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.TreeSet;
 
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
@@ -111,22 +112,24 @@ public class Assignment {
     
     return copies;
   }
-  public ArrayList<Assignment> generateNeighbors(int nbrNabos) {
-    ArrayList<Assignment> nabos = new ArrayList<>(nbrNabos);
-    ArrayList<Assignment> copies = this.copy(nbrNabos);
+  public TreeSet<Assignment> generateNeighbors(int nbrNabos, Comparator<Assignment> comp) {
+    TreeSet<Assignment> nabos = new TreeSet<Assignment>(comp);
+    ArrayList<Assignment> copies = this.copy(nbrNabos+1);
+    int maxTries = nbrNabos*5;
     
-    while(nbrNabos > 0){
-      Assignment a = copies.remove(copies.size()-1);
+    Assignment a = copies.remove(nbrNabos);
+    while(nbrNabos > 0 && maxTries-- > 0){
       boolean found = false;
       if(rand.nextBoolean()){
         found = a.moveRandomAction();
       }else{
         found = a.changeVehicleRandomAction();
       }
-      if(found){
-        nabos.add(a);
+      if(found && nabos.add(a)){
+        nbrNabos--;
+        a = copies.remove(nbrNabos);
       }
-      nbrNabos--;
+      
     }
     return nabos;
   }
@@ -143,20 +146,22 @@ public class Assignment {
     
     // I like to ...move it move it 
 //    return moveActionByOne(act, rand.nextBoolean());
-    
-    return moveAction(act, rand.nextInt(route.size()), rand.nextBoolean());
+    int distance = rand.nextInt(route.size())* (rand.nextBoolean() ? -1: 1);
+    return moveAction(act, distance);
   }
   
   
   private boolean changeVehicleRandomAction(){
     // find two (different) random vehicles
-    Vehicle v1 = null;
-    while(v1 == null || vehicleRoutes.get(v1).isEmpty()){
-      v1 = randomVehicle(null);
-    }
-    Vehicle v2 = randomVehicle(v1);
+    Vehicle aV = null;
     
-    return changeVehicle(v1, v2);
+    while(aV == null || vehicleRoutes.get(aV).isEmpty()){
+      aV = randomVehicle(null);
+    }
+    Vehicle toV = randomVehicle(null);
+    Task t = randomAction(vehicleRoutes.get(aV)).task;
+    
+    return changeVehicle(toV, t);
   }
   
   /**
@@ -192,6 +197,7 @@ public class Assignment {
    * @return true iff the change is legal, false otherwise. Does not change the
    *         calling object if false is returned.
    */
+  @Deprecated
   private boolean changeVehicle(Vehicle fromV, Vehicle toV) {
     // input validation
     // the vehicles must be different
@@ -236,51 +242,43 @@ public class Assignment {
    * moves the task at the end of the toV route. if it is already in the toV route still moves it to the end
    * @param toV
    * @param t
-   * @return true if successful
+   * @return true if successful, may throw IllegalStateExceptions
    */
   private boolean changeVehicle(Vehicle toV, Task t) {
     // input validation
-    if(toV == null || t==null){
+    if(toV == null || t==null || t.weight > toV.capacity()){
       return false;
     }
     
-    // TODO remove task from its route
-    //  check if both actions are in the same route
-    // TODO put at the end of toV route
-    //  check if capacity of toV >= weight of task
-    // TODO update index of both routes
-    // TODO update the vehicles for the task
+    Vehicle fromV = remove(t);
     
+    vehicleRoutes.get(toV).add(new Pickup(t));
+    vehicleRoutes.get(toV).add(new Deliver(t));
     
-//    // find the pickup and deliver of the first task
-//    Action firstA = this.vehicleRoutes.get(fromV).get(0);
-//    if (firstA.isDelivery()) { throw new IllegalStateException(
-//        "The first Action must not be a delivery"); }
-//    Pickup pick = (Pickup) firstA;
-//    Deliver del = new Deliver(pick.task);
-//    
-//    // the task must fit in the toV
-//    if (toV.capacity() < pick.task.weight) { throw new IllegalStateException(
-//        "The task is to big for vehicle toV!"); }
-//        
-//    // remove the task from fromV route TODO ev use iterator for efficiency
-//    boolean rem = vehicleRoutes.get(fromV).remove(del);
-//    rem = rem & vehicleRoutes.get(fromV).remove(pick);
-//    // sanity check ('rem' must be true for both or else they were not in the
-//    // route of fromV).
-//    if (!rem) { throw new IllegalStateException(
-//        "The routes are inconsistent with the vehicles map"); }
-//        
-//    // put at the end of toV route
-//    vehicleRoutes.get(toV).add(pick);
-//    vehicleRoutes.get(toV).add(del);
-//    
-//    // update task -> vehicle
-//    this.vehicles.put(pick.task, toV);
-//    
-//    // update times of the two lists
-//    updateIndexes(fromV, toV);
-//    return true;
+    updateIndexes(toV, fromV);
+    vehicles.put(t, toV);
+    
+    return true;
+  }
+  
+  /**
+   * removes the task from its route
+   * @param t
+   * @return the vehicle the task belonged to
+   */
+  private Vehicle remove(Task t){
+    Vehicle v = vehicles.get(t);
+    Pickup pick = new Pickup(t);
+    Deliver del = new Deliver(t);
+    
+    boolean rem = vehicleRoutes.get(v).remove(del);
+    rem = rem & vehicleRoutes.get(v).remove(pick);
+    
+    if (!rem) { throw new IllegalStateException(
+        "The routes are inconsistent with the vehicles map"); }
+    
+    return v;
+    
   }
   
   /**
@@ -288,57 +286,114 @@ public class Assignment {
    * It stops moving if further move would violate the pickup before delivery constraint.
    * NOTE: AFTER THIS CALL THE ASSIGMENT MAY VIOLATE THE OVERLOAD CONSTRAINT. IN THIS CASE FALSE IS RETURNED.
    * @param act
-   * @param distance
-   * @param moveRight
+   * @param distance (positive if moving right, negative if moving left)
    * @return true iff move successful and no constraint is violated, false otherwise.
    */
-  private boolean moveAction(Action act, int distance ,boolean moveRight) {
+  private boolean moveAction(Action act, int maxdistance) {
+    if(maxdistance == 0){
+      return true;
+    }else if(act == null){
+      return false;
+    }
+    
     int index = this.indexOf.get(act);
     Vehicle vehic = this.vehicles.get(act.task);
     List<Action> route = this.vehicleRoutes.get(vehic);
     
  // sanity checks
+    if(!Constraints.checkPickupBeforeDeliveryConstraint(this)){
+      throw new IllegalStateException("moveAction not correct from the start!");
+    }
+    
     if (route.isEmpty()) { throw new IllegalStateException(
         "the vehicles map is inconsistent with the task (the task is not in the vehicles route)!"); }
     if (route.size() % 2 != 0) { throw new IllegalStateException(
         "A route must have a even size (always one pickup and delivery)"); }
-        
-    // set direction for first or last element
-    if (index == 0) {
-      moveRight = true;
-    } else if (index == route.size() - 1) {
-      moveRight = false;
+    
+    
+    //**********3
+    
+    Action other = act.isDelivery() ? new Pickup(act.task) : new Deliver(act.task);
+    int indexOther = indexOf.get(other);
+    int newIndex = Math.max(index + maxdistance, 0); // newIndex >= 0
+    newIndex = Math.min(newIndex, route.size()-1); // newIndex < route.size()    
+    
+    if(act.isPickup() && maxdistance > 0){
+      // moving right pickup, must not overtake the delivery
+      newIndex = Math.min(newIndex, indexOther);
+    }else if(act.isDelivery() && maxdistance < 0){
+      // moving left delivery, must not land before the pickup
+      newIndex = Math.max(indexOther+1, newIndex);
     }
     
- // remove the action 
-    ListIterator<Action> it = route.listIterator(index);
-    if (!it.next().equals(act)) { // just to be sure
-      throw new IllegalStateException("The indexOf map is inconistent with the route! ");
-    }
+    route.remove(index);
+    newIndex -= index < newIndex ? 1 : 0; 
+    route.add(newIndex, act);
     
-    it.remove(); // removes act from the list
     
-    // move the action
-    Action curr = null;
-    do{
-      curr = moveRight ? it.next() : it.previous();
-      distance--;
-    }while(distance > 0 && !curr.task.equals(act.task));
+    //**********
     
-    // put cursor at right position
-    if(moveRight){
-      it.previous();
-    }else{
-      it.next();
-    }
+    // remove the action 
+//    ListIterator<Action> it = route.listIterator(index);
+//    if (!it.next().equals(act)) { // just to be sure
+//      throw new IllegalStateException("The indexOf map is inconistent with the route! ");
+//    }
+//    
+//    it.remove(); // removes act from the list
+//    
+//    // move the action
+//    if(moveRight){
+//      this.moveRight(act, distance, it);
+//    }else{
+//      this.moveLeft(act, distance, it);
+//    }
+//    
+//    Action curr = null;
+//    do{
+//      curr = moveRight ? it.next() : it.previous();
+//      distance--;
+//    }while(distance > 0 && !curr.task.equals(act.task));
+//    
+//    // put cursor at right position
+//    if(moveRight){
+//      it.previous();
+//    }else{
+//      it.next();
+//    }
+//    
+//    // add the action again and update the indexes
+//    it.add(act);
     
-    // add the action again and update the indexes
-    it.add(act);
     updateIndexes(vehic);
     
     mNotCorrupt =  Constraints.checkVehicleOverloadConstraint(this, vehic);
+    if(!Constraints.checkPickupBeforeDeliveryConstraint(this)){
+      throw new IllegalStateException("moveAction not correct yet!");
+    }
     return mNotCorrupt;
     
+  }
+  
+  /**
+   * @param act
+   * @param distance
+   * @param it the list iterator that removed the action already. so the last call of it was it.remove(). and the removed Action was the action to be moved
+   */
+  private void moveRight(Action act, int distance, ListIterator<Action> it){
+    while(it.hasNext() && distance-- > 0 && !it.next().task.equals(act.task));
+    it.previous();
+    it.add(act);
+  }
+  
+  /**
+   * @param act
+   * @param distance
+   * @param it the list iterator that removed the action already. so the last call of it was it.remove(). and the removed Action was the action to be moved
+   */
+  private void moveLeft(Action act, int distance, ListIterator<Action> it){
+    while(it.hasPrevious() && distance-- > 0 && !it.previous().task.equals(act.task));
+    it.next();
+    it.add(act);
   }
   
   

@@ -57,7 +57,7 @@ public class CentralizedAgent implements CentralizedBehavior {
     mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in
                                                                  // xml file
     
-    mIter = agent.readProperty("amnt_iter", int.class, 100);
+    mIter = agent.readProperty("amnt_iter", int.class, 10000);
     
     this.mTopology = topology;
     this.mDistribution = distribution;
@@ -91,15 +91,12 @@ public class CentralizedAgent implements CentralizedBehavior {
     }
     
     Assignment newA = oldA;
-    PickupSls sls = new PickupSls(objFunc, mProba);
+    PickupSls sls = new PickupSls(objFunc, mProba, mIter);
     
     for (int i = 0; i < mIter; i++) {
       System.out.println("\n\nIteration: " + i);
       newA = sls.updateAssignment(oldA);
       oldA = newA;
-      if (false/* TODO insert termination condition */) {
-        break;
-      }
     }
     
     List<Plan> plans = newA.generatePlans(vehicles);
