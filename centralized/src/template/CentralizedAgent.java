@@ -86,33 +86,19 @@ public class CentralizedAgent implements CentralizedBehavior {
   private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
     
     ObjFunc objFunc = new ObjFunc();
-    Assignment oldA = selectInitalSolution(vehicles, tasks);
-    if (vehicles.size() == 1) { return oldA.generatePlans(vehicles); }
-    if (oldA == null) {
-      // TODO what to return if no plan is possible?
+    Assignment initA = selectInitalSolution(vehicles, tasks);
+    if (vehicles.size() == 1) { return initA.generatePlans(vehicles); }
+    if (initA == null) {
       System.out.println("Plan not possible!!!");
       return null;
     }
-    Assignment bestA = null;
-    double bestCost = Double.MAX_VALUE;
-    Assignment newA = oldA;
-    PickupSls sls = new PickupSls(objFunc, mProba, mIter);
     
-    for (int i = 0; i < mIter; i++) {
-      System.out.println("\n\nIteration: " + i);
-      newA = sls.updateAssignment(oldA);
-      
-      double val = objFunc.compute(newA);
-      if(bestCost > val){
-        bestCost = val;
-        bestA = newA;
-      }
-      
-      oldA = newA;
-    }
-    
-    System.out.println("Final cost: "+bestCost);
+    // search
+    PickupSls sls = new PickupSls(objFunc, mProba, mIter, tasks.toArray(new Task[tasks.size()]));
+    Assignment bestA = sls.run(initA);
     List<Plan> plans = bestA.generatePlans(vehicles);
+    
+    // print the plans
     System.out.println("Plans: ");
     for (int i = 0; i < plans.size(); i++) {
       Plan p = plans.get(i);

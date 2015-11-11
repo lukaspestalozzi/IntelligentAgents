@@ -5,24 +5,31 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
 
+import logist.task.Task;
+
 public class PickupSls {
+  // general
   private ObjFunc mObjFunc;
   private final double mProba;
-  private double mProbaAnh;
   private final int mNbrIterations;
-  private double mAnhStep;
+  private final Task[] mAllTasks;
   private final Comparator<Assignment> mAssigmentComp;
+  
+  // annealing
+  private double mProbaAnn;
+  private double mAnnStep;
+  
   private Random r = new Random(2015);
 
-  public PickupSls(ObjFunc objFunc, double probability, int nbrIterations) {
+  public PickupSls(ObjFunc objFunc, double probability, int nbrIterations, Task[] allTasks) {
     mObjFunc = objFunc;
     mProba = probability;
-    mProbaAnh = mProba;
+    mProbaAnn = mProba;
     mNbrIterations = nbrIterations;
-    mAnhStep = mProba/(mNbrIterations);
+    mAnnStep = mProba/(mNbrIterations);
+    mAllTasks = allTasks;
     
     mAssigmentComp = new Comparator<Assignment>() {
-
       @Override
       public int compare(Assignment a1, Assignment a2) {
         double cost1 = mObjFunc.compute(a1);
@@ -35,9 +42,37 @@ public class PickupSls {
       }
     };
   }
+  
+  /**
+   * runs the sls algorithm.
+   * @param initA
+   * @return
+   */
+  public Assignment run(Assignment initA){
+    Assignment newA = initA;
+    Assignment oldA = initA;
+    Assignment bestA = null;
+    double bestCost = Double.MAX_VALUE;
+    
+    for (int i = 0; i < mNbrIterations; i++) {
+      System.out.println("\n\nIteration: " + i);
+      newA = this.updateAssignment(oldA);
+      
+      double val = mObjFunc.compute(newA);
+      if(bestCost > val){
+        bestCost = val;
+        bestA = newA;
+      }
+      
+      oldA = newA;
+    }
+    System.out.println("(final)best cost: "+bestCost);
+    return bestA;
+  }
 
-  public Assignment updateAssignment(Assignment oldA) {
-    TreeSet<Assignment> nabos = oldA.generateNeighbors(1000, mAssigmentComp);
+  private Assignment updateAssignment(Assignment oldA) {
+//    TreeSet<Assignment> nabos = oldA.generateNeighbors(1000, mAssigmentComp);
+    TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mAssigmentComp, randomTask());
 
     System.out.println("nbr nabos: "+nabos.size());
     if(nabos.size() == 1){
@@ -45,9 +80,8 @@ public class PickupSls {
     }
     Assignment newA;
     
-    if(Math.random() < mProbaAnh){
+    if(Math.random() < mProbaAnn){
       // suboptimal solution
-//      newA = chooseSuboptimalNabo(nabos);
       newA = chooseSuboptimalNaboGauss(nabos);
       System.out.println("--> suboptimal");
     }else{
@@ -55,15 +89,15 @@ public class PickupSls {
       newA=  chooseMinNabo(nabos);
     }
     
-    mProbaAnh -= mAnhStep;
+    mProbaAnn -= mAnnStep;
     
 //    System.out.println(newA.toString());
-    System.out.println("anh proba: "+mProbaAnh);
+    System.out.println("anh proba: "+mProbaAnn);
     System.out.println("new cost: "+mObjFunc.compute(newA));
     return newA;
   }
   
-  private Assignment chooseSuboptimalNabo(TreeSet<Assignment> nabos){
+  private Assignment chooseSuboptimalNaboUniform(TreeSet<Assignment> nabos){
     
     int nbrCandidates = (int) Math.ceil(nabos.size()*0.5);
     int index = r.nextInt(nbrCandidates);
@@ -76,16 +110,22 @@ public class PickupSls {
   }
   
   private Assignment chooseSuboptimalNaboGauss(TreeSet<Assignment> nabos){
-    
-    int nbrCandidates = (int) Math.ceil(nabos.size());
-    double rand = Math.min(Math.abs(r.nextGaussian()), 1);
-    int index = (int)Math.floor(rand*nbrCandidates);
+    double rand = r.nextGaussian();
+    while(rand > 1 || rand < 0){
+      rand = r.nextGaussian();
+    }
+
+    int index = (int)Math.floor(rand*(nabos.size()-1));
     
     System.out.println("index: "+index);
     // go to index
     Iterator<Assignment> it = nabos.iterator();
-    while(it.hasNext() && --index > 0){it.next();}
+    while(--index > 0){it.next();}
     return it.next();
+  }
+  
+  private Task randomTask(){
+    return mAllTasks[r.nextInt(mAllTasks.length)];
   }
   
   private Assignment chooseMinNabo(TreeSet<Assignment> nabos) {

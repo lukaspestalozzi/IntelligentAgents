@@ -74,6 +74,10 @@ public class Assignment {
     
   }
   
+  public Assignment copy() {
+    return this.copy(1).get(0);
+  }
+  
   /**
    * @param howMany
    *          defines how many copies should be made.
@@ -119,6 +123,41 @@ public class Assignment {
     
     return copies;
   }
+  public TreeSet<Assignment> generateAllNeighbors(Comparator<Assignment> comp, Task t) {
+    TreeSet<Assignment> nabos = new TreeSet<Assignment>(comp);
+    Assignment ass = null;
+    
+    Action act = rand.nextBoolean() ? new Pickup(t) : new Deliver(t);
+    
+    // move
+    List<Action> route = vehicleRoutes.get(vehicles.get(t));
+    int maxdir = route.size();
+    
+    for(int i = -maxdir; i <= maxdir; i++){
+      if(i != 0){
+        ass = this.copy();
+        if(ass.moveAction(act, i)){
+          if(nabos.add(ass)){
+//            System.out.println("--> added move");
+          }
+        }
+      }
+    }
+    
+    
+    // change
+    for(Vehicle v : CentralizedAgent.allVehicles){
+      ass = this.copy(); 
+      if(ass.changeVehicle(v, t)){
+        nabos.add(ass);
+      }
+    }
+    
+//    System.out.println(nabos.toString());
+    return nabos;
+  }
+  
+  
   public TreeSet<Assignment> generateNeighbors(int nbrNabos, Comparator<Assignment> comp) {
     TreeSet<Assignment> nabos = new TreeSet<Assignment>(comp);
     ArrayList<Assignment> copies = this.copy(nbrNabos+1);
@@ -297,10 +336,11 @@ public class Assignment {
    * @return true iff move successful and no constraint is violated, false otherwise.
    */
   private boolean moveAction(Action act, int maxdistance) {
+    if(act == null){
+      return false;
+    }
     if(maxdistance == 0){
       return true;
-    }else if(act == null){
-      return false;
     }
     
     int index = this.indexOf.get(act);
