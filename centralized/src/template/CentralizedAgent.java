@@ -1,5 +1,6 @@
 package template;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,11 +88,16 @@ public class CentralizedAgent implements CentralizedBehavior {
     
     ObjFunc objFunc = new ObjFunc();
     Assignment initA = selectInitalSolution(vehicles, tasks);
-    if (vehicles.size() == 1) { return initA.generatePlans(vehicles); }
     if (initA == null) {
-      System.out.println("Plan not possible!!!");
-      return null;
+      System.out.println("No Plan possible!!!");
+      List<Plan> plans = new ArrayList<>();
+      for(Vehicle v : vehicles){
+        plans.add(new Plan(v.getCurrentCity()));
+      }
+      return plans;
     }
+    
+    if (vehicles.size() == 1) { return initA.generatePlans(vehicles); }
     
     // search
     PickupSls sls = new PickupSls(objFunc, mProba, mIter, tasks.toArray(new Task[tasks.size()]));
