@@ -23,6 +23,8 @@ public class Assignment {
   // project description
   public final Map<Action, Integer> indexOf;
   
+  private boolean mNotCorrupt = true; // a flag to thell if this assigment is corrupt (true -> does not violate any constraint) 
+  
   
   private Random rand = new Random(/* 2015 */);
   
@@ -140,7 +142,9 @@ public class Assignment {
     Action act = randomAction(route);
     
     // I like to ...move it move it 
-    return moveAction(act, rand.nextBoolean());
+//    return moveActionByOne(act, rand.nextBoolean());
+    
+    return moveAction(act, rand.nextInt(route.size()), rand.nextBoolean());
   }
   
   
@@ -176,6 +180,8 @@ public class Assignment {
     }
     return v;
   }
+  
+  
   
   /**
    * removes the first task from the 'fromV' route and puts it at the end of the
@@ -227,6 +233,116 @@ public class Assignment {
   }
   
   /**
+   * moves the task at the end of the toV route. if it is already in the toV route still moves it to the end
+   * @param toV
+   * @param t
+   * @return true if successful
+   */
+  private boolean changeVehicle(Vehicle toV, Task t) {
+    // input validation
+    if(toV == null || t==null){
+      return false;
+    }
+    
+    // TODO remove task from its route
+    //  check if both actions are in the same route
+    // TODO put at the end of toV route
+    //  check if capacity of toV >= weight of task
+    // TODO update index of both routes
+    // TODO update the vehicles for the task
+    
+    
+//    // find the pickup and deliver of the first task
+//    Action firstA = this.vehicleRoutes.get(fromV).get(0);
+//    if (firstA.isDelivery()) { throw new IllegalStateException(
+//        "The first Action must not be a delivery"); }
+//    Pickup pick = (Pickup) firstA;
+//    Deliver del = new Deliver(pick.task);
+//    
+//    // the task must fit in the toV
+//    if (toV.capacity() < pick.task.weight) { throw new IllegalStateException(
+//        "The task is to big for vehicle toV!"); }
+//        
+//    // remove the task from fromV route TODO ev use iterator for efficiency
+//    boolean rem = vehicleRoutes.get(fromV).remove(del);
+//    rem = rem & vehicleRoutes.get(fromV).remove(pick);
+//    // sanity check ('rem' must be true for both or else they were not in the
+//    // route of fromV).
+//    if (!rem) { throw new IllegalStateException(
+//        "The routes are inconsistent with the vehicles map"); }
+//        
+//    // put at the end of toV route
+//    vehicleRoutes.get(toV).add(pick);
+//    vehicleRoutes.get(toV).add(del);
+//    
+//    // update task -> vehicle
+//    this.vehicles.put(pick.task, toV);
+//    
+//    // update times of the two lists
+//    updateIndexes(fromV, toV);
+//    return true;
+  }
+  
+  /**
+   * Moves the action by at most the given distance in the given direction.
+   * It stops moving if further move would violate the pickup before delivery constraint.
+   * NOTE: AFTER THIS CALL THE ASSIGMENT MAY VIOLATE THE OVERLOAD CONSTRAINT. IN THIS CASE FALSE IS RETURNED.
+   * @param act
+   * @param distance
+   * @param moveRight
+   * @return true iff move successful and no constraint is violated, false otherwise.
+   */
+  private boolean moveAction(Action act, int distance ,boolean moveRight) {
+    int index = this.indexOf.get(act);
+    Vehicle vehic = this.vehicles.get(act.task);
+    List<Action> route = this.vehicleRoutes.get(vehic);
+    
+ // sanity checks
+    if (route.isEmpty()) { throw new IllegalStateException(
+        "the vehicles map is inconsistent with the task (the task is not in the vehicles route)!"); }
+    if (route.size() % 2 != 0) { throw new IllegalStateException(
+        "A route must have a even size (always one pickup and delivery)"); }
+        
+    // set direction for first or last element
+    if (index == 0) {
+      moveRight = true;
+    } else if (index == route.size() - 1) {
+      moveRight = false;
+    }
+    
+ // remove the action 
+    ListIterator<Action> it = route.listIterator(index);
+    if (!it.next().equals(act)) { // just to be sure
+      throw new IllegalStateException("The indexOf map is inconistent with the route! ");
+    }
+    
+    it.remove(); // removes act from the list
+    
+    // move the action
+    Action curr = null;
+    do{
+      curr = moveRight ? it.next() : it.previous();
+      distance--;
+    }while(distance > 0 && !curr.task.equals(act.task));
+    
+    // put cursor at right position
+    if(moveRight){
+      it.previous();
+    }else{
+      it.next();
+    }
+    
+    // add the action again and update the indexes
+    it.add(act);
+    updateIndexes(vehic);
+    
+    mNotCorrupt =  Constraints.checkVehicleOverloadConstraint(this, vehic);
+    return mNotCorrupt;
+    
+  }
+  
+  
+  /**
    * Moves the action in its route by one index in the given direction. Note
    * that the first element always is moved back and the last element moved
    * towards the front.
@@ -239,7 +355,7 @@ public class Assignment {
    * @return true iff the change is legal, false otherwise. Does not change the
    *         calling object if false is returned.
    */
-  private boolean moveAction(Action act, boolean moveRight) {
+  private boolean moveActionByOne(Action act, boolean moveRight) {
     int index = this.indexOf.get(act);
     List<Action> route = this.vehicleRoutes.get(this.vehicles.get(act.task));
     
@@ -345,5 +461,13 @@ public class Assignment {
     }
     return sb.toString();
     
+  }
+  
+  /**
+   * 
+   * @return true iff the assigment is corrupt
+   */
+  public boolean isCorrupt() {
+    return ! mNotCorrupt;
   }
 }
