@@ -12,7 +12,7 @@
   <agent name="centralized-sls">
     <set class-path="bin/"/>
     <set class-name="template.CentralizedAgent"/>
-    <set amnt_iter="500"/>
+    <set amnt_iter="5000"/>
     <set sls_proba="0.9"/>
     <set annealing="1"/>
   </agent>

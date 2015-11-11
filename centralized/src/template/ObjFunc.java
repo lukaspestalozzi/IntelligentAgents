@@ -19,6 +19,7 @@ public class ObjFunc {
         Action lastAction = route.get(0);
         for(Action act : route) {
           sum += distance(lastAction, act) * v.costPerKm();
+          lastAction = act;
         }
       }
     }

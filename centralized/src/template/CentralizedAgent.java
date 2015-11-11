@@ -75,7 +75,11 @@ public class CentralizedAgent implements CentralizedBehavior {
     long time_end = System.currentTimeMillis();
     long duration = time_end - time_start;
     System.out.println("The plan was generated in " + duration + " milliseconds.");
-    
+    double realcost = 0;
+    for(int i = 0; i < plans.size(); i++){
+      realcost += plans.get(i).totalDistance()*vehicles.get(i).costPerKm();
+    }
+    System.out.println("Real total cost is: "+realcost);
     return plans;
   }
   
@@ -110,9 +114,10 @@ public class CentralizedAgent implements CentralizedBehavior {
     System.out.println("Final cost: "+bestCost);
     List<Plan> plans = bestA.generatePlans(vehicles);
     System.out.println("Plans: ");
-    for (Plan p : plans) {
+    for (int i = 0; i < plans.size(); i++) {
+      Plan p = plans.get(i);
       
-      System.out.println(p.toString() + " --> " + p.totalDistance());
+      System.out.println("vehic: "+vehicles.get(i).id()+" --> "+p.toString());
       System.out.println();
     }
     

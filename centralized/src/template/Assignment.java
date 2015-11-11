@@ -132,7 +132,7 @@ public class Assignment {
       }else{
         found = a.changeVehicleRandomAction();
       }
-      if(found && nabos.add(a)){
+      if(found && a.mNotCorrupt && nabos.add(a)){
         nbrNabos--;
         a = copies.remove(nbrNabos);
       }
@@ -318,8 +318,6 @@ public class Assignment {
         "A route must have a even size (always one pickup and delivery)"); }
     
     
-    //**********3
-    
     Action other = act.isDelivery() ? new Pickup(act.task) : new Deliver(act.task);
     int indexOther = indexOf.get(other);
     int newIndex = Math.max(index + maxdistance, 0); // newIndex >= 0
@@ -336,40 +334,6 @@ public class Assignment {
     route.remove(index);
     newIndex -= index < newIndex ? 1 : 0; 
     route.add(newIndex, act);
-    
-    
-    //**********
-    
-    // remove the action 
-//    ListIterator<Action> it = route.listIterator(index);
-//    if (!it.next().equals(act)) { // just to be sure
-//      throw new IllegalStateException("The indexOf map is inconistent with the route! ");
-//    }
-//    
-//    it.remove(); // removes act from the list
-//    
-//    // move the action
-//    if(moveRight){
-//      this.moveRight(act, distance, it);
-//    }else{
-//      this.moveLeft(act, distance, it);
-//    }
-//    
-//    Action curr = null;
-//    do{
-//      curr = moveRight ? it.next() : it.previous();
-//      distance--;
-//    }while(distance > 0 && !curr.task.equals(act.task));
-//    
-//    // put cursor at right position
-//    if(moveRight){
-//      it.previous();
-//    }else{
-//      it.next();
-//    }
-//    
-//    // add the action again and update the indexes
-//    it.add(act);
     
     updateIndexes(vehic);
     
