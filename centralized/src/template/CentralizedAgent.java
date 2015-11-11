@@ -54,10 +54,10 @@ public class CentralizedAgent implements CentralizedBehavior {
       mTimeout_plan = 300000;
     }
     
-    mProba = agent.readProperty("SLS_Proba", double.class, 0.5); // TODO put in
+    mProba = agent.readProperty("SLS_Proba", Double.class, 0.5); // TODO put in
                                                                  // xml file
     
-    mIter = agent.readProperty("amnt_iter", int.class, 10000);
+    mIter = agent.readProperty("amnt_iter", Integer.class, 10000);
     
     this.mTopology = topology;
     this.mDistribution = distribution;

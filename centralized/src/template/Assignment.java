@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import logist.topology.Topology.City;
 
 public class Assignment {
   // The route each vehicle takes
@@ -50,7 +51,13 @@ public class Assignment {
       if (!vehicleRoutes.get(v).isEmpty()) {
         // the vehicle has at least one action to do (actually two since it has
         // at least to pickup and deliver a package)
+        City currentCity = v.getCurrentCity();
         for (Action nextA : vehicleRoutes.get(v)) {
+          for(City miniGoal : currentCity.pathTo(nextA.actionCity)) {
+            p.appendMove(miniGoal);
+          }
+          currentCity = nextA.actionCity;
+        
           if (nextA.isDelivery()) {
             p.appendDelivery(nextA.task);
           } else if (nextA.isPickup()) {
