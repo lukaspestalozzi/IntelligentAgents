@@ -14,7 +14,7 @@ public class PickupSls {
   private final int mNbrIterations;
   private final Task[] mAllTasks;
   private final Comparator<Assignment> mAssigmentComp;
-  
+  private int mI;
   // annealing
   private double mProbaAnn;
   private double mAnnStep;
@@ -28,6 +28,8 @@ public class PickupSls {
     mNbrIterations = nbrIterations;
     mAnnStep = mProba/(mNbrIterations);
     mAllTasks = allTasks;
+    
+    mI = 0;
     
     mAssigmentComp = new Comparator<Assignment>() {
       @Override
@@ -54,8 +56,8 @@ public class PickupSls {
     Assignment bestA = null;
     double bestCost = Double.MAX_VALUE;
     
-    for (int i = 0; i < mNbrIterations; i++) {
-      System.out.println("\n\nIteration: " + i);
+    for (mI = 0; mI < mNbrIterations; mI++) {
+      System.out.println("\n\nIteration: " + mI);
       newA = this.updateAssignment(oldA);
       
       double val = mObjFunc.compute(newA);
@@ -69,6 +71,8 @@ public class PickupSls {
     System.out.println("(final)best cost: "+bestCost);
     return bestA;
   }
+  
+  
 
   private Assignment updateAssignment(Assignment oldA) {
 //    TreeSet<Assignment> nabos = oldA.generateNeighbors(1000, mAssigmentComp);
@@ -78,23 +82,19 @@ public class PickupSls {
     if(nabos.size() == 1){
       return nabos.first();
     }
-    Assignment newA;
-    
-    if(Math.random() < mProbaAnn){
-      // suboptimal solution
-      newA = chooseSuboptimalNaboGauss(nabos);
-      System.out.println("--> suboptimal");
-    }else{
-      System.out.println("--> min");
-      newA=  chooseMinNabo(nabos);
-    }
-    
-    mProbaAnn -= mAnnStep;
-    
-//    System.out.println(newA.toString());
-    System.out.println("anh proba: "+mProbaAnn);
+    Assignment newA = choose(nabos);
+
+//    System.out.println("anh proba: "+mProbaAnn);
     System.out.println("new cost: "+mObjFunc.compute(newA));
     return newA;
+  }
+  
+  private Assignment choose(TreeSet<Assignment> nabos){
+    double progress = (double)mI/(double)mNbrIterations;
+    int maxIndex = (int) Math.floor(nabos.size()*(1-progress));
+    maxIndex += r.nextDouble() < mProba ? 1 : 0;
+    System.out.println("progress: "+progress+" --> maxIndex: "+maxIndex);
+    return chooseSuboptimalNaboGauss(nabos, maxIndex);
   }
   
   private Assignment chooseSuboptimalNaboUniform(TreeSet<Assignment> nabos){
@@ -109,13 +109,18 @@ public class PickupSls {
     return it.next();
   }
   
-  private Assignment chooseSuboptimalNaboGauss(TreeSet<Assignment> nabos){
+  private Assignment chooseSuboptimalNaboGauss(TreeSet<Assignment> nabos, int maxIndex){
+    if(maxIndex < 0){
+      maxIndex = 0;
+    }else if(maxIndex == 0){
+      return nabos.first();
+    }
     double rand = r.nextGaussian();
     while(rand > 1 || rand < 0){
       rand = r.nextGaussian();
     }
 
-    int index = (int)Math.floor(rand*(nabos.size()-1));
+    int index = (int)Math.floor(rand*maxIndex);
     
     System.out.println("index: "+index);
     // go to index
