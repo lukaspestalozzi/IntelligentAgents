@@ -25,8 +25,9 @@ public class Assignment {
   // project description
   public final Map<Action, Integer> indexOf;
   
-  private boolean mNotCorrupt = true; // a flag to thell if this assigment is corrupt (true -> does not violate any constraint) 
-  
+  private boolean mNotCorrupt = true; // a flag to thell if this assigment is
+                                      // corrupt (true -> does not violate any
+                                      // constraint)
   
   private Random rand = new Random(/* 2015 */);
   
@@ -53,11 +54,11 @@ public class Assignment {
         // at least to pickup and deliver a package)
         City currentCity = v.getCurrentCity();
         for (Action nextA : vehicleRoutes.get(v)) {
-          for(City miniGoal : currentCity.pathTo(nextA.actionCity)) {
+          for (City miniGoal : currentCity.pathTo(nextA.actionCity)) {
             p.appendMove(miniGoal);
           }
           currentCity = nextA.actionCity;
-        
+          
           if (nextA.isDelivery()) {
             p.appendDelivery(nextA.task);
           } else if (nextA.isPickup()) {
@@ -123,6 +124,7 @@ public class Assignment {
     
     return copies;
   }
+  
   public TreeSet<Assignment> generateAllNeighbors(Comparator<Assignment> comp, Task t) {
     TreeSet<Assignment> nabos = new TreeSet<Assignment>(comp);
     Assignment ass = null;
@@ -133,45 +135,42 @@ public class Assignment {
     List<Action> route = vehicleRoutes.get(vehicles.get(t));
     int maxdir = route.size();
     
-    for(int i = -maxdir; i <= maxdir; i++){
-      if(i != 0){
-        ass = this.copy();
-        if(ass.moveAction(act, i)){
-          if(nabos.add(ass)){
-//            System.out.println("--> added move");
-          }
+    for (int i = -maxdir; i <= maxdir; i++) {
+      ass = this.copy();
+      if (ass.moveAction(act, i)) {
+        if (nabos.add(ass)) {
+          // System.out.println("--> added move");
         }
       }
     }
     
-    
     // change
-    for(Vehicle v : CentralizedAgent.allVehicles){
-      ass = this.copy(); 
-      if(ass.changeVehicle(v, t)){
+    for (Vehicle v : CentralizedAgent.allVehicles) {
+      ass = this.copy();
+      if (ass.changeVehicle(v, t)) {
         nabos.add(ass);
       }
     }
     
-//    System.out.println(nabos.toString());
+    // System.out.println(nabos.toString());
     return nabos;
   }
   
-  
-  public TreeSet<Assignment> generateNeighbors(int nbrNabos, Comparator<Assignment> comp) {
+  public TreeSet<Assignment> generateNeighbors(int nbrNabos,
+                                               Comparator<Assignment> comp) {
     TreeSet<Assignment> nabos = new TreeSet<Assignment>(comp);
-    ArrayList<Assignment> copies = this.copy(nbrNabos+1);
-    int maxTries = nbrNabos*5;
+    ArrayList<Assignment> copies = this.copy(nbrNabos + 1);
+    int maxTries = nbrNabos * 5;
     
     Assignment a = copies.remove(nbrNabos);
-    while(nbrNabos > 0 && maxTries-- > 0){
+    while (nbrNabos > 0 && maxTries-- > 0) {
       boolean found = false;
-      if(rand.nextBoolean()){
+      if (rand.nextBoolean()) {
         found = a.moveRandomAction();
-      }else{
+      } else {
         found = a.changeVehicleRandomAction();
       }
-      if(found && a.mNotCorrupt && nabos.add(a)){
+      if (found && a.mNotCorrupt && nabos.add(a)) {
         nbrNabos--;
         a = copies.remove(nbrNabos);
       }
@@ -180,28 +179,27 @@ public class Assignment {
     return nabos;
   }
   
-  private boolean moveRandomAction(){
+  private boolean moveRandomAction() {
     // find random route
     List<Action> route = null;
-    while(route == null || route.isEmpty()){
+    while (route == null || route.isEmpty()) {
       route = vehicleRoutes.get(randomVehicle(null));
     }
     
     // find random action
     Action act = randomAction(route);
     
-    // I like to ...move it move it 
-//    return moveActionByOne(act, rand.nextBoolean());
-    int distance = rand.nextInt(route.size())* (rand.nextBoolean() ? -1: 1);
+    // I like to ...move it move it
+    // return moveActionByOne(act, rand.nextBoolean());
+    int distance = rand.nextInt(route.size()) * (rand.nextBoolean() ? -1 : 1);
     return moveAction(act, distance);
   }
   
-  
-  private boolean changeVehicleRandomAction(){
+  private boolean changeVehicleRandomAction() {
     // find two (different) random vehicles
     Vehicle aV = null;
     
-    while(aV == null || vehicleRoutes.get(aV).isEmpty()){
+    while (aV == null || vehicleRoutes.get(aV).isEmpty()) {
       aV = randomVehicle(null);
     }
     Vehicle toV = randomVehicle(null);
@@ -233,16 +231,16 @@ public class Assignment {
   }
   
   /**
-   * moves the task at the end of the toV route. if it is already in the toV route still moves it to the end
+   * moves the task at the end of the toV route. if it is already in the toV
+   * route still moves it to the end
+   * 
    * @param toV
    * @param t
    * @return true if successful, may throw IllegalStateExceptions
    */
   private boolean changeVehicle(Vehicle toV, Task t) {
     // input validation
-    if(toV == null || t==null || t.weight > toV.capacity()){
-      return false;
-    }
+    if (toV == null || t == null || t.weight > toV.capacity()) { return false; }
     
     Vehicle fromV = remove(t);
     
@@ -257,10 +255,11 @@ public class Assignment {
   
   /**
    * removes the task from its route
+   * 
    * @param t
    * @return the vehicle the task belonged to
    */
-  private Vehicle remove(Task t){
+  private Vehicle remove(Task t) {
     Vehicle v = vehicles.get(t);
     Pickup pick = new Pickup(t);
     Deliver del = new Deliver(t);
@@ -270,69 +269,65 @@ public class Assignment {
     
     if (!rem) { throw new IllegalStateException(
         "The routes are inconsistent with the vehicles map"); }
-    
+        
     return v;
     
   }
   
   /**
-   * Moves the action by at most the given distance in the given direction.
-   * It stops moving if further move would violate the pickup before delivery constraint.
-   * NOTE: AFTER THIS CALL THE ASSIGMENT MAY VIOLATE THE OVERLOAD CONSTRAINT. IN THIS CASE FALSE IS RETURNED.
+   * Moves the action by at most the given distance in the given direction. It
+   * stops moving if further move would violate the pickup before delivery
+   * constraint. NOTE: AFTER THIS CALL THE ASSIGMENT MAY VIOLATE THE OVERLOAD
+   * CONSTRAINT. IN THIS CASE FALSE IS RETURNED.
+   * 
    * @param act
-   * @param distance (positive if moving right, negative if moving left)
-   * @return true iff move successful and no constraint is violated, false otherwise.
+   * @param distance
+   *          (positive if moving right, negative if moving left)
+   * @return true iff move successful and no constraint is violated, false
+   *         otherwise.
    */
   private boolean moveAction(Action act, int distance) {
-    if(act == null){
-      return false;
-    }
-    if(distance == 0){
-      return true;
-    }
+    if (act == null) { return false; }
+    if (distance == 0) { return true; }
     
     int index = this.indexOf.get(act);
     Vehicle vehic = this.vehicles.get(act.task);
     List<Action> route = this.vehicleRoutes.get(vehic);
     
- // sanity checks
-    if(!Constraints.checkPickupBeforeDeliveryConstraint(this)){
-      throw new IllegalStateException("moveAction not correct from the start!");
-    }
-    
+    // sanity checks
+    if (!Constraints.checkPickupBeforeDeliveryConstraint(
+        this)) { throw new IllegalStateException(
+            "moveAction not correct from the start!"); }
+            
     if (route.isEmpty()) { throw new IllegalStateException(
         "the vehicles map is inconsistent with the task (the task is not in the vehicles route)!"); }
     if (route.size() % 2 != 0) { throw new IllegalStateException(
         "A route must have a even size (always one pickup and delivery)"); }
-    
-    
+        
     Action other = act.isDelivery() ? new Pickup(act.task) : new Deliver(act.task);
     int indexOther = indexOf.get(other);
     int newIndex = index + distance;
-    if(newIndex < 0){return false;}
-    if(newIndex > route.size()-1){return false;} 
+    if (newIndex < 0) { return false; }
+    if (newIndex > route.size() - 1) { return false; }
     
-    if(act.isPickup() && distance > 0){
-      if(newIndex > indexOther){return false;}
-    }else if(act.isDelivery() && distance < 0){
-      if(newIndex <= indexOther){return false;}
+    if (act.isPickup() && distance > 0) {
+      if (newIndex > indexOther) { return false; }
+    } else if (act.isDelivery() && distance < 0) {
+      if (newIndex <= indexOther) { return false; }
     }
     
     route.remove(index);
-    newIndex -= index < newIndex ? 1 : 0; 
+    newIndex -= index < newIndex ? 1 : 0;
     route.add(newIndex, act);
     
     updateIndexes(vehic);
     
-    mNotCorrupt =  Constraints.checkVehicleOverloadConstraint(this, vehic);
-    if(!Constraints.checkPickupBeforeDeliveryConstraint(this)){
-      throw new IllegalStateException("moveAction not correct yet!");
-    }
+    mNotCorrupt = Constraints.checkVehicleOverloadConstraint(this, vehic);
+    if (!Constraints.checkPickupBeforeDeliveryConstraint(
+        this)) { throw new IllegalStateException("moveAction not correct yet!"); }
     return mNotCorrupt;
     
   }
-  
- 
   
   /**
    * updates the times for the given vehicles plans (Times is 0 indexed, so the
@@ -352,13 +347,11 @@ public class Assignment {
   
   @Override
   public String toString() {
-    return new StringBuilder().append("Assignment: \n    vehicRoutes: ")
-        .append(vehicleRoutsString())
-//        .append("\n    vehicles: ")
-//        .append(vehicles.toString())
-        .append("\n    indexOf: ")
-        .append(indexOf.toString())
-        .append("\n\n").toString();
+    return new StringBuilder().append("Assignment: \n    vehicRoutes: ").append(
+        vehicleRoutsString())
+        // .append("\n vehicles: ")
+        // .append(vehicles.toString())
+        .append("\n    indexOf: ").append(indexOf.toString()).append("\n\n").toString();
   }
   
   public String vehicleRoutsString() {
@@ -382,8 +375,7 @@ public class Assignment {
    * @return true iff the assigment is corrupt
    */
   public boolean isCorrupt() {
-    return ! mNotCorrupt;
+    return !mNotCorrupt;
   }
-  
   
 }
