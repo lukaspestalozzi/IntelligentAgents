@@ -37,7 +37,7 @@ public class PickupSls {
   }
 
   public Assignment updateAssignment(Assignment oldA) {
-    TreeSet<Assignment> nabos = oldA.generateNeighbors(200, mAssigmentComp);
+    TreeSet<Assignment> nabos = oldA.generateNeighbors(1000, mAssigmentComp);
 
     System.out.println("nbr nabos: "+nabos.size());
     if(nabos.size() == 1){
