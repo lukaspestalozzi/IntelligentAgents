@@ -67,15 +67,18 @@ public class CentralizedAgent implements CentralizedBehavior {
   
   @Override
   public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-    long time_start = System.currentTimeMillis();
+    System.out.println("nbr tasks: "+tasks.size());
+    System.out.println("nbr vehicles: "+vehicles.size());
+    
+    long time_start = System.nanoTime();
     allVehicles = vehicles.toArray(new Vehicle[vehicles.size()]);
     // System.out.println("Agent " + agent.id() + " has tasks " + tasks);
     
     List<Plan> plans = slsPlans(vehicles, tasks);
     
-    long time_end = System.currentTimeMillis();
+    long time_end = System.nanoTime();
     long duration = time_end - time_start;
-    System.out.println("The plan was generated in " + duration + " milliseconds.");
+    System.out.println("The plan was generated in " + duration/1000 + " milliseconds.");
     double realcost = 0;
     for(int i = 0; i < plans.size(); i++){
       realcost += plans.get(i).totalDistance()*vehicles.get(i).costPerKm();
@@ -97,7 +100,7 @@ public class CentralizedAgent implements CentralizedBehavior {
       return plans;
     }
     
-    if (vehicles.size() == 1) { return initA.generatePlans(vehicles); }
+//    if (vehicles.size() == 1) { return initA.generatePlans(vehicles); }
     
     // search
     PickupSls sls = new PickupSls(objFunc, mProba, mIter, tasks.toArray(new Task[tasks.size()]));

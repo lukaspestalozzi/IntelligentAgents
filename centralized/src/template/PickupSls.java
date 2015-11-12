@@ -57,7 +57,7 @@ public class PickupSls {
     double bestCost = Double.MAX_VALUE;
     
     for (mI = 0; mI < mNbrIterations; mI++) {
-      System.out.println("\n\nIteration: " + mI);
+//      System.out.println("\n\nIteration: " + mI);
       newA = this.updateAssignment(oldA);
       
       double val = mObjFunc.compute(newA);
@@ -68,7 +68,7 @@ public class PickupSls {
       
       oldA = newA;
     }
-    System.out.println("(final)best cost: "+bestCost);
+//    System.out.println("(final)best cost: "+bestCost);
     return bestA;
   }
   
@@ -78,14 +78,14 @@ public class PickupSls {
 //    TreeSet<Assignment> nabos = oldA.generateNeighbors(1000, mAssigmentComp);
     TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mAssigmentComp, randomTask());
 
-    System.out.println("nbr nabos: "+nabos.size());
+//    System.out.println("nbr nabos: "+nabos.size());
     if(nabos.size() == 1){
       return nabos.first();
     }
     Assignment newA = choose(nabos);
 
 //    System.out.println("anh proba: "+mProbaAnn);
-    System.out.println("new cost: "+mObjFunc.compute(newA));
+//    System.out.println("new cost: "+mObjFunc.compute(newA));
     return newA;
   }
   
@@ -93,7 +93,7 @@ public class PickupSls {
     double progress = (double)mI/(double)mNbrIterations;
     int maxIndex = (int) Math.floor(nabos.size()*(1-progress));
     maxIndex += r.nextDouble() < mProba ? 1 : 0;
-    System.out.println("progress: "+progress+" --> maxIndex: "+maxIndex);
+//    System.out.println("progress: "+progress+" --> maxIndex: "+maxIndex);
     return chooseSuboptimalNaboGauss(nabos, maxIndex);
   }
   
@@ -102,7 +102,7 @@ public class PickupSls {
     int nbrCandidates = (int) Math.ceil(nabos.size()*0.5);
     int index = r.nextInt(nbrCandidates);
     
-    System.out.println("index: "+index);
+//    System.out.println("index: "+index);
     // go to index
     Iterator<Assignment> it = nabos.iterator();
     while(it.hasNext() && --index > 0){it.next();}
@@ -122,7 +122,7 @@ public class PickupSls {
 
     int index = (int)Math.floor(rand*maxIndex);
     
-    System.out.println("index: "+index);
+//    System.out.println("index: "+index);
     // go to index
     Iterator<Assignment> it = nabos.iterator();
     while(--index > 0){it.next();}
