@@ -26,6 +26,9 @@ public class AuctionAgent implements AuctionBehavior {
   private Random random;
   private Vehicle vehicle;
   private City currentCity;
+  
+  private PlanFinder mPlanFinder;
+  private BidFinder mBidFinder;
 
   @Override
   public void setup(Topology topology, TaskDistribution distribution,
@@ -39,33 +42,25 @@ public class AuctionAgent implements AuctionBehavior {
 
     long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
     this.random = new Random(seed);
+    
+    String strategy = agent.readProperty("bid-strategy", String.class, "BEST");
+    
+    mPlanFinder = new PlanFinder(agent.vehicles()); // TODO replace
+    mBidFinder = new BidFinder(agent.vehicles()); // TODO replace
   }
 
   @Override
   public void auctionResult(Task previous, int winner, Long[] bids) {
     if (winner == agent.id()) {
-      //TODO
+      mBidFinder.auctionWon(previous, bids);
+    }else{
+      mBidFinder.auctionLost(previous, bids);
     }
   }
   
   @Override
   public Long askPrice(Task task) {
-    // TODO
-
-//    if (vehicle.capacity() < task.weight){
-//      return null;
-//  }
-//
-//    long distanceTask = task.pickupCity.distanceUnitsTo(task.deliveryCity);
-//    long distanceSum = distanceTask
-//        + currentCity.distanceUnitsTo(task.pickupCity);
-//    double marginalCost = Measures.unitsToKM(distanceSum
-//        * vehicle.costPerKm());
-//
-//    double ratio = 1.0 + (random.nextDouble() * 0.05 * task.id);
-//    double bid = ratio * marginalCost;
-
-    return null;//(long) Math.round(bid);
+    return mBidFinder.howMuchForThisTask(task);
   }
 
   @Override
