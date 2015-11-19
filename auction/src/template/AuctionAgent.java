@@ -3,7 +3,6 @@ package template;
 import java.util.List;
 import java.util.Random;
 
-import bidStrategies.BidFinder;
 import logist.agent.Agent;
 import logist.behavior.AuctionBehavior;
 import logist.plan.Plan;
@@ -13,6 +12,8 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+
+import bidStrategies.BidFinder;
 import planning.PlanFinder;
 
 /**
