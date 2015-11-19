@@ -5,8 +5,8 @@ import java.util.List;
 
 import logist.simulation.Vehicle;
 import logist.task.Task;
-import template.Assignment;
-import template.PlanFinder;
+import planning.Assignment;
+import planning.PlanFinder;
 
 public abstract class AbstractBidFinder {
 
