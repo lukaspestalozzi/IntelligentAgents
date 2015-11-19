@@ -1,5 +1,6 @@
 package template;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -11,8 +12,8 @@ public class DistributionTable {
   
   private final Topology mTopology;
   private final TaskDistribution mDistribution;
-  private final PriorityQueue<CityTuple> mSortedCities;
   private final CityTuple[] mCityTuples;
+  public final CityTuple[] sortedCities;
   
   public DistributionTable(Topology topology, TaskDistribution distribution) {
     mTopology = topology;
@@ -21,7 +22,7 @@ public class DistributionTable {
     
     List<City> cities = mTopology.cities();
     mCityTuples = new CityTuple[cities.size()*cities.size()];
-    mSortedCities = new PriorityQueue<CityTuple>(mCityTuples.length+1);
+    PriorityQueue<CityTuple> sortedQueue = new PriorityQueue<CityTuple>(mCityTuples.length+1);
     
     // fill mSortedCities and CityTuples
     int index = 0;
@@ -31,53 +32,53 @@ public class DistributionTable {
         City to = cities.get(j);
         CityTuple ct = new CityTuple(from, to, mDistribution.probability(from, to));
         mCityTuples[index] = ct;
-        mSortedCities.add(ct);
+        sortedQueue.add(ct);
       }
     }
+    
+    sortedCities = new CityTuple[sortedQueue.size()];
+    index = 0;
+    while(! sortedQueue.isEmpty()){
+      sortedCities[index++] = sortedQueue.remove();
+    }
+    
   }
   
-  public CityTuple[] getmCityTuples() {
+  /**
+   * 
+   * @return a (not sorted) array of all CityTuples.
+   */
+  public CityTuple[] getAllCityTuples() {
     // TODO return clone?
     return mCityTuples;
   }
   
-  public PriorityQueue<CityTuple> getmSortedCities() {
-    // TODO return clone?
-    return mSortedCities;
+  /**
+   * 
+   * @param n number of tuples
+   * @return
+   */
+  public CityTuple[] getMostProbable(int n){
+    return Arrays.copyOfRange(new CityTuple[n], 0, Math.min(n, sortedCities.length));
   }
+
   
   
   // Function wrappers from TaskDistribution:
-  double probability(City from, City to){
+  public double probability(City from, City to){
     return mDistribution.probability(from, to);
   }
 
   
-  int reward(City from, City to){
+  public int reward(City from, City to){
     return mDistribution.reward(from, to);
   }
 
   
-  int weight(City from, City to){
+  public int weight(City from, City to){
     return mDistribution.weight(from, to);
   }
   
   
 }
 
-class CityTuple implements Comparable<CityTuple>{
-  public final City from;
-  public final City to;
-  public final double proba;
-  
-  public CityTuple(City from, City to, double proba) {
-    this.from = from;
-    this.to = to;
-    this.proba = proba;
-  }
-
-  @Override
-  public int compareTo(CityTuple other) {
-    return -1 * Double.compare(this.proba, other.proba);
-  }
-}

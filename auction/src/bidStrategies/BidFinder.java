@@ -5,15 +5,18 @@ import java.util.List;
 
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import logist.task.TaskDistribution;
+import logist.topology.Topology;
 import planning.Assignment;
 
 public class BidFinder extends AbstractBidFinder{
   
   
-  public BidFinder(List<Vehicle> vehicles, int agent_id) {
-    super(vehicles, agent_id);
+  public BidFinder(List<Vehicle> vehicles, int agent_id, Topology topology,
+                   TaskDistribution distribution) {
+    super(vehicles, agent_id, topology, distribution);
   }
-  
+
   @Override
   public Long howMuchForThisTask(Task task) {
     Long currentTasksCost = mCurrentAssignment.cost;
