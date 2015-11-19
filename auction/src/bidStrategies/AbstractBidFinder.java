@@ -5,6 +5,8 @@ import java.util.List;
 
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import logist.task.TaskDistribution;
+import logist.topology.Topology;
 import planning.Assignment;
 import planning.PlanFinder;
 
@@ -18,13 +20,18 @@ public abstract class AbstractBidFinder {
   protected boolean mNeedToUpdateAssignment = true;
   public final int agent_id;
   
-  public AbstractBidFinder(List<Vehicle> vehicles, int agent_id) {
+  protected final Topology mTopology;
+  protected final TaskDistribution mDistribution;
+  
+  public AbstractBidFinder(List<Vehicle> vehicles, int agent_id, Topology topology, TaskDistribution distribution) {
     this.agent_id = agent_id;
     mVehicles = vehicles;
     mAuctionsWon = new ArrayList<Task>();
     mCurrentAssignment = null;
     mPlanFinder = new PlanFinder(mVehicles);
     mLastBids = null;
+    mTopology = topology;
+    mDistribution = distribution;
   }
   
   /**
@@ -36,6 +43,7 @@ public abstract class AbstractBidFinder {
   
   /**
    * Is called when we've won the auction for task t.
+   * IMPORTANT: If overriding this method then first call the super method!
    * @param t the auctioned task
    * @param bids the bids placed. our bid is bids[agent_id] = min(bids)
    */
@@ -47,7 +55,7 @@ public abstract class AbstractBidFinder {
   
   /**
    * Is called when we've lost the auction for task t.
-   * If overriding this method then first call super.auctionLost
+   * IMPORTANT: If overriding this method then first call the super method!
    * @param t the auctioned task
    * @param bids the bids placed. our bid is bids[agent_id]
    */

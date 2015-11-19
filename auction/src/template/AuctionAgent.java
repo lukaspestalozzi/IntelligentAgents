@@ -49,7 +49,7 @@ public class AuctionAgent implements AuctionBehavior {
     String strategy = agent.readProperty("bid-strategy", String.class, "BEST");
     
     mPlanFinder = new PlanFinder(agent.vehicles()); // TODO replace
-    mBidFinder = new BidFinder(agent.vehicles(), agent.id()); // TODO replace
+    mBidFinder = new BidFinder(agent.vehicles(), agent.id(), topology, distribution); // TODO replace
   }
 
   @Override
