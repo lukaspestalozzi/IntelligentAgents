@@ -1,4 +1,4 @@
-package template;
+package planning;
 
 import java.util.List;
 

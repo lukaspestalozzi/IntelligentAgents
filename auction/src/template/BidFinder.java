@@ -3,6 +3,8 @@ package template;
 import java.util.ArrayList;
 import java.util.List;
 
+import planning.Assignment;
+import planning.PlanFinder;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 
@@ -20,16 +22,16 @@ public class BidFinder {
     mPlanFinder = new PlanFinder(mVehicles);
   }
   
-  public Integer howMuchForThisTask(Task task) {
-    Integer currentTasksCost = mCurrentAssignment.cost;
+  public Long howMuchForThisTask(Task task) {
+    Long currentTasksCost = mCurrentAssignment.cost;
     List<Task> augmentedList = new ArrayList<>(mAuctionsWon);
     augmentedList.add(task);
     Assignment bestAssWithNewTask = mPlanFinder.computeBestPlan(augmentedList);
-    Integer bestWithNewCost = bestAssWithNewTask.cost;
+    Long bestWithNewCost = bestAssWithNewTask.cost;
     return secretStrategyWithSuperBiddingPowers(bestWithNewCost - currentTasksCost);
   }
   
-  private Integer secretStrategyWithSuperBiddingPowers(Integer costForTask) {
+  private Long secretStrategyWithSuperBiddingPowers(Long costForTask) {
     //TODO black magic shit
     return 2 * costForTask;
   }
