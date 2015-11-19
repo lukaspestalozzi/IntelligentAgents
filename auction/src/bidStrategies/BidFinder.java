@@ -3,10 +3,9 @@ package bidStrategies;
 import java.util.ArrayList;
 import java.util.List;
 
-import planning.Assignment;
-import planning.PlanFinder;
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import planning.Assignment;
 
 public class BidFinder extends AbstractBidFinder{
   

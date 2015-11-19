@@ -13,6 +13,7 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import planning.PlanFinder;
 
 /**
  * Our agent
@@ -47,7 +48,7 @@ public class AuctionAgent implements AuctionBehavior {
     String strategy = agent.readProperty("bid-strategy", String.class, "BEST");
     
     mPlanFinder = new PlanFinder(agent.vehicles()); // TODO replace
-    mBidFinder = new BidFinder(agent.vehicles()); // TODO replace
+    mBidFinder = new BidFinder(agent.vehicles(), agent.id()); // TODO replace
   }
 
   @Override

@@ -47,6 +47,7 @@ public abstract class AbstractBidFinder {
   
   /**
    * Is called when we've lost the auction for task t.
+   * If overriding this method then first call super.auctionLost
    * @param t the auctioned task
    * @param bids the bids placed. our bid is bids[agent_id]
    */
