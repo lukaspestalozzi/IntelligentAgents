@@ -3,6 +3,7 @@ package bidStrategies;
 import java.util.ArrayList;
 import java.util.List;
 
+import logist.agent.Agent;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
@@ -23,12 +24,12 @@ public abstract class AbstractBidFinder {
   protected final Topology mTopology;
   protected final TaskDistribution mDistribution;
   
-  public AbstractBidFinder(List<Vehicle> vehicles, int agent_id, Topology topology, TaskDistribution distribution) {
-    this.agent_id = agent_id;
+  public AbstractBidFinder(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution) {
+    this.agent_id = agent.id();
     mVehicles = vehicles;
     mAuctionsWon = new ArrayList<Task>();
     mCurrentAssignment = null;
-    mPlanFinder = new PlanFinder(mVehicles);
+    mPlanFinder = new PlanFinder(mVehicles, 1000, 0.5); // TODO change these values 
     mLastBids = null;
     mTopology = topology;
     mDistribution = distribution;

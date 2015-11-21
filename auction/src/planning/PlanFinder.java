@@ -123,8 +123,8 @@ public class PlanFinder {
       return null;
     }
     Map<Vehicle, List<Action>> vehicleRoutes = new HashMap<Vehicle, List<Action>>();
-    Map<Task, Vehicle> tv = new HashMap<>();
-    Map<Action, Integer> indexOf = new HashMap<>();
+    Map<Task, Vehicle> tv = new HashMap<Task, Vehicle>();
+    Map<Action, Integer> indexOf = new HashMap<Action, Integer>();
 
     // initialize all lists and find vehicle with the biggest capacity.
     double maxC = -1;
