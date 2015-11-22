@@ -10,6 +10,9 @@ import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
+import planning.Assignment;
+import planning.ObjFunc;
+import planning.PlanFinder;
 import template.CityTuple;
 import template.DistributionTable;
 
@@ -21,16 +24,20 @@ public class BidFinderLukas extends AbstractBidFinder{
   private CityTuple[] ptasks;
   private CityTuple[] bestTasks;
   private Map<CityTuple, Double> bid  = new HashMap<CityTuple, Double>();
-  private EnemyBidEstimator ebe;
+  private EnemyBidEstimator mEnemyEstimator;
   private Agent mAgent;
+  private PlanFinder mPlanFinder;
+  public Assignment mPlan = null;
+  private Assignment mPlanWithNewTask = null;
 
   public BidFinderLukas(List<Vehicle> vehicles, Agent agent, Topology topology,
                         TaskDistribution distribution) {
     super(vehicles, agent, topology, distribution);
     dt = new DistributionTable(topology, distribution);
     ptasks = dt.sortedCities;
-    ebe = new EnemyBidEstimator(agent_id);
+    mEnemyEstimator = new EnemyBidEstimator(agent_id);
     mAgent = agent;
+    mPlanFinder = new PlanFinder(agent.vehicles(), 10000, 0.5); // TODO set as parameters
   }
   
   private void precompute(){
@@ -50,24 +57,47 @@ public class BidFinderLukas extends AbstractBidFinder{
 
   @Override
   public Long howMuchForThisTask(Task task) {
+    
     double p = calcP();
-    return Math.round((1-p) * ownBid(task) + p * this.min(ebe.estimateNextBids()));
+    return Math.round((1-p) * ownBid(task) + p * this.min(mEnemyEstimator.estimateNextBids()));
   }
   
   private Long ownBid(Task t){
-    // TODO
+    mPlanWithNewTask = mPlanFinder.computeBestPlan(t);
+    mPlanWithNewTask.computeCost();
+    if(mPlan != null){
+      long diff = mPlanWithNewTask.cost - mPlan.cost;
+      if(diff <= 0){
+        return Math.round(calcEstimatedCostKm()*0.3);
+      }else{
+        return diff;
+      }
+      
+      
+    }else{
+      return mPlanWithNewTask.cost;
+    }
   }
   
-  private Double calcEstimatedCostKm(){
+  /**
+   * Calculates the expected cost of a task. Can be used as a soft lower bound to our bids
+   * @return the expected cost of any task
+   */
+  private Double calcEstimatedCostKm(){ // TODO include the weight / capacity
     double sum = 0;
+    // average (weighted) distance (in km)
     for(CityTuple ct : ptasks){
-      sum += ct.proba * ct.from.distanceTo(ct.to); // TODO not yet correct (is not yet cost per km)
+      sum += ct.proba * ct.from.distanceTo(ct.to);
     }
+    // times the average cost per km of a vehicle
     sum *= calcAvgVehicCost();
     return sum;
   }
   
-  
+  /**
+   * 
+   * @return average vehicle cost / km.
+   */
   private double calcAvgVehicCost(){
     double sum = 0;
     for(Vehicle v : mAgent.vehicles()){
@@ -88,10 +118,10 @@ public class BidFinderLukas extends AbstractBidFinder{
   
   /**
    * 
-   * @return 1/auctionNbr.
+   * @return 1/(auctionsWon+1).
    */
   private double calcP(){
-    return 1/auctionNbr;
+    return 1/(mAuctionsWon.size()+1);
   }
   
   @Override
@@ -102,6 +132,7 @@ public class BidFinderLukas extends AbstractBidFinder{
   @Override
   public void auctionWon(Task t, Long[] bids) {
     super.auctionWon(t, bids);
+    mPlan = mPlanWithNewTask;
   }
   
 

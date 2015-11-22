@@ -1,5 +1,7 @@
 package planning;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,7 +52,10 @@ public class PlanFinder {
     mProbaAnn = mProba;
     mAnnStep = mProba / mIter;
   }
-
+  public Assignment computeBestPlan(Task... tasks){
+    return computeBestPlan(Arrays.asList(tasks));
+  }
+  
   public Assignment computeBestPlan(List<Task> tasks) {
     mTasks = tasks;
     Assignment oldA = selectInitalSolution(mVehicles);
@@ -72,6 +77,8 @@ public class PlanFinder {
 
     return bestA;
   }
+  
+  
 
   private Assignment updateAssignment(Assignment oldA) {
     TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mCompare,
@@ -107,7 +114,7 @@ public class PlanFinder {
 
     // go to index
     Iterator<Assignment> it = nabos.iterator();
-    while (--index > 0) {
+    while (--index >= 0) {
       it.next();
     }
     return it.next();

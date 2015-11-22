@@ -14,6 +14,7 @@ import logist.topology.Topology;
 import logist.topology.Topology.City;
 
 import bidStrategies.BidFinder;
+import bidStrategies.BidFinderLukas;
 import planning.PlanFinder;
 
 /**
@@ -30,8 +31,10 @@ public class AuctionAgent implements AuctionBehavior {
   private Vehicle vehicle;
   private City currentCity;
   
-  private PlanFinder mPlanFinder;
-  private BidFinder mBidFinder;
+  private double mProba;
+  private int mIter;
+  
+  private BidFinderLukas mBidFinder;
 
   @Override
   public void setup(Topology topology, TaskDistribution distribution,
@@ -42,14 +45,16 @@ public class AuctionAgent implements AuctionBehavior {
     this.agent = agent;
     this.vehicle = agent.vehicles().get(0);
     this.currentCity = vehicle.homeCity();
+    
+    mProba = agent.readProperty("sls_proba", Double.class, 0.5);
+    mIter = agent.readProperty("amnt_iter", Integer.class, 10000);
 
     long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
     this.random = new Random(seed);
     
     String strategy = agent.readProperty("bid-strategy", String.class, "BEST");
     
-    mPlanFinder = new PlanFinder(agent.vehicles()); // TODO replace
-    mBidFinder = new BidFinder(agent.vehicles(), agent.id(), topology, distribution); // TODO replace
+    mBidFinder = new BidFinderLukas(agent.vehicles(), agent, topology, distribution);
   }
 
   @Override
@@ -68,7 +73,6 @@ public class AuctionAgent implements AuctionBehavior {
 
   @Override
   public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-    // TODO
-    return null;
+    return mBidFinder.mPlan.generatePlans(vehicles);
   }
 }

@@ -3,6 +3,7 @@ package bidStrategies;
 import java.util.ArrayList;
 import java.util.List;
 
+import logist.agent.Agent;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
@@ -12,9 +13,9 @@ import planning.Assignment;
 public class BidFinder extends AbstractBidFinder{
   
   
-  public BidFinder(List<Vehicle> vehicles, int agent_id, Topology topology,
+  public BidFinder(List<Vehicle> vehicles, Agent agent, Topology topology,
                    TaskDistribution distribution) {
-    super(vehicles, agent_id, topology, distribution);
+    super(vehicles, agent, topology, distribution);
   }
 
   @Override

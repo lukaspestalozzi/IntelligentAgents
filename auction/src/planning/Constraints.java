@@ -194,7 +194,7 @@ public class Constraints {
   public static boolean checkPickupBeforeDeliveryConstraint(Assignment a) {
     
     for(List<Action> l : a.vehicleRoutes.values()){
-      HashSet<Task> set = new HashSet<>();
+      HashSet<Task> set = new HashSet<Task>();
       for(Action act : l){
         if(act.isPickup()){
           if(! set.add(act.task)){

@@ -1,0 +1,6 @@
+08:50:46.455 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/T1/settings_auction-agents-agents2.xml -a tournament/T1/agents.xml config/settings_auction.xml agents agents2
+08:50:46.584 WARNING | Error: Could not find or load main class logist.LogistPlatform
+08:50:46.588 SEVERE | LogistPlatform returned error code 1
+08:50:46.593 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/T1/settings_auction-agents2-agents.xml -a tournament/T1/agents.xml config/settings_auction.xml agents2 agents
+08:50:46.655 WARNING | Error: Could not find or load main class logist.LogistPlatform
+08:50:46.663 SEVERE | LogistPlatform returned error code 1

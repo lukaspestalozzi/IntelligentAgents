@@ -15,10 +15,7 @@ public abstract class AbstractBidFinder {
 
   protected List<Task> mAuctionsWon;
   protected List<Vehicle> mVehicles;
-  protected Assignment mCurrentAssignment;
-  protected PlanFinder mPlanFinder;
   protected Long[] mLastBids;
-  protected boolean mNeedToUpdateAssignment = true;
   public final int agent_id;
   
   protected final Topology mTopology;
@@ -28,8 +25,6 @@ public abstract class AbstractBidFinder {
     this.agent_id = agent.id();
     mVehicles = vehicles;
     mAuctionsWon = new ArrayList<Task>();
-    mCurrentAssignment = null;
-    mPlanFinder = new PlanFinder(mVehicles, 1000, 0.5); // TODO change these values 
     mLastBids = null;
     mTopology = topology;
     mDistribution = distribution;
@@ -51,7 +46,6 @@ public abstract class AbstractBidFinder {
   public void auctionWon(Task t, Long[] bids){
     mAuctionsWon.add(t);
     mLastBids = bids;
-    mNeedToUpdateAssignment = true;
   }
   
   /**
@@ -62,14 +56,5 @@ public abstract class AbstractBidFinder {
    */
   public void auctionLost(Task t, Long[] bids){
     mLastBids = bids;
-  }
-  
-  /**
-   * 
-   * @param newBest
-   */
-  public void updateBestAssignment(Assignment newBest){
-    mCurrentAssignment = newBest;
-    mNeedToUpdateAssignment = false;
   }
 }

@@ -23,10 +23,10 @@ public class Assignment {
   // the index of a Action in a route, the same as the times array in the
   // project description
   public final Map<Action, Integer> indexOf;
-  
+  private final ObjFunc costFunction = new ObjFunc();
   public Long cost;
   
-  private boolean mNotCorrupt = true; // a flag to thell if this assigment is
+  private boolean mNotCorrupt = true; // a flag to tell if this assigment is
                                       // corrupt (true -> does not violate any
                                       // constraint)
   
@@ -76,6 +76,11 @@ public class Assignment {
     
   }
   
+  public Long computeCost(){
+    this.cost =  costFunction.compute(this);
+    return cost;
+  }
+  
   public Assignment copy() {
     return this.copy(1).get(0);
   }
@@ -87,12 +92,12 @@ public class Assignment {
    *         howMany)
    */
   public ArrayList<Assignment> copy(int howMany) {
-    ArrayList<Assignment> copies = new ArrayList<>(howMany);
+    ArrayList<Assignment> copies = new ArrayList<Assignment>(howMany);
     
     for (int i = 0; i < howMany; i++) {
-      Map<Vehicle, List<Action>> vr = new HashMap<>();
-      Map<Task, Vehicle> vehics = new HashMap<>();
-      Map<Action, Integer> idxOf = new HashMap<>();
+      Map<Vehicle, List<Action>> vr = new HashMap<Vehicle, List<Action>>();
+      Map<Task, Vehicle> vehics = new HashMap<Task, Vehicle>();
+      Map<Action, Integer> idxOf = new HashMap<Action, Integer>();
       
       copies.add(new Assignment(vr, vehics, idxOf));
     }
