@@ -38,22 +38,8 @@ public class BidFinderLukas extends AbstractBidFinder{
     mEnemyEstimator = new EnemyBidEstimator(agent_id);
     mAgent = agent;
     mPlanFinder = new PlanFinder(agent.vehicles(), 10000, 0.5); // TODO set as parameters
-  }
-  
-  private void precompute(){
-    int nbrTuples = (int)Math.ceil(ptasks.length*0.3);
-    bestTasks = dt.getMostProbable(nbrTuples);
-    int sumWeights = 0;
-    for(int i = 0; i < nbrTuples; i++){
-      CityTuple ct = ptasks[i];
-      sumWeights += ct.proba*dt.weight(ct.from, ct.to);
-      bid.put(ct, ct.proba*ct.from.distanceUnitsTo(ct.to));
-    }
+  } 
     
-    
-    
-    
-  }
 
   @Override
   public Long howMuchForThisTask(Task task) {
@@ -67,12 +53,12 @@ public class BidFinderLukas extends AbstractBidFinder{
     mPlanWithNewTask.computeCost();
     if(mPlan != null){
       long diff = mPlanWithNewTask.cost - mPlan.cost;
-      if(diff <= 0){
-        return Math.round(calcEstimatedCostKm()*0.3);
+      long lowerBound = Math.round(calcEstimatedCostKm()*0.3);
+      if(diff <= lowerBound){
+        return lowerBound;
       }else{
         return diff;
       }
-      
       
     }else{
       return mPlanWithNewTask.cost;
