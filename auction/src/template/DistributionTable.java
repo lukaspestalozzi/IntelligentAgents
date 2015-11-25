@@ -14,10 +14,12 @@ public class DistributionTable {
   private final TaskDistribution mDistribution;
   private final CityTuple[] mCityTuples;
   public final CityTuple[] sortedCities;
+  public final double mNbrCities;
   
   public DistributionTable(Topology topology, TaskDistribution distribution) {
     mTopology = topology;
     mDistribution = distribution;
+    mNbrCities = topology.cities().size();
     
     
     List<City> cities = mTopology.cities();
@@ -26,15 +28,22 @@ public class DistributionTable {
     
     // fill mSortedCities and CityTuples
     int index = 0;
+    double tmp = 0;
     for(int i = 0; i < cities.size(); i++){
       for(int j = 0; j < cities.size(); j++){
         City from = cities.get(i);
         City to = cities.get(j);
-        CityTuple ct = new CityTuple(from, to, mDistribution.probability(from, to));
+        CityTuple ct = new CityTuple(from, to, mDistribution.probability(from, to) / mNbrCities);
+        System.out.println(ct.proba);
+        tmp += ct.proba;
         mCityTuples[index] = ct;
         sortedQueue.add(ct);
       }
+      System.out.println(mDistribution.probability(cities.get(i), null));
+      tmp += mDistribution.probability(cities.get(i), null);
+      System.out.println();
     }
+    System.out.println("->> "+tmp);
     
     sortedCities = new CityTuple[sortedQueue.size()];
     index = 0;

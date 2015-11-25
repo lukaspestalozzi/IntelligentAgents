@@ -54,7 +54,7 @@ public class AbstractEnemyBidEstimator {
   public Long[] estimateNextBids(){
     
     if(mNbrEnemies == -1){
-      return null;
+      return new Long[0];
     }else{
       Long[] estims = new Long[mNbrEnemies];
       for(int i = 0; i <= mNbrEnemies; i++){
