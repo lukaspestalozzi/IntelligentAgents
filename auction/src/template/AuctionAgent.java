@@ -32,7 +32,6 @@ public class AuctionAgent implements AuctionBehavior {
 	private TaskDistribution distribution;
 	private Agent agent;
 	private Random random;
-	private Vehicle vehicle;
 	private City currentCity;
 	
 	private double mProba;
@@ -46,14 +45,12 @@ public class AuctionAgent implements AuctionBehavior {
 		this.topology = topology;
 		this.distribution = distribution;
 		this.agent = agent;
-		this.vehicle = agent.vehicles().get(0);
-		this.currentCity = vehicle.homeCity();
 		
 		mProba = agent.readProperty("sls_proba", Double.class, 0.5);
 		mIter = agent.readProperty("amnt_iter", Integer.class, 10000);
 		
-		long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
-		this.random = new Random(seed);
+//		long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
+		this.random = new Random(2015);
 		
 		String strategy = agent.readProperty("bid-strategy", String.class, "BEST");
 		
@@ -63,7 +60,7 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	@Override
 	public void auctionResult(Task previous, int winner, Long[] bids) {
-		printIfVerbose(String.format("Auction result of Task %s: \n  winner: %d, bids: %s", previous.toString(), winner,
+		printIfVerbose(String.format("Auction result of Task %s: \n  winner: %d, bids: %s\n", previous.toString(), winner,
 		    Arrays.toString(bids)));
 		if (winner == agent.id()) {
 			mBidFinder.auctionWon(previous, bids);
@@ -100,17 +97,19 @@ public class AuctionAgent implements AuctionBehavior {
 	}
 	
 	private void summarize(List<Vehicle> vehicles, List<Plan> plans, TaskSet tasks) {
+		printIfVerbose("Final plans: ");
 		if (plans.isEmpty()) {
 			printIfVerbose("No plans were made!");
 		}
 		long sumReward = tasks.rewardSum();
 		long sumCost = 0;
-		printIfVerbose("Final plans: ");
 		for (int i = 0; i < plans.size(); i++) {
 			Plan p = plans.get(i);
 			Vehicle v = vehicles.get(i);
-			sumCost += p.totalDistance() * vehicle.costPerKm();
-			printIfVerbose("  "+p.toString());
+			sumCost += p.totalDistance() * v.costPerKm();
+			printIfVerbose("Plan("+i+"): "+p.toString());
+			printIfVerbose("Plan("+i+") length: "+p.totalDistance()+", Vehicle("+i+") cost: "+v.costPerKm()+" => "+p.totalDistance() * v.costPerKm());
+
 		}
 		printIfVerbose(String.format("Total cost %d, total reward: %d, total profit: %d", sumCost, sumReward, sumReward-sumCost));
 		

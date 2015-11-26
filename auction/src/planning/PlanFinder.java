@@ -1,5 +1,6 @@
 package planning;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,9 +14,9 @@ import java.util.TreeSet;
 
 import logist.simulation.Vehicle;
 import logist.task.Task;
-import logist.task.TaskSet;
 
 public class PlanFinder {
+	private static final boolean VERBOSE = true;
 	private static final long MAX_COMPUTATION_TIME = 23000L;
 	private List<Task> mTasks;
 	private List<Vehicle> mVehicles;
@@ -54,6 +55,11 @@ public class PlanFinder {
 		mAnnStep = mProba / mIter;
 	}
 
+	/**
+	 * computes the best plan given the tasks in the set
+	 * @param tasks
+	 * @return
+	 */
 	public Assignment computeBestPlan(Set<Task> tasks) {
 		return computeBestPlan(tasks.toArray(new Task[tasks.size()]));
 	}
@@ -61,6 +67,13 @@ public class PlanFinder {
 	public Assignment computeBestPlan(Task... tasks) {
 		return computeBestPlan(Arrays.asList(tasks));
 	}
+	
+	public Assignment computeBestPlan(List<Task> tasks, Task... othertasks) {
+		List<Task> l = new ArrayList<Task>(Arrays.asList(othertasks));
+		l.addAll(tasks);
+		return computeBestPlan(l);
+	}
+	
 
 	public Assignment computeBestPlan(List<Task> tasks) {
 		if(tasks.isEmpty()){
@@ -73,7 +86,7 @@ public class PlanFinder {
 		Assignment newA = null, bestA = oldA;
 		long maxEndTime = System.currentTimeMillis() + MAX_COMPUTATION_TIME;
 
-		for (mI = 0; mI < mIter && maxEndTime < System.currentTimeMillis(); mI++) {
+		for (mI = 0; mI < mIter && maxEndTime > System.currentTimeMillis(); mI++) {
 			newA = updateAssignment(oldA);
 			long newCost = mObjFunc.compute(newA);
 
@@ -110,6 +123,8 @@ public class PlanFinder {
 			maxIndex = 0;
 		} else if (maxIndex == 0) {
 			return nabos.first();
+		}else if(maxIndex >= nabos.size()){
+			maxIndex = nabos.size()-1;
 		}
 		double rand = mRand.nextGaussian();
 		while (rand > 1 || rand < 0) {
@@ -174,5 +189,22 @@ public class PlanFinder {
 		}
 		return a;
 
+	}
+	
+	/**
+	 * prints s if the VERBOSE flag is set to true: </br>
+	 * if(VERBOSE){ System.out.println(s); }
+	 * 
+	 * @param s
+	 */
+	public void printIfVerbose(String str) {
+		if (VERBOSE) {
+			System.out.println(new StringBuilder()
+					.append("    ")
+					.append("(plan-finder): ")
+					.append(str)
+					.toString());
+			System.out.flush();
+		}
 	}
 }

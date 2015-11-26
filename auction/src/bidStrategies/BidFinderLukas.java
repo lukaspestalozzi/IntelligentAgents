@@ -46,40 +46,46 @@ public class BidFinderLukas extends AbstractBidFinder {
 		// TODO only in first acution return estimate
 		// in later auctions, use enemyestimator even if no auctions were won
 		
-		// TODO fix estimated cost/km
-		// TODO fix bid if (mAuctionsWon.size() == 0)
 		
 		Long bid;
 		if (mAuctionsWon.size() == 0) {
 			printIfVerbose("No previous auctions won therefore calculating an estimated bid... ");
-			double estimate = calcEstimatedCostKm();
-			double taskLength = task.pathLength();
-			bid = Math.round(estimate * taskLength);
-			printIfVerbose(String.format("... bid = %.2f * %.2f = %d (estimation * task length)", estimate, taskLength, bid));
+			double estimate = calcExpectedCost();
+			bid = Math.round(estimate);//Math.round(estimate * taskLength);
+			printIfVerbose(String.format("... bid = %.2f (estimation)", estimate));
 		} else {
 			double p = calcP();
 			Long ownBid = ownBid(task);
-			Long[] enemy_estim = mEnemyEstimator.estimateNextBids();
-			printIfVerbose(String.format("Own bid: %d , enemy estimation: %s", ownBid, Arrays.toString(enemy_estim)));
+			Map<Integer, Long> enemy_estim = mEnemyEstimator.estimateNextBids();
+			Long min_enemy = this.min(enemy_estim);
 			
-			bid = Math.round((1 - p) * ownBid + p * this.min(enemy_estim));
+			double ownBidPart = (1 - p) * ownBid;
+			double enemyEstimValue = min_enemy *task.pathLength();
+			double enemyestimPart = p * enemyEstimValue;
+			
+			bid = Math.round(ownBidPart + enemyestimPart);
+			printIfVerbose(String.format("final bid = (ownBidPart(%.2f) + enemyEstimPart(%.2f)) \n"
+					+ "                                   = ((1-p)*ownBid(%d) + p*enemyEstimation(%.2f)) \n"
+					+ "                                   = ((1-p)*ownBid(%d) + p*min_enemy(%d)*tasklength(%.2f)), p = %.2f => %d",
+					ownBidPart, enemyestimPart, ownBid, enemyEstimValue, ownBid, min_enemy, task.pathLength(), p, bid));
+//			printIfVerbose(String.format("final bid = (%.2f + %.2f) = ((1-p) * %d + p * %.2f) = ((1-p) * %d + p * %d * %.2f), p = %.2f", 
+//					ownBidPart, enemyestimPart, ownBid, enemyEstimValue, ownBid, min_enemy, task.pathLength(), p));
 		}
 		printIfVerbose("Returned bid: " + bid);
 		return bid;
 	}
 	
 	private Long ownBid(Task t) {
-		mPlanWithNewTask = mPlanFinder.computeBestPlan(t);
+		mPlanWithNewTask = mPlanFinder.computeBestPlan(mAuctionsWon, t);
 		mPlanWithNewTask.computeCost();
 		if (mPlan != null) {
 			long diff = mPlanWithNewTask.cost - mPlan.cost;
-			long lowerBound = Math.round(calcEstimatedCostKm() * 0.3);
+			long lowerBound = Math.round(calcExpectedCost() * 0.3);
 			if (diff <= lowerBound) {
 				return lowerBound;
 			} else {
 				return diff;
 			}
-			
 		} else {
 			return mPlanWithNewTask.cost;
 		}
@@ -91,7 +97,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 	 * 
 	 * @return the expected cost of any task
 	 */
-	private Double calcEstimatedCostKm() { // TODO include the weight / capacity
+	private Double calcExpectedCost() { // TODO include the weight / capacity
 		double sum = 0;
 		// average (weighted) distance (in km)
 		double tmp = 0;
@@ -121,9 +127,13 @@ public class BidFinderLukas extends AbstractBidFinder {
 		return res;
 	}
 	
-	private Long min(Long[] list) {
+	/**
+	 * @param map
+	 * @return the min of the maps value set.
+	 */
+	private Long min(Map<Integer, Long> map) {
 		Long min = Long.MAX_VALUE;
-		for (Long l : list) {
+		for (Long l : map.values()) {
 			if (l < min) {
 				min = l;
 			}
@@ -136,7 +146,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 	 * @return 1/(auctionsWon+1).
 	 */
 	private double calcP() {
-		double p = 1 / (mAuctionsWon.size() + 1);
+		double p = 1.0 / (double)(mAuctionsWon.size() + 1);
 		printIfVerbose("p value: " + p);
 		return p;
 	}
@@ -144,11 +154,13 @@ public class BidFinderLukas extends AbstractBidFinder {
 	@Override
 	public void auctionLost(Task t, Long[] bids) {
 		super.auctionLost(t, bids);
+		this.mEnemyEstimator.auctionResult(bids, t);
 	}
 	
 	@Override
 	public void auctionWon(Task t, Long[] bids) {
 		super.auctionWon(t, bids);
+		this.mEnemyEstimator.auctionResult(bids, t);
 		mPlan = mPlanWithNewTask;
 	}
 	

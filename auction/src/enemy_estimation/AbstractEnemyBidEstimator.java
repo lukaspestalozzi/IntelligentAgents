@@ -25,7 +25,7 @@ public class AbstractEnemyBidEstimator {
   
   public final int agentID;
   
-  private int mNbrEnemies = -1;
+  private int mNbrAgents = -1;
   
   public AbstractEnemyBidEstimator(int agentID) {
     this.agentID = agentID;
@@ -41,7 +41,7 @@ public class AbstractEnemyBidEstimator {
   }
   
   public void auctionResult(Long[] bids, Task t){
-    mNbrEnemies = bids.length-1;
+    mNbrAgents = bids.length;
     
     auctionedTasks.add(t);
     for(int i = 0; i < bids.length; i++){
@@ -51,15 +51,20 @@ public class AbstractEnemyBidEstimator {
     }
   }
   
-  public Long[] estimateNextBids(){
+  /**
+   * 
+   * @return the estimated bids in $/km
+   */
+  public Map<Integer, Long> estimateNextBids(){
     
-    if(mNbrEnemies == -1){
-      return new Long[0];
+    if(mNbrAgents == -1){
+      return null;
     }else{
-      Long[] estims = new Long[mNbrEnemies];
-      for(int i = 0; i <= mNbrEnemies; i++){
-          estims[i] = estimateNextBid(i);
-        
+    	Map<Integer, Long> estims = new HashMap<Integer, Long>();
+      for(int i = 0; i < mNbrAgents; i++){
+      	if(i != agentID){
+          estims.put(i, estimateNextBid(i));
+      	}
       }
       return estims;
     }
