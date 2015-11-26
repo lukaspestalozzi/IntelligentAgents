@@ -80,7 +80,7 @@ public class AuctionAgent implements AuctionBehavior {
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
-		Assignment a = new PlanFinder(vehicles, 1000, 0.5).computeBestPlan(tasks);
+		Assignment a = new PlanFinder(vehicles, 100000, 0.5).computeBestPlan(tasks);
 		if (a == null) {
 			List<Plan> pls = new ArrayList<Plan>(vehicles.size());
 			for (Vehicle v : vehicles) {
@@ -113,6 +113,9 @@ public class AuctionAgent implements AuctionBehavior {
 		}
 		printIfVerbose(String.format("Total cost %d, total reward: %d, total profit: %d", sumCost, sumReward, sumReward-sumCost));
 		
+	}
+	public void printIfVerbose(String str, Object...objects){
+		printIfVerbose(String.format(str, objects));
 	}
 	
 	/**

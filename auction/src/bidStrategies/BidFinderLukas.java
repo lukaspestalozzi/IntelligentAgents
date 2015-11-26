@@ -19,6 +19,8 @@ import template.DistributionTable;
 public class BidFinderLukas extends AbstractBidFinder {
 	private static final boolean VERBOSE = true;
 	
+	private final double[] p_array = {0.9, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.4, 0.35, 0.3, 0.28, 0.26, 0.24, 0.22, 0.2, 0.19, 0.18, 0.17, 0.16, 0.15, 0.14, 0.13, 0.12, 0.11, 0.1, 0.09, 0.08, 0.05};
+	
 	private final int mMaxTasks = 40;
 	private double auctionNbr = 1;
 	private final DistributionTable dt;
@@ -37,7 +39,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 		ptasks = dt.sortedCities;
 		mEnemyEstimator = new EnemyBidEstimator(agent_id);
 		mAgent = agent;
-		mPlanFinder = new PlanFinder(agent.vehicles(), 10000, 0.5); // TODO set as
+		mPlanFinder = new PlanFinder(agent.vehicles(), 50000, 0.5); // TODO set as
 		                                                            // parameters
 	}
 	
@@ -68,9 +70,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 					+ "                                   = ((1-p)*ownBid(%d) + p*enemyEstimation(%.2f)) \n"
 					+ "                                   = ((1-p)*ownBid(%d) + p*min_enemy(%d)*tasklength(%.2f)), p = %.2f => %d",
 					ownBidPart, enemyestimPart, ownBid, enemyEstimValue, ownBid, min_enemy, task.pathLength(), p, bid));
-//			printIfVerbose(String.format("final bid = (%.2f + %.2f) = ((1-p) * %d + p * %.2f) = ((1-p) * %d + p * %d * %.2f), p = %.2f", 
-//					ownBidPart, enemyestimPart, ownBid, enemyEstimValue, ownBid, min_enemy, task.pathLength(), p));
-		}
+}
 		printIfVerbose("Returned bid: " + bid);
 		return bid;
 	}
@@ -80,6 +80,8 @@ public class BidFinderLukas extends AbstractBidFinder {
 		mPlanWithNewTask.computeCost();
 		if (mPlan != null) {
 			long diff = mPlanWithNewTask.cost - mPlan.cost;
+			printIfVerbose("Plan cost with new Task: %d, cost without: %d -> difference: %d", mPlanWithNewTask.cost, mPlan.cost, diff);
+
 			long lowerBound = Math.round(calcExpectedCost() * 0.3);
 			if (diff <= lowerBound) {
 				return lowerBound;
@@ -146,7 +148,8 @@ public class BidFinderLukas extends AbstractBidFinder {
 	 * @return 1/(auctionsWon+1).
 	 */
 	private double calcP() {
-		double p = 1.0 / (double)(mAuctionsWon.size() + 1);
+//		double p = 1.0 / (double)(mAuctionsWon.size() + 1);
+		double p = p_array[Math.min(mAuctionsWon.size(), p_array.length-1)];
 		printIfVerbose("p value: " + p);
 		return p;
 	}
@@ -162,6 +165,10 @@ public class BidFinderLukas extends AbstractBidFinder {
 		super.auctionWon(t, bids);
 		this.mEnemyEstimator.auctionResult(bids, t);
 		mPlan = mPlanWithNewTask;
+	}
+	
+	public void printIfVerbose(String str, Object...objects){
+		printIfVerbose(String.format(str, objects));
 	}
 	
 	/**

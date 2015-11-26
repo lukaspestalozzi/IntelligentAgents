@@ -76,6 +76,7 @@ public class PlanFinder {
 	
 
 	public Assignment computeBestPlan(List<Task> tasks) {
+		printIfVerbose("computing plan for "+tasks.size()+" tasks...");
 		if(tasks.isEmpty()){
 			return null;
 		}
@@ -97,7 +98,7 @@ public class PlanFinder {
 
 			oldA = newA;
 		}
-
+		printIfVerbose("...Cost of computed plan: "+bestA.computeCost());
 		return bestA;
 	}
 
@@ -189,6 +190,10 @@ public class PlanFinder {
 		}
 		return a;
 
+	}
+	
+	public void printIfVerbose(String str, Object...objects){
+		printIfVerbose(String.format(str, objects));
 	}
 	
 	/**
