@@ -103,7 +103,8 @@ public class PlanFinder {
 	}
 
 	private Assignment updateAssignment(Assignment oldA) {
-		TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mCompare, randomTask());
+		TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mCompare, randomTask(), randomTask(), randomTask());
+//		TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mCompare, randomTask());
 
 		if (nabos.size() == 1) {
 			return nabos.first();
@@ -144,6 +145,10 @@ public class PlanFinder {
 
 	private Task randomTask() {
 		return mTasks.get(mRand.nextInt(mTasks.size()));
+	}
+	
+	private Vehicle randomVehicle(){
+		return mVehicles.get(mRand.nextInt(mVehicles.size()));
 	}
 
 	private Assignment selectInitalSolution(List<Vehicle> vehicles, List<Task> tasks) {

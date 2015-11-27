@@ -2,12 +2,19 @@ package enemy_estimation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import logist.task.Task;
+import plotting.DrawGraph;
 
 public class AbstractEnemyBidEstimator {
-  public static int estimatedNbrBids = 100;
+  public static int estimatedNbrBids = 50;
+  
+	public DrawGraph mainPanel;
+
   
   protected ArrayList<Task> auctionedTasks = new ArrayList<Task>(estimatedNbrBids);
   /**
@@ -21,7 +28,7 @@ public class AbstractEnemyBidEstimator {
   /**
    * contains our previous estimates (can be used to estimate error)
    */
-  protected Map<Integer, ArrayList<Long>> prevEstimates = new HashMap<Integer, ArrayList<Long>>();
+  protected Map<Integer, ArrayList<Double>> prevEstimatesNormalized = new HashMap<Integer, ArrayList<Double>>();
   
   public final int agentID;
   
@@ -34,7 +41,7 @@ public class AbstractEnemyBidEstimator {
     for(int i = 0; i < estimatedNbrBids; i++){
       prevBids.put(i, new ArrayList<Long>(estimatedNbrBids));
       prevBidsNormalized.put(i, new ArrayList<Double>(estimatedNbrBids));
-      prevEstimates.put(i, new ArrayList<Long>(estimatedNbrBids));
+      prevEstimatesNormalized.put(i, new ArrayList<Double>(estimatedNbrBids));
       
     }
     
@@ -49,6 +56,11 @@ public class AbstractEnemyBidEstimator {
       prevBids.get(i).add(bid);
       prevBidsNormalized.get(i).add(bid/t.pathLength());
     }
+    
+  }
+  
+  public void plotGraph(int enemy){
+  	this.plotBidsVsPrediction(enemy);
   }
   
   /**
@@ -79,9 +91,25 @@ public class AbstractEnemyBidEstimator {
       return null;
     }
     Double mean = mean(prevBidsNormalized.get(enemy));
-    Double std = stdDeviation(prevBidsNormalized.get(enemy), mean);
+//    Double std = stdDeviation(prevBidsNormalized.get(enemy), mean);
+//    double median = median(prevBidsNormalized.get(enemy));
     
-    return (Long)Math.round(mean - std);
+    long pred = (Long)Math.round(mean);
+    prevEstimatesNormalized.get(enemy).add(mean);
+    return pred;
+  }
+  
+  private Double median(ArrayList<Double> list){
+  	if(list.isEmpty()){
+      return null;
+    }else if(list.size() == 1){
+    	return list.get(0);
+    }
+  	ArrayList<Double> copy = new ArrayList<Double>(list);
+  	copy.sort(null);
+  	double middle = (copy.size()-1)/2.0;
+  	return copy.get((int)middle); // if middle is no integer then returns the smaller of the two 'middles'
+  	
   }
   
   private Long mean(ArrayList<Long> list){
@@ -113,6 +141,15 @@ public class AbstractEnemyBidEstimator {
       sum += Math.pow(d-mean, 2);
     }
     return Math.sqrt(sum/arrayList.size());
+  }
+  
+  public void plotBidsVsPrediction(final int ememy){
+  	mainPanel = new DrawGraph(new LinkedList<Double>(prevBidsNormalized.get(ememy)), new LinkedList<Double>(prevEstimatesNormalized.get(ememy)));
+  	SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+      	mainPanel.showGui();
+      }
+   });
   }
   
   

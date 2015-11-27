@@ -17,6 +17,8 @@ import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 import planning.Assignment;
+import planning.InsertionAssignment;
+import planning.InsertionPlanFinder;
 import planning.PlanFinder;
 
 /**
@@ -79,8 +81,10 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
+		mBidFinder.mEnemyEstimator.plotBidsVsPrediction(1);
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
-		Assignment a = new PlanFinder(vehicles, 100000, 0.5).computeBestPlan(tasks);
+//		Assignment a = new PlanFinder(vehicles, 100000, 0.5).computeBestPlan(tasks);
+		InsertionAssignment a = mBidFinder.mInsertionPlanFinder.getAssignment();
 		if (a == null) {
 			List<Plan> pls = new ArrayList<Plan>(vehicles.size());
 			for (Vehicle v : vehicles) {

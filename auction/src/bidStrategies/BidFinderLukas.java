@@ -12,6 +12,7 @@ import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import planning.Assignment;
+import planning.InsertionPlanFinder;
 import planning.PlanFinder;
 import template.CityTuple;
 import template.DistributionTable;
@@ -27,11 +28,13 @@ public class BidFinderLukas extends AbstractBidFinder {
 	private CityTuple[] ptasks;
 	private CityTuple[] bestTasks;
 	private Map<CityTuple, Double> bid = new HashMap<CityTuple, Double>();
-	private EnemyBidEstimator mEnemyEstimator;
+	public final EnemyBidEstimator mEnemyEstimator;
 	private Agent mAgent;
 	private PlanFinder mPlanFinder;
 	public Assignment mPlan = null;
 	private Assignment mPlanWithNewTask = null;
+	public final InsertionPlanFinder mInsertionPlanFinder;
+	private final long mLowerBound; // TODO make it vary a bit so it is hard to predict.
 	
 	public BidFinderLukas(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution) {
 		super(vehicles, agent, topology, distribution);
@@ -41,6 +44,8 @@ public class BidFinderLukas extends AbstractBidFinder {
 		mAgent = agent;
 		mPlanFinder = new PlanFinder(agent.vehicles(), 50000, 0.5); // TODO set as
 		                                                            // parameters
+		mInsertionPlanFinder  = new InsertionPlanFinder(vehicles);
+		mLowerBound = Math.round(calcExpectedCost() * 0.5);
 	}
 	
 	@Override
@@ -57,12 +62,13 @@ public class BidFinderLukas extends AbstractBidFinder {
 			printIfVerbose(String.format("... bid = %.2f (estimation)", estimate));
 		} else {
 			double p = calcP();
-			Long ownBid = ownBid(task);
+			Long ownBid = Math.max(ownBid_insertionPlan(task), mLowerBound);
+			
 			Map<Integer, Long> enemy_estim = mEnemyEstimator.estimateNextBids();
 			Long min_enemy = this.min(enemy_estim);
 			
 			double ownBidPart = (1 - p) * ownBid;
-			double enemyEstimValue = min_enemy *task.pathLength();
+			double enemyEstimValue = Math.max(min_enemy *task.pathLength(), mLowerBound);
 			double enemyestimPart = p * enemyEstimValue;
 			
 			bid = Math.round(ownBidPart + enemyestimPart);
@@ -81,16 +87,23 @@ public class BidFinderLukas extends AbstractBidFinder {
 		if (mPlan != null) {
 			long diff = mPlanWithNewTask.cost - mPlan.cost;
 			printIfVerbose("Plan cost with new Task: %d, cost without: %d -> difference: %d", mPlanWithNewTask.cost, mPlan.cost, diff);
-
-			long lowerBound = Math.round(calcExpectedCost() * 0.3);
-			if (diff <= lowerBound) {
-				return lowerBound;
-			} else {
-				return diff;
-			}
+			
+			return diff;
 		} else {
 			return mPlanWithNewTask.cost;
 		}
+	}
+	
+	private Long ownBid_insertionPlan(Task t) {
+		// TODO make testing much more efficient!
+		long oldCost = mInsertionPlanFinder.getCost();
+		long withCost = mInsertionPlanFinder.costWithTask(t);
+		
+		long diff = withCost-oldCost;
+		printIfVerbose("Plan cost with new Task: %d, cost without: %d -> difference: %d.", withCost, oldCost, diff);
+
+		return diff;
+		
 	}
 	
 	/**
@@ -165,6 +178,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 		super.auctionWon(t, bids);
 		this.mEnemyEstimator.auctionResult(bids, t);
 		mPlan = mPlanWithNewTask;
+		mInsertionPlanFinder.addTask(t);
 	}
 	
 	public void printIfVerbose(String str, Object...objects){
