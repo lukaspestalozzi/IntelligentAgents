@@ -18,10 +18,12 @@ public class InsertionPlanFinder {
 	private InsertionAssignment mCurrentAssigment;
 	private final HashSet<Task> mTasks;
 	private final SLSPlanFinder mSlsPlaner;
+	private final int mTimeout;
 	
 	public InsertionPlanFinder(List<Vehicle> vehicles, int bid_timeout) {
 		mVehicles = new ArrayList<Vehicle>(vehicles);
 		mTasks = new HashSet<Task>(100);
+		mTimeout = bid_timeout;
 		
 		// init assignment
 		Map<Vehicle, LinkedList<Action>> vehicleRoutes = new HashMap<Vehicle, LinkedList<Action>>(vehicles.size());
@@ -57,12 +59,19 @@ public class InsertionPlanFinder {
 		mCurrentAssigment.printIfVerbose("Testing task(%d) with length %.2f... ", t.id, t.pathLength());
 		mCurrentAssigment.insertTask(t);
 		long cost = mCurrentAssigment.getCost();
-		
-		
-		
-		
-		
 		mCurrentAssigment.remove(t);
+		mCurrentAssigment.printIfVerbose("...Testing task(%d) done.", t.id);
+		return cost;
+	}
+	
+	public long costWithTaskSls(Task t){
+		mCurrentAssigment.printIfVerbose("Testing task(%d) with length %.2f (on sls)... ", t.id, t.pathLength());
+		Assignment a = mCurrentAssigment.toSlsAssignment();
+		
+		mSlsPlaner.setTimeout((int)(mTimeout*0.6));
+		a = mSlsPlaner.computeBestPlan(a, new LinkedList<Task>(mTasks));
+		long cost = a.computeCost();
+		
 		mCurrentAssigment.printIfVerbose("...Testing task(%d) done.", t.id);
 		return cost;
 	}

@@ -67,7 +67,7 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	@Override
 	public void auctionResult(Task previous, int winner, Long[] bids) {
-		printIfVerbose(String.format("Auction result of Task %s: \n  winner: %d, bids: %s\n", previous.toString(), winner,
+		printIfVerbose(String.format("Auction result of Task %s: \n  winner: %d, bids: %s", previous.toString(), winner,
 		    Arrays.toString(bids)));
 		if (winner == agent.id()) {
 			mBidFinder.auctionWon(previous, bids);
@@ -78,7 +78,7 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	@Override
 	public Long askPrice(Task task) {
-		printIfVerbose("Task auctioned: " + task.toString()+" -> pathlength: "+task.pathLength());
+		printIfVerbose("\nTask auctioned: " + task.toString()+" -> pathlength: "+task.pathLength());
 		mBidFinder.mInsertionPlanFinder.setTimeout(timeout_bid);
 		Long bid = mBidFinder.howMuchForThisTask(task);
 		printIfVerbose("... we bid: " + bid);

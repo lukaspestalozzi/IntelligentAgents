@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cern.colt.Arrays;
 import enemy_estimation.EnemyBidEstimator;
 import logist.agent.Agent;
 import logist.simulation.Vehicle;
@@ -13,7 +12,6 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import planning.Assignment;
 import planning.InsertionPlanFinder;
-import planning.SLSPlanFinder;
 import template.CityTuple;
 import template.DistributionTable;
 
@@ -35,6 +33,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 	public final InsertionPlanFinder mInsertionPlanFinder;
 	private final long mLowerBound; // TODO make it vary a bit so it is hard to predict.
 	private final int mMaxCapacity;
+	private double mExpectedTaskCost;
 	
 	public BidFinderLukas(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution, int bid_timeout) {
 		super(vehicles, agent, topology, distribution);
@@ -42,12 +41,14 @@ public class BidFinderLukas extends AbstractBidFinder {
 		ptasks = dt.sortedCities;
 		mEnemyEstimator = new EnemyBidEstimator(agent_id);
 		mAgent = agent;
+		mExpectedTaskCost = calcExpectedCost();
 
 		mInsertionPlanFinder  = new InsertionPlanFinder(vehicles, bid_timeout);
 
 		mMaxCapacity = findMaxCapacity(agent.vehicles());
 
-		mLowerBound = Math.round(calcExpectedCost() * 0.5);
+		mLowerBound = Math.round(mExpectedTaskCost * 0.6);
+		
 	}
 	
 	@Override
@@ -55,15 +56,15 @@ public class BidFinderLukas extends AbstractBidFinder {
 		// TODO only in first acution return estimate
 		// in later auctions, use enemyestimator even if no auctions were won
 		
-		if(task.weight > mMaxCapacity) { 
+		if(task.weight > mMaxCapacity) {
 		  // the task is too heavy to be handled by our company.
 		  return null;
 		}
 		
 		Long bid;
-		if (mAuctionsWon.size() == 0) {
-			printIfVerbose("No previous auctions won therefore calculating an estimated bid... ");
-			double estimate = calcExpectedCost();
+		if (auctionNbr == 1) {
+			printIfVerbose("First auction, returning the expected task cost... ");
+			double estimate = mExpectedTaskCost;
 			bid = Math.round(estimate);//Math.round(estimate * taskLength);
 			printIfVerbose(String.format("... bid = %.2f (estimation)", estimate));
 		} else {
@@ -90,7 +91,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 	private Long ownBid_insertionPlan(Task t) {
 		// TODO make testing much more efficient!
 		long oldCost = mInsertionPlanFinder.getCost();
-		long withCost = mInsertionPlanFinder.costWithTask(t);
+		long withCost = mInsertionPlanFinder.costWithTaskSls(t);
 		
 		long diff = withCost-oldCost;
 		printIfVerbose("Plan cost with new Task: %d, cost without: %d -> difference: %d.", withCost, oldCost, diff);
@@ -154,7 +155,6 @@ public class BidFinderLukas extends AbstractBidFinder {
 	 * @return 1/(auctionsWon+1).
 	 */
 	private double calcP() {
-//		double p = 1.0 / (double)(mAuctionsWon.size() + 1);
 		double p = p_array[Math.min(mAuctionsWon.size(), p_array.length-1)];
 		printIfVerbose("p value: " + p);
 		return p;
@@ -163,12 +163,14 @@ public class BidFinderLukas extends AbstractBidFinder {
 	@Override
 	public void auctionLost(Task t, Long[] bids) {
 		super.auctionLost(t, bids);
+		auctionNbr++;
 		this.mEnemyEstimator.auctionResult(bids, t);
 	}
 	
 	@Override
 	public void auctionWon(Task t, Long[] bids) {
 		super.auctionWon(t, bids);
+		auctionNbr++;
 		this.mEnemyEstimator.auctionResult(bids, t);
 		mPlan = mPlanWithNewTask;
 		mInsertionPlanFinder.addTask(t);
@@ -197,5 +199,4 @@ public class BidFinderLukas extends AbstractBidFinder {
 			System.out.flush();
 		}
 	}
-	
 }
