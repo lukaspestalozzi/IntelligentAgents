@@ -13,7 +13,7 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import planning.Assignment;
 import planning.InsertionPlanFinder;
-import planning.PlanFinder;
+import planning.SLSPlanFinder;
 import template.CityTuple;
 import template.DistributionTable;
 
@@ -30,21 +30,18 @@ public class BidFinderLukas extends AbstractBidFinder {
 	private Map<CityTuple, Double> bid = new HashMap<CityTuple, Double>();
 	public final EnemyBidEstimator mEnemyEstimator;
 	private Agent mAgent;
-	private PlanFinder mPlanFinder;
 	public Assignment mPlan = null;
 	private Assignment mPlanWithNewTask = null;
 	public final InsertionPlanFinder mInsertionPlanFinder;
 	private final long mLowerBound; // TODO make it vary a bit so it is hard to predict.
 	
-	public BidFinderLukas(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution) {
+	public BidFinderLukas(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution, int bid_timeout) {
 		super(vehicles, agent, topology, distribution);
 		dt = new DistributionTable(topology, distribution);
 		ptasks = dt.sortedCities;
 		mEnemyEstimator = new EnemyBidEstimator(agent_id);
 		mAgent = agent;
-		mPlanFinder = new PlanFinder(agent.vehicles(), 50000, 0.5); // TODO set as
-		                                                            // parameters
-		mInsertionPlanFinder  = new InsertionPlanFinder(vehicles);
+		mInsertionPlanFinder  = new InsertionPlanFinder(vehicles, bid_timeout);
 		mLowerBound = Math.round(calcExpectedCost() * 0.5);
 	}
 	
@@ -79,19 +76,6 @@ public class BidFinderLukas extends AbstractBidFinder {
 }
 		printIfVerbose("Returned bid: " + bid);
 		return bid;
-	}
-	
-	private Long ownBid(Task t) {
-		mPlanWithNewTask = mPlanFinder.computeBestPlan(mAuctionsWon, t);
-		mPlanWithNewTask.computeCost();
-		if (mPlan != null) {
-			long diff = mPlanWithNewTask.cost - mPlan.cost;
-			printIfVerbose("Plan cost with new Task: %d, cost without: %d -> difference: %d", mPlanWithNewTask.cost, mPlan.cost, diff);
-			
-			return diff;
-		} else {
-			return mPlanWithNewTask.cost;
-		}
 	}
 	
 	private Long ownBid_insertionPlan(Task t) {

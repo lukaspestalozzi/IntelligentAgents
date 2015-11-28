@@ -9,7 +9,7 @@ import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import planning.Assignment;
-import planning.PlanFinder;
+import planning.SLSPlanFinder;
 
 public abstract class AbstractBidFinder {
 

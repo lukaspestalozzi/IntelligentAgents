@@ -16,10 +16,11 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import planning.AbstractAssignment;
 import planning.Assignment;
 import planning.InsertionAssignment;
 import planning.InsertionPlanFinder;
-import planning.PlanFinder;
+import planning.SLSPlanFinder;
 
 /**
  * Our agent
@@ -40,6 +41,9 @@ public class AuctionAgent implements AuctionBehavior {
 	private int mIter;
 	
 	private BidFinderLukas mBidFinder;
+	public  int timeout_setup;
+	public  int timeout_plan;
+	public  int timeout_bid;
 	
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
@@ -53,10 +57,11 @@ public class AuctionAgent implements AuctionBehavior {
 		
 //		long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
 		this.random = new Random(2015);
+		timeout_plan = agent.readProperty("timeout-plan", Integer.class, 30000);
+		timeout_bid = agent.readProperty("timeout-bid", Integer.class, 30000);
+		printIfVerbose("Timeout-bid: "+timeout_bid);
 		
-		String strategy = agent.readProperty("bid-strategy", String.class, "BEST");
-		
-		mBidFinder = new BidFinderLukas(agent.vehicles(), agent, topology, distribution);
+		mBidFinder = new BidFinderLukas(agent.vehicles(), agent, topology, distribution, timeout_bid);
 		printIfVerbose("...setup done (agent " + agent.id() + ")");
 	}
 	
@@ -74,6 +79,7 @@ public class AuctionAgent implements AuctionBehavior {
 	@Override
 	public Long askPrice(Task task) {
 		printIfVerbose("Task auctioned: " + task.toString()+" -> pathlength: "+task.pathLength());
+		mBidFinder.mInsertionPlanFinder.setTimeout(timeout_bid);
 		Long bid = mBidFinder.howMuchForThisTask(task);
 		printIfVerbose("... we bid: " + bid);
 		return bid;
@@ -83,21 +89,11 @@ public class AuctionAgent implements AuctionBehavior {
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 		mBidFinder.mEnemyEstimator.plotBidsVsPrediction(1);
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
-//		Assignment a = new PlanFinder(vehicles, 100000, 0.5).computeBestPlan(tasks);
-		InsertionAssignment a = mBidFinder.mInsertionPlanFinder.getAssignment();
-		if (a == null) {
-			List<Plan> pls = new ArrayList<Plan>(vehicles.size());
-			for (Vehicle v : vehicles) {
-				pls.add(new Plan(v.getCurrentCity()));
-			}
-			summarize(vehicles, pls, tasks);
-			return pls;
-		} else {
-			List<Plan> p = a.generatePlans(vehicles);
-			summarize(vehicles, p, tasks);
-			
-			return p;
-		}
+		mBidFinder.mInsertionPlanFinder.setTimeout(timeout_plan);
+		List<Plan> plans = mBidFinder.mInsertionPlanFinder.computeBestPlans(vehicles, tasks);
+		summarize(vehicles, plans, tasks);
+		return plans;
+
 	}
 	
 	private void summarize(List<Vehicle> vehicles, List<Plan> plans, TaskSet tasks) {

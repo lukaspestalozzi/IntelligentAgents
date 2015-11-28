@@ -1,12 +1,13 @@
 package planning;
 
+import java.net.NetworkInterface;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Set;
 
 import logist.plan.Plan;
@@ -14,7 +15,7 @@ import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.topology.Topology.City;
 
-public class InsertionAssignment {
+public class InsertionAssignment extends AbstractAssignment{
 	private static boolean VERBOSE = true;
 	/** The route each vehicle takes */
 	public final Map<Vehicle, LinkedList<Action>> vehicleRoutes;
@@ -271,7 +272,7 @@ public class InsertionAssignment {
 		return indexOf.keySet();
 	}
 	
-	private Set<Task> allTasks() {
+	public Set<Task> allTasks() {
 		return vehicles.keySet();
 	}
 	
@@ -292,7 +293,7 @@ public class InsertionAssignment {
 	}
 	
 	/**
-	 * removes the task from its route
+	 * removes the task from its route and from the other maps
 	 * 
 	 * @param t
 	 * @return the vehicle the task belonged to
@@ -304,6 +305,9 @@ public class InsertionAssignment {
 		
 		boolean rem = vehicleRoutes.get(v).remove(del);
 		rem = rem & vehicleRoutes.get(v).remove(pick);
+		
+		vehicles.remove(t);
+		updateIndexes(v);
 		
 		if (!rem) { throw new IllegalStateException("The routes are inconsistent with the vehicles map"); }
 		
@@ -376,5 +380,47 @@ public class InsertionAssignment {
 		printIfVerbose("...printing disabled.");
 		VERBOSE = false;
 	}
+	
+	public InsertionAssignment copy(){
+		return new InsertionAssignment(this.copyVehicleRoutes(), this.copyVehicles(), this.copyIndexOf());
+		
+	}
+	
+	public Assignment toSlsAssignment(){
+		return new Assignment(this.copyVehicleRoutesList(), this.copyVehicles(), this.copyIndexOf());
+	}
+	
+	private Map<Vehicle, LinkedList<Action>> copyVehicleRoutes(){
+		Map<Vehicle, LinkedList<Action>> vr = new HashMap<Vehicle, LinkedList<Action>>(vehicleRoutes.size()*2);
+		for(Entry<Vehicle, LinkedList<Action>> e : vehicleRoutes.entrySet()){
+			vr.put(e.getKey(), new LinkedList<Action>(e.getValue()));
+		}
+		return vr;
+	}
+	
+	private Map<Task, Vehicle> copyVehicles(){
+		Map<Task, Vehicle> vhs = new HashMap<Task, Vehicle>(vehicles.size()*2);
+		for(Entry<Task, Vehicle> e : vehicles.entrySet()){
+			vhs.put(e.getKey(), e.getValue());
+		}
+		return vhs;
+	}
+	
+	private Map<Action, Integer> copyIndexOf(){
+		Map<Action, Integer> idxOf = new HashMap<Action, Integer>(indexOf.size()*2);
+		for(Entry<Action, Integer> e : indexOf.entrySet()){
+			idxOf.put(e.getKey(), e.getValue());
+		}
+		return idxOf;
+	}
+	
+	private Map<Vehicle, List<Action>> copyVehicleRoutesList(){
+		Map<Vehicle, List<Action>> vr = new HashMap<Vehicle, List<Action>>(vehicleRoutes.size()*2);
+		for(Entry<Vehicle, LinkedList<Action>> e : vehicleRoutes.entrySet()){
+			vr.put(e.getKey(), new LinkedList<Action>(e.getValue()));
+		}
+		return vr;
+	}
+	
 	
 }

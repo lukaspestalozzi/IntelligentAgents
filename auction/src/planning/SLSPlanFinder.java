@@ -15,9 +15,9 @@ import java.util.TreeSet;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 
-public class PlanFinder {
+public class SLSPlanFinder {
 	private static final boolean VERBOSE = true;
-	private static final long MAX_COMPUTATION_TIME = 23000L;
+	private long MAX_COMPUTATION_TIME;
 	private List<Task> mTasks;
 	private List<Vehicle> mVehicles;
 	private ObjFunc mObjFunc;
@@ -32,7 +32,8 @@ public class PlanFinder {
 	/**
 	 * We are guaranteed to have between 2 and 5 vehicles
 	 */
-	public PlanFinder(List<Vehicle> vehicles, Integer numIter, double probability) {
+	public SLSPlanFinder(List<Vehicle> vehicles, Integer numIter, double probability, int bid_timeout) {
+		MAX_COMPUTATION_TIME = bid_timeout;
 		mTasks = null;
 		mVehicles = vehicles;
 		mObjFunc = new ObjFunc();
@@ -61,7 +62,7 @@ public class PlanFinder {
 	 * @return
 	 */
 	public Assignment computeBestPlan(Set<Task> tasks) {
-		return computeBestPlan(tasks.toArray(new Task[tasks.size()]));
+		return computeBestPlan(new LinkedList<Task>(tasks));
 	}
 
 	public Assignment computeBestPlan(Task... tasks) {
@@ -71,33 +72,33 @@ public class PlanFinder {
 	public Assignment computeBestPlan(List<Task> tasks, Task... othertasks) {
 		List<Task> l = new ArrayList<Task>(Arrays.asList(othertasks));
 		l.addAll(tasks);
-		return computeBestPlan(l);
-	}
-	
+		return computeBestPlan(null, l);
+	}	
 
-	public Assignment computeBestPlan(List<Task> tasks) {
+	public Assignment computeBestPlan(Assignment initialAssignment, List<Task> tasks) {
+		long startt = System.currentTimeMillis();
 		printIfVerbose("computing plan for "+tasks.size()+" tasks...");
 		if(tasks.isEmpty()){
 			return null;
 		}
 		mTasks = tasks;
-		Assignment oldA = selectInitalSolution(mVehicles, tasks);
+		Assignment oldA = initialAssignment == null ? selectInitalSolution(mVehicles, tasks) : initialAssignment;
 		
 		oldA.cost = (long) mObjFunc.compute(oldA);
 		Assignment newA = null, bestA = oldA;
-		long maxEndTime = System.currentTimeMillis() + MAX_COMPUTATION_TIME;
+		long maxEndTime = System.currentTimeMillis() + MAX_COMPUTATION_TIME - 3000;
 
 		for (mI = 0; mI < mIter && maxEndTime > System.currentTimeMillis(); mI++) {
 			newA = updateAssignment(oldA);
 			long newCost = mObjFunc.compute(newA);
-
-			if (bestA.cost < newCost) {
+			if (bestA.cost > newCost) {
 				bestA = newA;
 				bestA.cost = newCost;
 			}
 
 			oldA = newA;
 		}
+		printIfVerbose("it took %d ms to compute.", System.currentTimeMillis() - startt);
 		printIfVerbose("...Cost of computed plan: "+bestA.computeCost());
 		return bestA;
 	}
@@ -197,9 +198,15 @@ public class PlanFinder {
 
 	}
 	
+	public void setTimeout(int newTimeout){
+		MAX_COMPUTATION_TIME = newTimeout;
+	}
+	
 	public void printIfVerbose(String str, Object...objects){
 		printIfVerbose(String.format(str, objects));
 	}
+	
+	
 	
 	/**
 	 * prints s if the VERBOSE flag is set to true: </br>

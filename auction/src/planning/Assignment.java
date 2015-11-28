@@ -15,7 +15,7 @@ import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.topology.Topology.City;
 
-public class Assignment {
+public class Assignment extends AbstractAssignment{
 	/** The route each vehicle takes*/
 	public final Map<Vehicle, List<Action>> vehicleRoutes;
 	/** The vehicle that does the task*/

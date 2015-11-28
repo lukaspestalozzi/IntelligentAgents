@@ -10,14 +10,16 @@ import java.util.Map;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import logist.task.TaskSet;
 import logist.topology.Topology.City;
 
 public class InsertionPlanFinder {
 	private final List<Vehicle> mVehicles;
 	private InsertionAssignment mCurrentAssigment;
 	private final HashSet<Task> mTasks;
+	private final SLSPlanFinder mSlsPlaner;
 	
-	public InsertionPlanFinder(List<Vehicle> vehicles) {
+	public InsertionPlanFinder(List<Vehicle> vehicles, int bid_timeout) {
 		mVehicles = new ArrayList<Vehicle>(vehicles);
 		mTasks = new HashSet<Task>(100);
 		
@@ -29,7 +31,7 @@ public class InsertionPlanFinder {
 		for(Vehicle v : vehicles){
 			vehicleRoutes.put(v, new LinkedList<Action>());
 		}
-		
+		mSlsPlaner = new SLSPlanFinder(vehicles, 40000, 0.5, bid_timeout);
 		mCurrentAssigment = new InsertionAssignment(vehicleRoutes, vehiclesMap, indexOf);
 	}
 	
@@ -63,4 +65,14 @@ public class InsertionPlanFinder {
 	public List<Plan> generatePlans(List<Vehicle> vehicles) {
 		return mCurrentAssigment.generatePlans(vehicles);
 	}
+	
+	public List<Plan> computeBestPlans(List<Vehicle> vehicles, TaskSet tasks){
+		Assignment a = mSlsPlaner.computeBestPlan(mCurrentAssigment.toSlsAssignment(), new LinkedList<Task>(tasks));
+		return a.computeCost() < mCurrentAssigment.getCost() ? a.generatePlans(vehicles) : mCurrentAssigment.generatePlans(vehicles);
+	}
+	
+	public void setTimeout(int newTimeout){
+		mSlsPlaner.setTimeout(newTimeout);
+	}
 }
+ 
