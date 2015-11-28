@@ -57,6 +57,11 @@ public class InsertionPlanFinder {
 		mCurrentAssigment.printIfVerbose("Testing task(%d) with length %.2f... ", t.id, t.pathLength());
 		mCurrentAssigment.insertTask(t);
 		long cost = mCurrentAssigment.getCost();
+		
+		
+		
+		
+		
 		mCurrentAssigment.remove(t);
 		mCurrentAssigment.printIfVerbose("...Testing task(%d) done.", t.id);
 		return cost;

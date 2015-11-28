@@ -34,6 +34,7 @@ public class BidFinderLukas extends AbstractBidFinder {
 	private Assignment mPlanWithNewTask = null;
 	public final InsertionPlanFinder mInsertionPlanFinder;
 	private final long mLowerBound; // TODO make it vary a bit so it is hard to predict.
+	private final int mMaxCapacity;
 	
 	public BidFinderLukas(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution, int bid_timeout) {
 		super(vehicles, agent, topology, distribution);
@@ -41,7 +42,11 @@ public class BidFinderLukas extends AbstractBidFinder {
 		ptasks = dt.sortedCities;
 		mEnemyEstimator = new EnemyBidEstimator(agent_id);
 		mAgent = agent;
+
 		mInsertionPlanFinder  = new InsertionPlanFinder(vehicles, bid_timeout);
+
+		mMaxCapacity = findMaxCapacity(agent.vehicles());
+
 		mLowerBound = Math.round(calcExpectedCost() * 0.5);
 	}
 	
@@ -50,6 +55,10 @@ public class BidFinderLukas extends AbstractBidFinder {
 		// TODO only in first acution return estimate
 		// in later auctions, use enemyestimator even if no auctions were won
 		
+		if(task.weight > mMaxCapacity) { 
+		  // the task is too heavy to be handled by our company.
+		  return null;
+		}
 		
 		Long bid;
 		if (mAuctionsWon.size() == 0) {

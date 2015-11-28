@@ -112,16 +112,16 @@ public class AbstractEnemyBidEstimator {
   	
   }
   
-  private Long mean(ArrayList<Long> list){
-    if(list.isEmpty()){
-      return null;
-    }
-    long sum = 0;
-    for(Long l : list){
-      sum += l;
-    }
-    return sum/list.size();
-  }
+//  private Long mean(ArrayList<Long> list){
+//    if(list.isEmpty()){
+//      return null;
+//    }
+//    long sum = 0;
+//    for(Long l : list){
+//      sum += l;
+//    }
+//    return sum/list.size();
+//  }
   
   private Double mean(ArrayList<Double> list){
     if(list.isEmpty()){
