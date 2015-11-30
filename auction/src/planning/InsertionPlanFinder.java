@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import cern.colt.map.PrimeFinder;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
@@ -29,33 +30,35 @@ public class InsertionPlanFinder {
 		Map<Vehicle, LinkedList<Action>> vehicleRoutes = new HashMap<Vehicle, LinkedList<Action>>(vehicles.size());
 		Map<Action, Integer> indexOf = new HashMap<Action, Integer>(100);
 		Map<Task, Vehicle> vehiclesMap = new HashMap<Task, Vehicle>(50);
-		//   fill maps
-		for(Vehicle v : vehicles){
+		// fill maps
+		for (Vehicle v : vehicles) {
 			vehicleRoutes.put(v, new LinkedList<Action>());
 		}
 		mSlsPlaner = new SLSPlanFinder(vehicles, 40000, 0.5, bid_timeout);
 		mCurrentAssigment = new InsertionAssignment(vehicleRoutes, vehiclesMap, indexOf);
 	}
 	
-	public boolean addTask(Task t){
+	public boolean addTask(Task t) {
 		mTasks.add(t);
 		return mCurrentAssigment.insertTask(t);
+		
 	}
 	
-	public InsertionAssignment getAssignment(){
-		return  mCurrentAssigment;
+	public InsertionAssignment getAssignment() {
+		return mCurrentAssigment;
 	}
 	
-	public long getCost(){
+	public long getCost() {
 		return mCurrentAssigment.getCost();
 	}
 	
 	/**
 	 * Does NOT change the state of the Assignment
+	 * 
 	 * @param t
 	 * @return the cost of the plan with t.
 	 */
-	public long costWithTask(Task t){
+	public long costWithTask(Task t) {
 		mCurrentAssigment.printIfVerbose("Testing task(%d) with length %.2f... ", t.id, t.pathLength());
 		mCurrentAssigment.insertTask(t);
 		long cost = mCurrentAssigment.getCost();
@@ -64,29 +67,29 @@ public class InsertionPlanFinder {
 		return cost;
 	}
 	
-	public long costWithTaskSls(Task t){
+	public long costWithTaskSls(Task t) {
 		mCurrentAssigment.printIfVerbose("Testing task(%d) with length %.2f (on sls)... ", t.id, t.pathLength());
 		Assignment a = mCurrentAssigment.toSlsAssignment();
+		mSlsPlaner.setTimeout((int) (mTimeout * 0.6));
+		Assignment best = mSlsPlaner.computeBestPlan(a, new LinkedList<Task>(mTasks));
 		
-		mSlsPlaner.setTimeout((int)(mTimeout*0.6));
-		a = mSlsPlaner.computeBestPlan(a, new LinkedList<Task>(mTasks));
-		long cost = a.computeCost();
+		long cost = best.computeCost();
 		
 		mCurrentAssigment.printIfVerbose("...Testing task(%d) done.", t.id);
 		return cost;
 	}
-
+	
 	public List<Plan> generatePlans(List<Vehicle> vehicles) {
 		return mCurrentAssigment.generatePlans(vehicles);
 	}
 	
-	public List<Plan> computeBestPlans(List<Vehicle> vehicles, TaskSet tasks){
+	public List<Plan> computeBestPlans(List<Vehicle> vehicles, TaskSet tasks) {
 		Assignment a = mSlsPlaner.computeBestPlan(mCurrentAssigment.toSlsAssignment(), new LinkedList<Task>(tasks));
-		return a.computeCost() < mCurrentAssigment.getCost() ? a.generatePlans(vehicles) : mCurrentAssigment.generatePlans(vehicles);
+		return a.computeCost() < mCurrentAssigment.getCost() ? a.generatePlans(vehicles)
+		    : mCurrentAssigment.generatePlans(vehicles);
 	}
 	
-	public void setTimeout(int newTimeout){
+	public void setTimeout(int newTimeout) {
 		mSlsPlaner.setTimeout(newTimeout);
 	}
 }
- 

@@ -87,7 +87,6 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-		mBidFinder.mEnemyEstimator.plotBidsVsPrediction(1);
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
 		mBidFinder.mInsertionPlanFinder.setTimeout(timeout_plan);
 		List<Plan> plans = mBidFinder.mInsertionPlanFinder.computeBestPlans(vehicles, tasks);

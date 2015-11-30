@@ -10,7 +10,7 @@ import javax.swing.SwingUtilities;
 import logist.task.Task;
 import plotting.DrawGraph;
 
-public class AbstractEnemyBidEstimator {
+public class EnemysBidEstimator  implements EnemyEstimator{
   public static int estimatedNbrBids = 50;
   
 	public DrawGraph mainPanel;
@@ -34,7 +34,7 @@ public class AbstractEnemyBidEstimator {
   
   private int mNbrAgents = -1;
   
-  public AbstractEnemyBidEstimator(int agentID) {
+  public EnemysBidEstimator(int agentID) {
     this.agentID = agentID;
     
     // init the maps

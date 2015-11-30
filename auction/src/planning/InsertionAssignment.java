@@ -1,7 +1,7 @@
 package planning;
 
-import java.net.NetworkInterface;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class InsertionAssignment extends AbstractAssignment{
 		this.vehicles = vehicles;
 		this.indexOf = indexOf;
 	}
-	
+
 	/**
 	 * 
 	 * @param vehics

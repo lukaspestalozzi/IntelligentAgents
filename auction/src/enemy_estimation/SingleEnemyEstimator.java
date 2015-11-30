@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import logist.task.Task;
 
-public class SingleEnemyEstimator {
+public class SingleEnemyEstimator implements EnemyEstimator {
 	public enum EstimateCategory {
 		Extreemly_precise, Under, Over, Unsure, NoIdea
 	};
@@ -44,6 +44,9 @@ public class SingleEnemyEstimator {
 	public Long estimateBidForTask(Task t){
 		Long pred = this.estimateBidFor(t);
 		prevEstimates.add(pred);
+		if(pred == null){
+			this.category = EstimateCategory.NoIdea;
+		}
 		return pred;
 	}
 	
