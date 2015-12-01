@@ -84,7 +84,7 @@ public class SLSPlanFinder {
 			tasks = new LinkedList<Task>(initialAssignment.vehicles.keySet());
 		}
 		
-		printIfVerbose("computing plan for "+tasks.size()+" tasks...");
+		printIfVerbose("computing plan for "+tasks.size()+" tasks (timeout is %d)...", MAX_COMPUTATION_TIME);
 		if(tasks.isEmpty()){
 			return null;
 		}
@@ -105,7 +105,7 @@ public class SLSPlanFinder {
 
 			oldA = newA;
 		}
-		printIfVerbose("it took %d ms to compute.", System.currentTimeMillis() - startt);
+		System.out.printf("it took %d ms to compute.\n", System.currentTimeMillis() - startt);
 		printIfVerbose("...Cost of computed plan: "+bestA.computeCost());
 		return bestA;
 	}
@@ -113,7 +113,8 @@ public class SLSPlanFinder {
 	private Assignment updateAssignment(Assignment oldA) {
 		TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mCompare, randomTask(), randomTask(), randomTask());
 //		TreeSet<Assignment> nabos = oldA.generateAllNeighbors(mCompare, randomTask());
-
+		
+		
 		if (nabos.size() == 1) {
 			return nabos.first();
 		}

@@ -9,6 +9,21 @@
     <set class-name="template.AuctionTemplate"/>
   </agent>
 
+  <agent name="auction-km">
+    <set class-path="bin/"/>
+    <set class-name="template.DummyConstantCostKm"/>
+  </agent>
+
+  <agent name="auction-const">
+    <set class-path="bin/"/>
+    <set class-name="template.DummyConstantBid"/>
+  </agent>
+
+  <agent name="auction-repeat">
+    <set class-path="bin/"/>
+    <set class-name="template.DummyRepeatLast"/>
+  </agent>
+
   <agent name="auction-own">
     <set class-path="bin/"/>
     <set class-name="template.AuctionAgent"/>

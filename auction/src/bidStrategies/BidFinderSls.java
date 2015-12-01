@@ -19,7 +19,7 @@ import template.DistributionTable;
 public class BidFinderSls extends AbstractBidFinder {
 private static final boolean VERBOSE = true;
 	
-	private final double[] p_array = { 0.9, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.4, 0.35, 0.3, 0.28, 0.26, 0.24, 0.22, 0.2,
+	private final double[] p_array = { 0.2, 0.4, 0.8, 1.0, 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.4, 0.35, 0.3, 0.28, 0.26, 0.24, 0.22, 0.2,
 	    0.19, 0.18, 0.17, 0.16, 0.15, 0.14, 0.13, 0.12, 0.11, 0.1, 0.09, 0.08, 0.05 };
 			
 	private double auctionNbr = 1;
@@ -37,6 +37,8 @@ private static final boolean VERBOSE = true;
 	public Assignment mPlan;
 	private Assignment mPlanWithNewTask = null;
 	
+	private final int mBidTimeout;
+	
 	public BidFinderSls(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution,
 	    int bid_timeout) {
 		super(vehicles, agent, topology, distribution);
@@ -49,6 +51,7 @@ private static final boolean VERBOSE = true;
 		mMaxCapacity = findMaxCapacity(agent.vehicles());
 		mLowerBound = Math.round(mExpectedTaskCost * 0.6);
 		mPlan = new Assignment(vehicles);
+		mBidTimeout = bid_timeout;
 	}
 	@Override
 	public Long howMuchForThisTask(Task task) {
@@ -68,14 +71,14 @@ private static final boolean VERBOSE = true;
 			
 			double estimate = mExpectedTaskCost;
 			bid = Math.round(estimate);
-			printIfVerbose(String.format("... bid = %.2f (estimation)", estimate));
 		} else {
 			double p = calcP();
 			Long enemy_estim = mEnemyEstimator.estimateBidForTask(task);
 			Long ownBid = Math.max(ownBid_slsPlan(task), mLowerBound);
 			switch (mEnemyEstimator.category) {
 			case Extreemly_precise:
-				p = Math.min(2*p, 1);
+				p = Math.min(2*p, 0.95);
+				enemy_estim -= 10;
 				break;
 				
 			case Over:
@@ -104,8 +107,13 @@ private static final boolean VERBOSE = true;
 				enemy_estim = ownBid;
 			}
 			
+			printIfVerbose("Enemy estim (%s): %d ", mEnemyEstimator.category.name(),enemy_estim);
+			printIfVerbose("Own Bid: "+ownBid);
+			printIfVerbose("p: "+p);
 			double ownBidPart = (1 - p) * ownBid;
 			double enemyestimPart = p * enemy_estim;
+			
+			
 			
 			bid = Math.round(ownBidPart + enemyestimPart);
 			
@@ -113,16 +121,22 @@ private static final boolean VERBOSE = true;
 		return bid;
 	}
 	
-	private Long ownBid_slsPlan(Task t) {		
+	private Long ownBid_slsPlan(Task t) {
 		
 		long oldCost = mPlan.computeCost();
 		InsertionAssignment insAss = new InsertionAssignment(mPlan.copy());
-		printIfVerbose(""+insAss.insertTask(t));
+		insAss.insertTask(t);
 		
+		mSLSPlanFinder.setTimeout(mBidTimeout/2);
 		Assignment assWithT = mSLSPlanFinder.computeBestPlan(insAss.toSlsAssignment(), null);
 		if(assWithT == null){
 			throw new RuntimeException("assWithT is null");
 		}
+		
+//		printIfVerbose("******************************************************************** ...");
+//		printIfVerbose("Plan with new Task: "+assWithT.toString());
+//		printIfVerbose("... ********************************************************************");
+		
 		
 		long withCost = assWithT.computeCost();
 		mPlanWithNewTask = assWithT;
@@ -207,9 +221,17 @@ private static final boolean VERBOSE = true;
 		auctionNbr++;
 		this.mEnemyEstimator.auctionResult(bids, t);
 		printIfVerbose("Auction Won!!");
-		printIfVerbose("mPlan = %s", mPlanWithNewTask.toString());
-		mPlan = mPlanWithNewTask;
+		mPlanWithNewTask.replace(t);
 		
+		mPlan = mPlanWithNewTask;
+//		printIfVerbose("=================");
+//		printIfVerbose("New Plan: "+mPlan.toString());
+//		printIfVerbose("=================");
+		
+	}
+	
+	public void summarize(){
+		mEnemyEstimator.summarize();
 		
 	}
 	

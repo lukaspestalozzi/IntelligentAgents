@@ -1,5 +1,6 @@
 package template;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -70,13 +71,14 @@ public class AuctionAgent implements AuctionBehavior {
 		} else {
 			mBidFinder.auctionLost(previous, bids);
 		}
+		
 	}
 	
 	@Override
 	public Long askPrice(Task task) {
 		
 		prevTask = task;
-		
+		printIfVerbose("==========================================================================================");
 		printIfVerbose("\nTask auctioned: " + task.toString()+" -> pathlength: "+task.pathLength());
 		mBidFinder.mSLSPlanFinder.setTimeout(timeout_bid);
 		Long bid = mBidFinder.howMuchForThisTask(task);
@@ -87,8 +89,8 @@ public class AuctionAgent implements AuctionBehavior {
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
-		mBidFinder.mSLSPlanFinder.setTimeout(timeout_plan);
-		List<Plan> plans = mBidFinder.mPlan.generatePlans(vehicles); //mBidFinder.mSLSPlanFinder.computeBestPlans(vehicles, tasks);
+		mBidFinder.mSLSPlanFinder.setTimeout((int)(timeout_plan*0.7));
+		List<Plan> plans = mBidFinder.mSLSPlanFinder.computeBestPlan(mBidFinder.mPlan, new ArrayList<Task>(tasks)).generatePlans(vehicles); //mBidFinder.mSLSPlanFinder.computeBestPlans(vehicles, tasks);
 		summarize(vehicles, plans, tasks);
 		return plans;
 
@@ -99,6 +101,9 @@ public class AuctionAgent implements AuctionBehavior {
 		if (plans.isEmpty()) {
 			printIfVerbose("No plans were made!");
 		}
+		
+		mBidFinder.summarize();
+		
 		long sumReward = tasks.rewardSum();
 		long sumCost = 0;
 		for (int i = 0; i < plans.size(); i++) {

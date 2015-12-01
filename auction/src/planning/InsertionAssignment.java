@@ -16,7 +16,7 @@ import logist.task.Task;
 import logist.topology.Topology.City;
 
 public class InsertionAssignment extends AbstractAssignment{
-	private static boolean VERBOSE = true;
+	private static boolean VERBOSE = false;
 	/** The route each vehicle takes */
 	public final Map<Vehicle, LinkedList<Action>> vehicleRoutes;
 	/** The vehicle that does the task */

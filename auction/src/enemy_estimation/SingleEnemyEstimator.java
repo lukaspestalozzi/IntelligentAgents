@@ -9,6 +9,8 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		Extreemly_precise, Under, Over, Unsure, NoIdea
 	};
 	
+	private static final boolean VERBOSE = true;
+	
 	public static int estimatedNbrBids = 50;
 	
 	protected ArrayList<Task> auctionedTasks = new ArrayList<Task>(estimatedNbrBids);
@@ -34,7 +36,9 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	}
 	
 	public void auctionResult(Long[] bids, Task t) {
-		
+		if(bids.length == 1){
+			return;
+		}
 		auctionedTasks.add(t);
 		prevBids.add(bids[enemyID]);
 		prevBidsPerKm.add(bids[enemyID] / t.pathLength());
@@ -57,19 +61,19 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			return null;
 		}
 		
-		Double meanPerKm = mean(prevBidsPerKm);
-		Double medianPerKm = median(prevBidsPerKm);
+		Double meanPerKm = mean(take10D(prevBidsPerKm));
+		Double medianPerKm = median(take10D(prevBidsPerKm));
 		
-		Double meanAbs = mean(prevBids);
-		Double medianAbs = median(prevBids);
+		Double meanAbs = mean(take10L(prevBids));
+		Double medianAbs = median(take10L(prevBids));
 		
 		if (meanAbs == null || meanPerKm == null || medianAbs == null || medianPerKm == null) {
 			this.category = EstimateCategory.NoIdea;
 			return null;
 		}
 		
-		Double stdPerKm = stdDeviation(prevBidsPerKm, meanPerKm);
-		Double stdAbs = stdDeviation(prevBids, meanAbs);
+		Double stdPerKm = stdDeviation(take10D(prevBidsPerKm), meanPerKm);
+		Double stdAbs = stdDeviation(take10L(prevBids), meanAbs);
 		
 		if (stdPerKm == null || stdAbs == null) {
 			this.category = EstimateCategory.Unsure;
@@ -80,28 +84,59 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		Double stdNormPerKm = (100.0 / meanPerKm) * stdPerKm;
 		Double stdNormAbs = (100.0 / meanAbs) * stdAbs;
 		
+		printIfVerbose("meanPerKm: %.2f, medianPerKm: %.2f, meanAbs: %.2f, medianAbs: %.2f, stdPerKm: %.2f, stdAbs: %.2f, stdNormPerKm: %.2f, stdNormAbs: %.2f", 
+				meanPerKm, medianPerKm, meanAbs ,medianAbs, stdPerKm, stdAbs, stdNormPerKm, stdNormAbs);
+		
 		// check if std is very small (only after the 5th task)
 		if (auctionedTasks.size() >= 5) {
 			if (stdNormPerKm < 5) {
+				printIfVerbose("extremly low std...");
+				printIfVerbose("returning per km.");
 				this.category = EstimateCategory.Extreemly_precise;
 				return Math.round((meanPerKm - stdPerKm) * t.pathLength());
 			} else if (stdNormAbs < 5) {
+				printIfVerbose("extremly low std...");
+				printIfVerbose("returning abs.");
 				this.category = EstimateCategory.Extreemly_precise;
-				return Math.round((meanAbs - stdAbs) * t.pathLength());
+				return Math.round((meanAbs - stdAbs));
 			}
 		}
 		
 		// return the value with the smaller std		
 		if(stdNormPerKm < stdNormAbs){
-			this.category = EstimateCategory.Under;
+			this.category = stdNormPerKm < 40 ? EstimateCategory.Under : EstimateCategory.Unsure;
 			// min of median and mean of bid/km * pathlenght
+			printIfVerbose("returning per km.");
 			return Math.round(Math.min(meanPerKm, medianPerKm)*t.pathLength());
 		}else{
-			this.category = EstimateCategory.Under;
+			this.category = stdNormAbs < 40 ? EstimateCategory.Under : EstimateCategory.Unsure;
 			// min of median and mean of absolute bid
+			printIfVerbose("returning abs.");
 			return Math.round(Math.min(meanAbs, medianAbs));
 		}
+	}
+	
+	private ArrayList<Double> take10D(ArrayList<Double> list){
+		if(list.size() <= 10){
+			return list;
+		}
+		ArrayList<Double> l = new ArrayList<>();
+		for(int i = list.size() - 10; i < list.size(); i++){
+			l.add(list.get(i));
+		}
+		return l;
 		
+	}
+	
+	private ArrayList<Long> take10L(ArrayList<Long> list){
+		if(list.size() <= 10){
+			return list;
+		}
+		ArrayList<Long> l = new ArrayList<>();
+		for(int i = list.size() - 10; i < list.size(); i++){
+			l.add(list.get(i));
+		}
+		return l;
 		
 	}
 	
@@ -134,6 +169,49 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			sum += Math.pow(d.doubleValue() - mean, 2);
 		}
 		return Math.sqrt(sum / arrayList.size());
+	}
+	
+	public void summarize(){
+		if(prevBids.isEmpty() || auctionedTasks.isEmpty()){
+			return;
+		}
+		ArrayList<Long> diffs = new ArrayList<>(prevBids.size()+1);
+		diffs.add(prevBids.get(0));
+		for(int i = 0; i < prevEstimates.size(); i++){
+			diffs.add((prevBids.get(i+1) - prevEstimates.get(i)));
+		}
+		
+		
+		System.out.println("========================== Enemy Estimator summary: ");
+		System.out.println(auctionedTasks.toString());
+		System.out.println("Bids:  "+prevBids.toString());
+		System.out.println("Estimates:   "+prevEstimates.toString());
+		System.out.println("Diff: "+diffs.toString());
+		System.out.println("======================================================");
+	}
+	
+	public void printIfVerbose(String str, Object... objects) {
+		printIfVerbose(String.format(str, objects));
+	}
+	
+	/**
+	 * prints s if the VERBOSE flag is set to true: </br>
+	 * if(VERBOSE){ System.out.println(s); }
+	 * 
+	 * @param s
+	 */
+	public void printIfVerbose(String str) {
+		if (VERBOSE) {
+			System.out.println(new StringBuilder()
+					.append("    ")
+					.append("(enemy-estimator) ")
+					.append("enemy(")
+					.append(enemyID)
+			    .append("): ")
+			    .append(str)
+			    .toString());
+			System.out.flush();
+		}
 	}
 	
 }

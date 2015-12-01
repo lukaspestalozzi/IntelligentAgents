@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -395,12 +396,56 @@ public class Assignment extends AbstractAssignment{
 		return vehicles.keySet().isEmpty();
 	}
 	
+	/**
+	 * replaces the task with the same id as t with t.
+	 * This is necessary to keep equality.
+	 * @param t
+	 */
+	public void replace(Task t){
+		Action newpick = new Pickup(t);
+		Action newdel = new Deliver(t);
+		
+		
+		// replace in the vehicle routes
+		boolean replacedOne = false;
+		for(List<Action> route : vehicleRoutes.values()){
+			ListIterator<Action> it = route.listIterator();
+			while(it.hasNext()){
+				Action a = it.next();
+				if(a.task.id == t.id){
+					it.remove();
+					it.add(a.isDelivery() ? newdel : newpick);
+					if(replacedOne){
+						break;
+					}
+					replacedOne = true;
+				}
+			}
+		}
+		
+		// replace in vehicle map
+		for(Entry<Task, Vehicle> e : vehicles.entrySet()){
+			if(e.getKey().id == t.id){
+				Vehicle v = e.getValue();
+				vehicles.remove(e.getKey());
+				vehicles.put(t, v);
+				break;
+			}
+		}
+		
+		// replace in indexOf
+		updateIndexes(vehicleRoutes.keySet().toArray(new Vehicle[vehicleRoutes.size()]));
+		
+	}
+	
 	@Override
 	public String toString() {
-		return new StringBuilder().append("Assignment: \n    vehicRoutes: ").append(vehicleRoutsString())
-		    // .append("\n vehicles: ")
-		    // .append(vehicles.toString())
-		    .append("\n    indexOf: ").append(indexOf.toString()).append("\n\n").toString();
+		return new StringBuilder()
+				.append("Assignment: \n    vehicRoutes: \n")
+				.append(vehicleRoutsString())
+//		    .append("\n    indexOf: ")
+//		    .append(indexOf.toString())
+		    .append("\n\n").toString();
 	}
 	
 	public String vehicleRoutsString() {
@@ -411,9 +456,11 @@ public class Assignment extends AbstractAssignment{
 			sb.append(": \n    ");
 			sb.append(vehicleRoutes.get(e.getKey()).toString());
 			sb.append("\n    ");
-			// for(Action act: e.getValue()){
-			//
-			// }
+			sb.append("Tasks: ");
+			for(Task t : vehicles.keySet()){
+				sb.append(t.id+", ");
+			}
+			sb.append("\n");
 		}
 		return sb.toString();
 		
