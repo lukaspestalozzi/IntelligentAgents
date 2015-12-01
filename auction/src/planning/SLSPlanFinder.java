@@ -12,8 +12,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import logist.task.TaskSet;
 
 public class SLSPlanFinder {
 	private static final boolean VERBOSE = true;
@@ -55,6 +57,7 @@ public class SLSPlanFinder {
 		mProbaAnn = mProba;
 		mAnnStep = mProba / mIter;
 	}
+	
 
 	/**
 	 * computes the best plan given the tasks in the set
@@ -77,6 +80,10 @@ public class SLSPlanFinder {
 
 	public Assignment computeBestPlan(Assignment initialAssignment, List<Task> tasks) {
 		long startt = System.currentTimeMillis();
+		if(tasks == null){
+			tasks = new LinkedList<Task>(initialAssignment.vehicles.keySet());
+		}
+		
 		printIfVerbose("computing plan for "+tasks.size()+" tasks...");
 		if(tasks.isEmpty()){
 			return null;

@@ -37,6 +37,17 @@ public class Assignment extends AbstractAssignment{
 		this.indexOf = indexOf;
 	}
 	
+	public Assignment(List<Vehicle> vehics) {
+		
+		this.vehicleRoutes = new HashMap<>();
+		this.vehicles = new HashMap<>();
+		this.indexOf = new HashMap<>();
+		for(Vehicle v : vehics){
+			vehicleRoutes.put(v, new LinkedList<Action>());
+		}
+		
+	}
+	
 	public List<Plan> generatePlans(List<Vehicle> vehics) {
 		List<Plan> plans = new ArrayList<Plan>();
 		
@@ -378,6 +389,10 @@ public class Assignment extends AbstractAssignment{
 				this.indexOf.put(act, time++);
 			}
 		}
+	}
+	
+	public boolean isEmpty(){
+		return vehicles.keySet().isEmpty();
 	}
 	
 	@Override

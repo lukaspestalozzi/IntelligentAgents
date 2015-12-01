@@ -1,11 +1,10 @@
 package template;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 import bidStrategies.BidFinderLukas;
+import bidStrategies.BidFinderSls;
 import cern.colt.Arrays;
 import logist.agent.Agent;
 import logist.behavior.AuctionBehavior;
@@ -16,11 +15,6 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
-import planning.AbstractAssignment;
-import planning.Assignment;
-import planning.InsertionAssignment;
-import planning.InsertionPlanFinder;
-import planning.SLSPlanFinder;
 
 /**
  * Our agent
@@ -40,10 +34,12 @@ public class AuctionAgent implements AuctionBehavior {
 	private double mProba;
 	private int mIter;
 	
-	private BidFinderLukas mBidFinder;
+	private BidFinderSls mBidFinder;
 	public  int timeout_setup;
 	public  int timeout_plan;
 	public  int timeout_bid;
+	
+	private Task prevTask = null;
 	
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
@@ -61,7 +57,7 @@ public class AuctionAgent implements AuctionBehavior {
 		timeout_bid = agent.readProperty("timeout-bid", Integer.class, 30000);
 		printIfVerbose("Timeout-bid: "+timeout_bid);
 		
-		mBidFinder = new BidFinderLukas(agent.vehicles(), agent, topology, distribution, timeout_bid);
+		mBidFinder = new BidFinderSls(agent.vehicles(), agent, topology, distribution, timeout_bid);
 		printIfVerbose("...setup done (agent " + agent.id() + ")");
 	}
 	
@@ -78,8 +74,11 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	@Override
 	public Long askPrice(Task task) {
+		
+		prevTask = task;
+		
 		printIfVerbose("\nTask auctioned: " + task.toString()+" -> pathlength: "+task.pathLength());
-		mBidFinder.mInsertionPlanFinder.setTimeout(timeout_bid);
+		mBidFinder.mSLSPlanFinder.setTimeout(timeout_bid);
 		Long bid = mBidFinder.howMuchForThisTask(task);
 		printIfVerbose("... we bid: " + bid);
 		return bid;
@@ -88,8 +87,8 @@ public class AuctionAgent implements AuctionBehavior {
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
-		mBidFinder.mInsertionPlanFinder.setTimeout(timeout_plan);
-		List<Plan> plans = mBidFinder.mInsertionPlanFinder.computeBestPlans(vehicles, tasks);
+		mBidFinder.mSLSPlanFinder.setTimeout(timeout_plan);
+		List<Plan> plans = mBidFinder.mPlan.generatePlans(vehicles); //mBidFinder.mSLSPlanFinder.computeBestPlans(vehicles, tasks);
 		summarize(vehicles, plans, tasks);
 		return plans;
 

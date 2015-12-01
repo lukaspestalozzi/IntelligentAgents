@@ -41,6 +41,22 @@ public class InsertionAssignment extends AbstractAssignment{
 		this.vehicles = vehicles;
 		this.indexOf = indexOf;
 	}
+	
+	public InsertionAssignment(Assignment a){
+		this.vehicleRoutes = new HashMap<>();
+		for(Entry<Vehicle, List<Action>> e : a.vehicleRoutes.entrySet()){
+			this.vehicleRoutes.put(e.getKey(), toLinkedList(e.getValue()));
+		}
+		this.vehicles = a.vehicles;
+		this.indexOf = a.indexOf;
+		
+		
+		
+	}
+	
+	private LinkedList<Action> toLinkedList(List<Action> l){
+		return new LinkedList<Action>(l);
+	}
 
 	/**
 	 * 
@@ -94,6 +110,7 @@ public class InsertionAssignment extends AbstractAssignment{
 	 * @return true iff the two Actions were added, false otherwise.
 	 */
 	public boolean insertActions(Pickup pick, Deliver del) {
+		printIfVerbose("Inserting... T:"+pick.task.id);
 		// TODO find efficient way to calculate the cost
 		// TODO -> only re-calculate cost of current route in the second while
 		// TODO -> only calculate the added cost when inserting the delivery
@@ -112,12 +129,14 @@ public class InsertionAssignment extends AbstractAssignment{
 		long cost = 0;
 		
 		for (Vehicle v : allVehicles()) {
+			printIfVerbose("Looking at vehicle v: "+v.toString());
 			if (pick.task.weight > v.capacity()) {
 				continue;
 			}
 			
 			LinkedList<Action> route = routeOf(v);
 			if (route.isEmpty()) {
+				
 				// route is empty -> only one possibility
 				// add both at the beginning and calculate cost
 				route.addFirst(pick);
