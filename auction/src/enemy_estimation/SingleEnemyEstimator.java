@@ -27,6 +27,9 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	 */
 	protected ArrayList<Long> prevEstimates = new ArrayList<Long>(estimatedNbrBids);
 	
+	private int maxlongcounter = 0; // counts how many long.max values were bid
+	private int nullcounter = 0; // counts how many null values were bid.
+	
 	public EstimateCategory category = EstimateCategory.NoIdea;
 	
 	public final int enemyID;
@@ -40,6 +43,18 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			return;
 		}
 		auctionedTasks.add(t);
+		
+		if(bids[enemyID] == null){
+			nullcounter++;
+			printIfVerbose("nullcounter: ", nullcounter);
+			return;
+		}
+		if(bids[enemyID] > Long.MAX_VALUE - 21){
+			maxlongcounter++;
+			printIfVerbose("maxcounter: "+maxlongcounter);
+			return;
+		}
+		
 		prevBids.add(bids[enemyID]);
 		prevBidsPerKm.add(bids[enemyID] / t.pathLength());
 		
@@ -58,8 +73,19 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		
 		if (auctionedTasks.isEmpty()) {
 			this.category = EstimateCategory.NoIdea;
+			printIfVerbose("No baseline");
 			return null;
 		}
+		
+		// check if enemy bids a lot null or Long.max value
+		if(nullcounter + maxlongcounter > 6){
+			printIfVerbose("A lot of null or max values were bid (%d, %d).", nullcounter, maxlongcounter);
+			if(((double)(nullcounter + maxlongcounter)/(double)auctionedTasks.size()) > 0.8){ // 80% is considered as a lot
+				this.category = EstimateCategory.Extreemly_precise;
+				return Long.MAX_VALUE - 21;
+			}
+		}
+		
 		
 		Double meanPerKm = mean(take10D(prevBidsPerKm));
 		Double medianPerKm = median(take10D(prevBidsPerKm));
@@ -107,12 +133,12 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			this.category = stdNormPerKm < 40 ? EstimateCategory.Under : EstimateCategory.Unsure;
 			// min of median and mean of bid/km * pathlenght
 			printIfVerbose("returning per km.");
-			return Math.round(Math.min(meanPerKm, medianPerKm)*t.pathLength());
+			return Math.round((Math.min(meanPerKm, medianPerKm)- stdPerKm)*t.pathLength());
 		}else{
 			this.category = stdNormAbs < 40 ? EstimateCategory.Under : EstimateCategory.Unsure;
 			// min of median and mean of absolute bid
 			printIfVerbose("returning abs.");
-			return Math.round(Math.min(meanAbs, medianAbs));
+			return Math.round(Math.min(meanAbs, medianAbs) - stdAbs);
 		}
 	}
 	

@@ -14,7 +14,7 @@ import logist.topology.Topology;
 import logist.topology.Topology.City;
 
 public class DummyConstantBid implements AuctionBehavior {
-	private long bid = 4000;
+	protected Long bid = 4000L;
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
 		

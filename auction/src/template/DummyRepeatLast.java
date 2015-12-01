@@ -28,7 +28,7 @@ public class DummyRepeatLast implements AuctionBehavior {
 
 	@Override
 	public void auctionResult(Task lastTask, int lastWinner, Long[] lastOffers) {
-		bid = id == 0 ? lastOffers[1] : lastOffers[0];
+		bid = lastOffers[lastWinner];
 		
 	}
 

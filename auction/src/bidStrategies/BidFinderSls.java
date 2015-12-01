@@ -11,7 +11,6 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import planning.Assignment;
 import planning.InsertionAssignment;
-import planning.InsertionPlanFinder;
 import planning.SLSPlanFinder;
 import template.CityTuple;
 import template.DistributionTable;
