@@ -37,8 +37,6 @@ public class DistributionTable {
         mCityTuples[index] = ct;
         sortedQueue.add(ct);
       }
-      System.out.println(mDistribution.probability(cities.get(i), null));
-      System.out.println();
     }
     
     sortedCities = new CityTuple[sortedQueue.size()];

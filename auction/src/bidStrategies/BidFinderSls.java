@@ -1,5 +1,8 @@
 package bidStrategies;
 
+import static enemy_estimation.EstimateCategory.NoIdea;
+import static enemy_estimation.EstimateCategory.Unsure;
+
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +17,7 @@ import planning.InsertionAssignment;
 import planning.SLSPlanFinder;
 import template.CityTuple;
 import template.DistributionTable;
+import java.util.Random;
 
 public class BidFinderSls extends AbstractBidFinder {
 private static final boolean VERBOSE = true;
@@ -34,6 +38,8 @@ private static final boolean VERBOSE = true;
 	
 	public Assignment mPlan;
 	private Assignment mPlanWithNewTask = null;
+	
+	private boolean bidMaxValue = false;
 	
 	private final long mBidTimeout;
 	
@@ -112,9 +118,14 @@ private static final boolean VERBOSE = true;
 			double ownBidPart = (1 - p) * ownBid;
 			double enemyestimPart = p * enemy_estim;
 			
-			
-			
 			bid = Math.round(ownBidPart + enemyestimPart);
+			
+			// The first time the enemy estimation is unsure we bid very high to potentially disturb the enemy
+			if(!bidMaxValue && (mEnemyEstimator.category == Unsure || mEnemyEstimator.category == NoIdea)){
+					bid = Math.round(Long.MAX_VALUE*0.79);
+					bidMaxValue = true;
+			}
+			
 			
 		}
 		return Math.max(bid, mLowerBound);

@@ -40,8 +40,8 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		if (bids.length == 1) { return; }
 		auctionedTasks.add(t);
 		
-		try{
-			if(bids[1-enemyID] > Long.MAX_VALUE*0.6){
+		try{ // if we won with a very high value
+			if(bids[1-enemyID] > Long.MAX_VALUE*0.6 && (bids[1-enemyID] < bids[enemyID] || bids[1-enemyID] == null)){
 				wonMaxVal = true;
 			}
 		}catch(Exception e){};
@@ -51,7 +51,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			printIfVerbose("nullcounter: ", nullcounter);
 			return;
 		}
-		if (bids[enemyID] > Long.MAX_VALUE *0.89) {
+		if (bids[enemyID] >= Long.MAX_VALUE *0.49) {
 			maxlongcounter++;
 			printIfVerbose("maxcounter: " + maxlongcounter);
 			return;
@@ -82,12 +82,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		// check if enemy bids a lot null or Long.max value
 		if (!wonMaxVal && nullcounter + maxlongcounter > 6) {
 			printIfVerbose("A lot of null or max values were bid (%d, %d).", nullcounter, maxlongcounter);
-			if (((double) (nullcounter + maxlongcounter) / (double) auctionedTasks.size()) > 0.8) { // 80%
-			                                                                                        // is
-			                                                                                        // considered
-			                                                                                        // as
-			                                                                                        // a
-			                                                                                        // lot
+			if (((double) (nullcounter + maxlongcounter) / (double) auctionedTasks.size()) > 0.8) {
 				this.category = Extreemly_precise;
 				return Long.MAX_VALUE - 21;
 			}
@@ -113,8 +108,8 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			
 		}
 		
-		Double stdNormPerKm = (100.0 / meanPerKm) * stdPerKm;
-		Double stdNormAbs = (100.0 / meanAbs) * stdAbs;
+		Double stdNormPerKm = (100.0 / Math.min(meanPerKm, medianPerKm)) * stdPerKm;
+		Double stdNormAbs = (100.0 / Math.min(meanAbs, medianAbs)) * stdAbs;
 		
 		printIfVerbose(
 		    "meanPerKm: %.2f, medianPerKm: %.2f, meanAbs: %.2f, medianAbs: %.2f, stdPerKm: %.2f, stdAbs: %.2f, stdNormPerKm: %.2f, stdNormAbs: %.2f",

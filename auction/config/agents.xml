@@ -3,51 +3,70 @@
 <agents>
   <!-- A list of agents and their behavior classes -->
 
-  <!-- #### AUCTION AGENTS ### -->
-  <agent name="auction-random">
-    <set class-path="bin/"/>
-    <set class-name="template.AuctionTemplate"/>
-  </agent>
+  <!-- #### Our AGENT ### -->
 
-  <agent name="auction-km">
-    <set class-path="bin/"/>
-    <set class-name="template.DummyConstantCostKm"/>
-  </agent>
-
-  <agent name="auction-const">
-    <set class-path="bin/"/>
-    <set class-name="template.DummyConstantBid"/>
-  </agent>
-
-  <agent name="auction-repeat">
-    <set class-path="bin/"/>
-    <set class-name="template.DummyRepeatLast"/>
-  </agent>
-
-    <agent name="auction-repeatkm">
-    <set class-path="bin/"/>
-    <set class-name="template.DummyRepeatCostKm"/>
-  </agent>
-
-    <agent name="auction-null">
-    <set class-path="bin/"/>
-    <set class-name="template.Dummynull"/>
-  </agent>
-
-    <agent name="auction-max">
-    <set class-path="bin/"/>
-    <set class-name="template.DummyMax"/>
-  </agent>
-
-      <agent name="auction-cheat">
-    <set class-path="bin/"/>
-    <set class-name="template.AgentCheat"/>
-  </agent>
 
   <agent name="auction-own">
     <set class-path="bin/"/>
     <set class-name="template.AuctionAgent"/>
-    <set bid-strategy="BEST"/>
   </agent>
+
+
+  <!-- #### DUMMY AGENTS ### -->
+
+    <agent name="dummy-const">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyConstantBid"/>
+    </agent>
+
+    <agent name="dummy-constkm">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyConstantCostKm"/>
+    </agent>
+
+    <agent name="dummy-greedy">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyGreedy"/>
+    </agent>
+
+    <agent name="dummy-greedysls">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyGreedySls"/>
+    </agent>
+
+    <agent name="dummy-max">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyMax"/>
+    </agent>
+
+    <agent name="dummy-null">
+      <set class-path="bin/"/>
+      <set class-name="dummys.Dummynull"/>
+    </agent>
+
+    <agent name="dummy-repeatkm">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyRepeatCostKm"/>
+    </agent>
+
+    <agent name="dummy-repeat">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyRepeatLast"/>
+    </agent>
+
+    <agent name="dummy-vehicavg">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyVehicleCostAvg"/>
+    </agent>
+
+    <agent name="dummy-vehicmax">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyVehicleCostMax"/>
+    </agent>
+
+    <agent name="dummy-vehicmin">
+      <set class-path="bin/"/>
+      <set class-name="dummys.DummyVehicleCostMin"/>
+    </agent>
 
 </agents>
