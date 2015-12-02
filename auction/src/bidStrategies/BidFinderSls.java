@@ -117,7 +117,7 @@ private static final boolean VERBOSE = true;
 			bid = Math.round(ownBidPart + enemyestimPart);
 			
 		}
-		return bid;
+		return Math.max(bid, mLowerBound);
 	}
 	
 	private Long ownBid_slsPlan(Task t) {

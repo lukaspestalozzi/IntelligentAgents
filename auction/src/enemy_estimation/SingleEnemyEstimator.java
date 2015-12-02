@@ -111,6 +111,10 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		printIfVerbose("meanPerKm: %.2f, medianPerKm: %.2f, meanAbs: %.2f, medianAbs: %.2f, stdPerKm: %.2f, stdAbs: %.2f, stdNormPerKm: %.2f, stdNormAbs: %.2f", 
 				meanPerKm, medianPerKm, meanAbs ,medianAbs, stdPerKm, stdAbs, stdNormPerKm, stdNormAbs);
 		
+		if(stdNormAbs > 90 || stdNormPerKm > 90){
+			return null;
+		}
+		
 		// check if std is very small (only after the 5th task)
 		if (auctionedTasks.size() >= 5) {
 			if (stdNormPerKm < 5) {
