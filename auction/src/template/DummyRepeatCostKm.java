@@ -13,22 +13,28 @@ import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
-public class DummyConstantBid implements AuctionBehavior {
-	protected Agent agent;
-	protected Long bid = 4000L;
+public class DummyRepeatCostKm implements AuctionBehavior {
+	private double bidkm = 50;
+	private int id;
+	long reward = 0;
+
+	
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
-		this.agent = agent;
+		this.id = agent.id();
 	}
 
 	@Override
 	public Long askPrice(Task task) {
-		return bid;
+		return Math.round(bidkm*task.pathLength());
 	}
 
 	@Override
 	public void auctionResult(Task lastTask, int lastWinner, Long[] lastOffers) {
-		return;
+		bidkm = lastOffers[lastWinner]/lastTask.pathLength();
+		if(lastWinner == this.id){
+			reward += lastOffers[lastWinner];
+		}
 		
 	}
 
@@ -45,6 +51,16 @@ public class DummyConstantBid implements AuctionBehavior {
 			}
 			
 		}
+		
+
+		long sum = 0;
+		int i = 0;
+		for(Plan p : plans){
+			sum += p.totalDistance()*vehicles.get(i++).costPerKm();
+		}
+		System.out.println("============> Dummy profit: "+(reward - sum));
+		
+		
 		return plans;
 	}
 	
@@ -68,6 +84,9 @@ public class DummyConstantBid implements AuctionBehavior {
 			// set current city
 			current = task.deliveryCity;
 		}
+		
+		
+		
 		return plan;
 	}
 	

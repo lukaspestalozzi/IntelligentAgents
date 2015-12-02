@@ -6,7 +6,6 @@ import logist.task.Task;
 
 public class SingleEnemyEstimator implements EnemyEstimator {
 	
-	
 	private static final boolean VERBOSE = true;
 	
 	public static int estimatedNbrBids = 50;
@@ -27,6 +26,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	
 	private int maxlongcounter = 0; // counts how many long.max values were bid
 	private int nullcounter = 0; // counts how many null values were bid.
+	boolean wonMaxVal = false;
 	
 	public EstimateCategory category = NoIdea;
 	
@@ -37,19 +37,23 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	}
 	
 	public void auctionResult(Long[] bids, Task t) {
-		if(bids.length == 1){
-			return;
-		}
+		if (bids.length == 1) { return; }
 		auctionedTasks.add(t);
 		
-		if(bids[enemyID] == null){
+		try{
+			if(bids[1-enemyID] > Long.MAX_VALUE*0.6){
+				wonMaxVal = true;
+			}
+		}catch(Exception e){};
+		
+		if (bids[enemyID] == null) {
 			nullcounter++;
 			printIfVerbose("nullcounter: ", nullcounter);
 			return;
 		}
-		if(bids[enemyID] > Long.MAX_VALUE - 21){
+		if (bids[enemyID] > Long.MAX_VALUE *0.89) {
 			maxlongcounter++;
-			printIfVerbose("maxcounter: "+maxlongcounter);
+			printIfVerbose("maxcounter: " + maxlongcounter);
 			return;
 		}
 		
@@ -58,10 +62,10 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		
 	}
 	
-	public Long estimateBidForTask(Task t){
+	public Long estimateBidForTask(Task t) {
 		Long pred = this.estimateBidFor(t);
 		prevEstimates.add(pred);
-		if(pred == null){
+		if (pred == null) {
 			this.category = NoIdea;
 		}
 		return pred;
@@ -76,14 +80,18 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		}
 		
 		// check if enemy bids a lot null or Long.max value
-		if(nullcounter + maxlongcounter > 6){
+		if (!wonMaxVal && nullcounter + maxlongcounter > 6) {
 			printIfVerbose("A lot of null or max values were bid (%d, %d).", nullcounter, maxlongcounter);
-			if(((double)(nullcounter + maxlongcounter)/(double)auctionedTasks.size()) > 0.8){ // 80% is considered as a lot
+			if (((double) (nullcounter + maxlongcounter) / (double) auctionedTasks.size()) > 0.8) { // 80%
+			                                                                                        // is
+			                                                                                        // considered
+			                                                                                        // as
+			                                                                                        // a
+			                                                                                        // lot
 				this.category = Extreemly_precise;
 				return Long.MAX_VALUE - 21;
 			}
 		}
-		
 		
 		Double meanPerKm = mean(take10D(prevBidsPerKm));
 		Double medianPerKm = median(take10D(prevBidsPerKm));
@@ -108,12 +116,11 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		Double stdNormPerKm = (100.0 / meanPerKm) * stdPerKm;
 		Double stdNormAbs = (100.0 / meanAbs) * stdAbs;
 		
-		printIfVerbose("meanPerKm: %.2f, medianPerKm: %.2f, meanAbs: %.2f, medianAbs: %.2f, stdPerKm: %.2f, stdAbs: %.2f, stdNormPerKm: %.2f, stdNormAbs: %.2f", 
-				meanPerKm, medianPerKm, meanAbs ,medianAbs, stdPerKm, stdAbs, stdNormPerKm, stdNormAbs);
-		
-		if(stdNormAbs > 90 || stdNormPerKm > 90){
-			return null;
-		}
+		printIfVerbose(
+		    "meanPerKm: %.2f, medianPerKm: %.2f, meanAbs: %.2f, medianAbs: %.2f, stdPerKm: %.2f, stdAbs: %.2f, stdNormPerKm: %.2f, stdNormAbs: %.2f",
+		    meanPerKm, medianPerKm, meanAbs, medianAbs, stdPerKm, stdAbs, stdNormPerKm, stdNormAbs);
+				
+		if (stdNormAbs > 80 && stdNormPerKm > 80) { return null; }
 		
 		// check if std is very small (only after the 5th task)
 		if (auctionedTasks.size() >= 5) {
@@ -130,13 +137,13 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			}
 		}
 		
-		// return the value with the smaller std		
-		if(stdNormPerKm < stdNormAbs){
+		// return the value with the smaller std
+		if (stdNormPerKm < stdNormAbs) {
 			this.category = stdNormPerKm < 40 ? Under : Unsure;
 			// min of median and mean of bid/km * pathlenght
 			printIfVerbose("returning per km.");
-			return Math.round((Math.min(meanPerKm, medianPerKm)- stdPerKm)*t.pathLength());
-		}else{
+			return Math.round((Math.min(meanPerKm, medianPerKm) - stdPerKm) * t.pathLength());
+		} else {
 			this.category = stdNormAbs < 40 ? Under : Unsure;
 			// min of median and mean of absolute bid
 			printIfVerbose("returning abs.");
@@ -144,24 +151,20 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		}
 	}
 	
-	private ArrayList<Double> take10D(ArrayList<Double> list){
-		if(list.size() <= 10){
-			return list;
-		}
+	private ArrayList<Double> take10D(ArrayList<Double> list) {
+		if (list.size() <= 10) { return list; }
 		ArrayList<Double> l = new ArrayList<>();
-		for(int i = list.size() - 10; i < list.size(); i++){
+		for (int i = list.size() - 10; i < list.size(); i++) {
 			l.add(list.get(i));
 		}
 		return l;
 		
 	}
 	
-	private ArrayList<Long> take10L(ArrayList<Long> list){
-		if(list.size() <= 10){
-			return list;
-		}
+	private ArrayList<Long> take10L(ArrayList<Long> list) {
+		if (list.size() <= 10) { return list; }
 		ArrayList<Long> l = new ArrayList<>();
-		for(int i = list.size() - 10; i < list.size(); i++){
+		for (int i = list.size() - 10; i < list.size(); i++) {
 			l.add(list.get(i));
 		}
 		return l;
@@ -199,23 +202,25 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		return Math.sqrt(sum / arrayList.size());
 	}
 	
-	public void summarize(){
-		if(prevBids.isEmpty() || auctionedTasks.isEmpty()){
-			return;
+	public void summarize() {
+		try {
+			if (prevBids.isEmpty() || auctionedTasks.isEmpty()) { return; }
+			ArrayList<Long> diffs = new ArrayList<>(prevBids.size() + 1);
+			diffs.add(prevBids.get(0));
+			for (int i = 0; i < prevEstimates.size(); i++) {
+				diffs.add((prevBids.get(i + 1) - prevEstimates.get(i)));
+			}
+			
+			System.out.println("========================== Enemy Estimator summary: ");
+			System.out.println(auctionedTasks.toString());
+			System.out.println("Bids:  " + prevBids.toString());
+			System.out.println("Estimates:   " + prevEstimates.toString());
+			System.out.println("Diff: " + diffs.toString());
+			System.out.println("======================================================");
+		} catch (Exception e) {
+			System.out.println("Error in summarize function");
+			e.printStackTrace();
 		}
-		ArrayList<Long> diffs = new ArrayList<>(prevBids.size()+1);
-		diffs.add(prevBids.get(0));
-		for(int i = 0; i < prevEstimates.size(); i++){
-			diffs.add((prevBids.get(i+1) - prevEstimates.get(i)));
-		}
-		
-		
-		System.out.println("========================== Enemy Estimator summary: ");
-		System.out.println(auctionedTasks.toString());
-		System.out.println("Bids:  "+prevBids.toString());
-		System.out.println("Estimates:   "+prevEstimates.toString());
-		System.out.println("Diff: "+diffs.toString());
-		System.out.println("======================================================");
 	}
 	
 	public void printIfVerbose(String str, Object... objects) {
@@ -230,14 +235,8 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	 */
 	public void printIfVerbose(String str) {
 		if (VERBOSE) {
-			System.out.println(new StringBuilder()
-					.append("    ")
-					.append("(enemy-estimator) ")
-					.append("enemy(")
-					.append(enemyID)
-			    .append("): ")
-			    .append(str)
-			    .toString());
+			System.out.println(new StringBuilder().append("    ").append("(enemy-estimator) ").append("enemy(")
+			    .append(enemyID).append("): ").append(str).toString());
 			System.out.flush();
 		}
 	}

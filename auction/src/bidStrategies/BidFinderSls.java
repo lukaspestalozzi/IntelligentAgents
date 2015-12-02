@@ -28,8 +28,7 @@ private static final boolean VERBOSE = true;
 	private Agent mAgent;
 	
 	public final SLSPlanFinder mSLSPlanFinder;
-	private final long mLowerBound; // TODO make it vary a bit so it is hard to
-	                                // predict.
+	private final long mLowerBound;
 	private final int mMaxCapacity;
 	private double mExpectedTaskCost;
 	
@@ -77,7 +76,8 @@ private static final boolean VERBOSE = true;
 			switch (mEnemyEstimator.category) {
 			case Extreemly_precise:
 				p = Math.min(2*p, 0.95);
-				enemy_estim -= 10;
+				enemy_estim = Math.round(enemy_estim*0.95);
+				enemy_estim = Math.round(Math.max(enemy_estim, ownBid*0.8)); // make sure we can afford to bid a bit lower than enemy
 				break;
 				
 			case Over:

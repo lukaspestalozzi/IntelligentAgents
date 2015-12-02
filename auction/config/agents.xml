@@ -24,6 +24,11 @@
     <set class-name="template.DummyRepeatLast"/>
   </agent>
 
+    <agent name="auction-repeatkm">
+    <set class-path="bin/"/>
+    <set class-name="template.DummyRepeatCostKm"/>
+  </agent>
+
     <agent name="auction-null">
     <set class-path="bin/"/>
     <set class-name="template.Dummynull"/>
@@ -32,6 +37,11 @@
     <agent name="auction-max">
     <set class-path="bin/"/>
     <set class-name="template.DummyMax"/>
+  </agent>
+
+      <agent name="auction-cheat">
+    <set class-path="bin/"/>
+    <set class-name="template.AgentCheat"/>
   </agent>
 
   <agent name="auction-own">
