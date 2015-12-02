@@ -1,4 +1,4 @@
-package template;
+package dummys;
 
 //the list of imports
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import logist.topology.Topology.City;
  * 
  */
 @SuppressWarnings("unused")
-public class AuctionTemplate implements AuctionBehavior {
+public class DummyGreedy extends AbstractDummy {
 
 	private Topology topology;
 	private TaskDistribution distribution;
@@ -32,7 +32,7 @@ public class AuctionTemplate implements AuctionBehavior {
 	private City currentCity;
 
 	@Override
-	public void setup(Topology topology, TaskDistribution distribution,
+	public void setupsub(Topology topology, TaskDistribution distribution,
 			Agent agent) {
 
 		this.topology = topology;
@@ -46,17 +46,18 @@ public class AuctionTemplate implements AuctionBehavior {
 	}
 
 	@Override
-	public void auctionResult(Task previous, int winner, Long[] bids) {
+	public void auctionRes(Task previous, int winner, Long[] bids) {
 		if (winner == agent.id()) {
 			currentCity = previous.deliveryCity;
 		}
 	}
 	
 	@Override
-	public Long askPrice(Task task) {
+	public Long askBid(Task task) {
 
-		if (vehicle.capacity() < task.weight)
+		if (vehicle.capacity() < task.weight){
 			return null;
+		}
 
 		long distanceTask = task.pickupCity.distanceUnitsTo(task.deliveryCity);
 		long distanceSum = distanceTask
@@ -68,43 +69,5 @@ public class AuctionTemplate implements AuctionBehavior {
 		double bid = ratio * marginalCost;
 
 		return (long) Math.round(bid);
-	}
-
-	@Override
-	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-		
-//		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-
-		Plan planVehicle1 = naivePlan(vehicle, tasks);
-
-		List<Plan> plans = new ArrayList<Plan>();
-		plans.add(planVehicle1);
-		while (plans.size() < vehicles.size())
-			plans.add(Plan.EMPTY);
-
-		return plans;
-	}
-
-	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
-		City current = vehicle.getCurrentCity();
-		Plan plan = new Plan(current);
-
-		for (Task task : tasks) {
-			// move: current city => pickup location
-			for (City city : current.pathTo(task.pickupCity))
-				plan.appendMove(city);
-
-			plan.appendPickup(task);
-
-			// move: pickup location => delivery location
-			for (City city : task.path())
-				plan.appendMove(city);
-
-			plan.appendDelivery(task);
-
-			// set current city
-			current = task.deliveryCity;
-		}
-		return plan;
 	}
 }

@@ -34,7 +34,7 @@ public class SLSPlanFinder {
 	/**
 	 * We are guaranteed to have between 2 and 5 vehicles
 	 */
-	public SLSPlanFinder(List<Vehicle> vehicles, Integer numIter, double probability, int bid_timeout) {
+	public SLSPlanFinder(List<Vehicle> vehicles, Integer numIter, double probability, long bid_timeout) {
 		MAX_COMPUTATION_TIME = bid_timeout;
 		mTasks = null;
 		mVehicles = vehicles;
@@ -85,11 +85,14 @@ public class SLSPlanFinder {
 		}
 		
 		printIfVerbose("computing plan for "+tasks.size()+" tasks (timeout is %d)...", MAX_COMPUTATION_TIME);
+		Assignment oldA = initialAssignment == null ? selectInitalSolution(mVehicles, tasks) : initialAssignment;
 		if(tasks.isEmpty()){
-			return null;
+			return new Assignment(mVehicles);
 		}
 		mTasks = tasks;
-		Assignment oldA = initialAssignment == null ? selectInitalSolution(mVehicles, tasks) : initialAssignment;
+		
+		
+		
 		
 		oldA.cost = (long) mObjFunc.compute(oldA);
 		Assignment newA = null, bestA = oldA;
@@ -206,7 +209,7 @@ public class SLSPlanFinder {
 
 	}
 	
-	public void setTimeout(int newTimeout){
+	public void setTimeout(long newTimeout){
 		MAX_COMPUTATION_TIME = newTimeout;
 	}
 	

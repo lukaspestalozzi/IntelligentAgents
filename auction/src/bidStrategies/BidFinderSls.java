@@ -35,10 +35,10 @@ private static final boolean VERBOSE = true;
 	public Assignment mPlan;
 	private Assignment mPlanWithNewTask = null;
 	
-	private final int mBidTimeout;
+	private final long mBidTimeout;
 	
 	public BidFinderSls(List<Vehicle> vehicles, Agent agent, Topology topology, TaskDistribution distribution,
-	    int bid_timeout) {
+	    long bid_timeout) {
 		super(vehicles, agent, topology, distribution);
 		dt = new DistributionTable(topology, distribution);
 		ptasks = dt.sortedCities;
@@ -126,7 +126,7 @@ private static final boolean VERBOSE = true;
 		InsertionAssignment insAss = new InsertionAssignment(mPlan.copy());
 		insAss.insertTask(t);
 		
-		mSLSPlanFinder.setTimeout(mBidTimeout/2);
+		mSLSPlanFinder.setTimeout(Math.round(mBidTimeout*0.7));
 		Assignment assWithT = mSLSPlanFinder.computeBestPlan(insAss.toSlsAssignment(), null);
 		if(assWithT == null){
 			throw new RuntimeException("assWithT is null");
@@ -161,8 +161,6 @@ private static final boolean VERBOSE = true;
 			sum += ct.proba * ct.from.distanceTo(ct.to);
 			tmp += ct.proba;
 		}
-		printIfVerbose("proba total: " + tmp);
-		printIfVerbose("weighted distance : " + sum);
 		// times the average cost per km of a vehicle
 		sum *= calcAvgVehicCost();
 		printIfVerbose("Expected cost of a task: " + sum);

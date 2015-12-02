@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import enemy_estimation.SingleEnemyEstimator;
-import enemy_estimation.SingleEnemyEstimator.EstimateCategory;
 import logist.agent.Agent;
 import logist.simulation.Vehicle;
 import logist.task.Task;

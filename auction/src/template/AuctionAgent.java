@@ -7,6 +7,8 @@ import java.util.Random;
 import bidStrategies.BidFinderLukas;
 import bidStrategies.BidFinderSls;
 import cern.colt.Arrays;
+import logist.LogistPlatform;
+import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.AuctionBehavior;
 import logist.plan.Plan;
@@ -37,8 +39,8 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	private BidFinderSls mBidFinder;
 	public  int timeout_setup;
-	public  int timeout_plan;
-	public  int timeout_bid;
+	public  long timeout_plan;
+	public  long timeout_bid;
 	
 	private Task prevTask = null;
 	
@@ -54,8 +56,13 @@ public class AuctionAgent implements AuctionBehavior {
 		
 //		long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
 		this.random = new Random(2015);
-		timeout_plan = agent.readProperty("timeout-plan", Integer.class, 30000);
-		timeout_bid = agent.readProperty("timeout-bid", Integer.class, 30000);
+		this.timeout_bid = LogistPlatform.getSettings().get(LogistSettings.TimeoutKey.BID);
+		this.timeout_plan = LogistPlatform.getSettings().get(LogistSettings.TimeoutKey.PLAN);
+		
+		this.timeout_bid = Math.round(timeout_bid*0.9);
+		this.timeout_plan = Math.round(timeout_plan*0.9);
+		
+		printIfVerbose("Timeout-plan: "+timeout_plan);
 		printIfVerbose("Timeout-bid: "+timeout_bid);
 		
 		mBidFinder = new BidFinderSls(agent.vehicles(), agent, topology, distribution, timeout_bid);
@@ -89,8 +96,8 @@ public class AuctionAgent implements AuctionBehavior {
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
-		mBidFinder.mSLSPlanFinder.setTimeout((int)(timeout_plan*0.7));
-		List<Plan> plans = mBidFinder.mSLSPlanFinder.computeBestPlan(mBidFinder.mPlan, new ArrayList<Task>(tasks)).generatePlans(vehicles); //mBidFinder.mSLSPlanFinder.computeBestPlans(vehicles, tasks);
+		mBidFinder.mSLSPlanFinder.setTimeout((long)(timeout_plan*0.9));
+		List<Plan> plans = mBidFinder.mSLSPlanFinder.computeBestPlan(mBidFinder.mPlan, new ArrayList<Task>(tasks)).generatePlans(vehicles);
 		summarize(vehicles, plans, tasks);
 		return plans;
 

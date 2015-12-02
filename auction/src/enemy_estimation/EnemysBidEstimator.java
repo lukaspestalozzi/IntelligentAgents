@@ -151,6 +151,12 @@ public class EnemysBidEstimator  implements EnemyEstimator{
       }
    });
   }
+
+	@Override
+	public Long estimateBidForTask(Task t) {
+		// TODO Auto-generated method stub
+		return null;
+	}
   
   
 }
