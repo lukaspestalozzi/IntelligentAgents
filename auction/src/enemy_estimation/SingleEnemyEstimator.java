@@ -1,13 +1,11 @@
 package enemy_estimation;
 
 import java.util.ArrayList;
-
+import static enemy_estimation.EstimateCategory.*;
 import logist.task.Task;
 
 public class SingleEnemyEstimator implements EnemyEstimator {
-	public enum EstimateCategory {
-		Extreemly_precise, Under, Over, Unsure, NoIdea
-	};
+	
 	
 	private static final boolean VERBOSE = true;
 	
@@ -30,7 +28,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	private int maxlongcounter = 0; // counts how many long.max values were bid
 	private int nullcounter = 0; // counts how many null values were bid.
 	
-	public EstimateCategory category = EstimateCategory.NoIdea;
+	public EstimateCategory category = NoIdea;
 	
 	public final int enemyID;
 	
@@ -64,7 +62,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		Long pred = this.estimateBidFor(t);
 		prevEstimates.add(pred);
 		if(pred == null){
-			this.category = EstimateCategory.NoIdea;
+			this.category = NoIdea;
 		}
 		return pred;
 	}
@@ -72,7 +70,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	private Long estimateBidFor(Task t) {
 		
 		if (auctionedTasks.isEmpty()) {
-			this.category = EstimateCategory.NoIdea;
+			this.category = NoIdea;
 			printIfVerbose("No baseline");
 			return null;
 		}
@@ -81,7 +79,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		if(nullcounter + maxlongcounter > 6){
 			printIfVerbose("A lot of null or max values were bid (%d, %d).", nullcounter, maxlongcounter);
 			if(((double)(nullcounter + maxlongcounter)/(double)auctionedTasks.size()) > 0.8){ // 80% is considered as a lot
-				this.category = EstimateCategory.Extreemly_precise;
+				this.category = Extreemly_precise;
 				return Long.MAX_VALUE - 21;
 			}
 		}
@@ -94,7 +92,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		Double medianAbs = median(take10L(prevBids));
 		
 		if (meanAbs == null || meanPerKm == null || medianAbs == null || medianPerKm == null) {
-			this.category = EstimateCategory.NoIdea;
+			this.category = NoIdea;
 			return null;
 		}
 		
@@ -102,7 +100,7 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		Double stdAbs = stdDeviation(take10L(prevBids), meanAbs);
 		
 		if (stdPerKm == null || stdAbs == null) {
-			this.category = EstimateCategory.Unsure;
+			this.category = Unsure;
 			return Math.round(medianPerKm * t.pathLength());
 			
 		}
@@ -118,24 +116,24 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			if (stdNormPerKm < 5) {
 				printIfVerbose("extremly low std...");
 				printIfVerbose("returning per km.");
-				this.category = EstimateCategory.Extreemly_precise;
+				this.category = Extreemly_precise;
 				return Math.round((meanPerKm - stdPerKm) * t.pathLength());
 			} else if (stdNormAbs < 5) {
 				printIfVerbose("extremly low std...");
 				printIfVerbose("returning abs.");
-				this.category = EstimateCategory.Extreemly_precise;
+				this.category = Extreemly_precise;
 				return Math.round((meanAbs - stdAbs));
 			}
 		}
 		
 		// return the value with the smaller std		
 		if(stdNormPerKm < stdNormAbs){
-			this.category = stdNormPerKm < 40 ? EstimateCategory.Under : EstimateCategory.Unsure;
+			this.category = stdNormPerKm < 40 ? Under : Unsure;
 			// min of median and mean of bid/km * pathlenght
 			printIfVerbose("returning per km.");
 			return Math.round((Math.min(meanPerKm, medianPerKm)- stdPerKm)*t.pathLength());
 		}else{
-			this.category = stdNormAbs < 40 ? EstimateCategory.Under : EstimateCategory.Unsure;
+			this.category = stdNormAbs < 40 ? Under : Unsure;
 			// min of median and mean of absolute bid
 			printIfVerbose("returning abs.");
 			return Math.round(Math.min(meanAbs, medianAbs) - stdAbs);
