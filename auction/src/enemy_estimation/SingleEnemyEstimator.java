@@ -213,8 +213,8 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 			System.out.println("Diff: " + diffs.toString());
 			System.out.println("======================================================");
 		} catch (Exception e) {
-			System.out.println("Error in summarize function");
-			e.printStackTrace();
+			printIfVerbose("Error in summarize function");
+			printIfVerbose(e.getMessage());
 		}
 	}
 	
