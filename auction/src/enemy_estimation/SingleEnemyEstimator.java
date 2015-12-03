@@ -6,7 +6,7 @@ import logist.task.Task;
 
 public class SingleEnemyEstimator implements EnemyEstimator {
 	
-	private static final boolean VERBOSE = true;
+	private static boolean VERBOSE = false;
 	
 	public static int estimatedNbrBids = 50;
 	
@@ -198,6 +198,8 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 	}
 	
 	public void summarize() {
+		boolean temp = VERBOSE;
+		VERBOSE = true;
 		try {
 			if (prevBids.isEmpty() || auctionedTasks.isEmpty()) { return; }
 			ArrayList<Long> diffs = new ArrayList<>(prevBids.size() + 1);
@@ -215,6 +217,8 @@ public class SingleEnemyEstimator implements EnemyEstimator {
 		} catch (Exception e) {
 			printIfVerbose("Error in summarize function");
 			printIfVerbose(e.getMessage());
+		}finally{
+			VERBOSE = temp;
 		}
 	}
 	

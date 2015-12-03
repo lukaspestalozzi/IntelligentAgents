@@ -20,7 +20,7 @@ import template.DistributionTable;
 import java.util.Random;
 
 public class BidFinderSls extends AbstractBidFinder {
-private static final boolean VERBOSE = true;
+private static final boolean VERBOSE = false;
 	
 	private final double[] p_array = { 0.2, 0.4, 0.8, 1.0, 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.4, 0.35, 0.3, 0.28, 0.26, 0.24, 0.22, 0.2,
 	    0.19, 0.18, 0.17, 0.16, 0.15, 0.14, 0.13, 0.12, 0.11, 0.1, 0.09, 0.08, 0.05 };

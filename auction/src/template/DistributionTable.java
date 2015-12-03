@@ -33,7 +33,6 @@ public class DistributionTable {
         City from = cities.get(i);
         City to = cities.get(j);
         CityTuple ct = new CityTuple(from, to, mDistribution.probability(from, to) / mNbrCities);
-        System.out.println(ct.proba);
         mCityTuples[index] = ct;
         sortedQueue.add(ct);
       }

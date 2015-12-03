@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import bidStrategies.BidFinderLukas;
 import bidStrategies.BidFinderSls;
 import cern.colt.Arrays;
 import logist.LogistPlatform;
@@ -24,9 +23,10 @@ import logist.topology.Topology.City;
  * 
  */
 @SuppressWarnings("unused")
-public class AuctionAgent implements AuctionBehavior {
+public class AuctionAgentTristanLukas implements AuctionBehavior {
 	
-	private static final boolean VERBOSE = true;
+	private static boolean VERBOSE = false;
+	private static boolean SUMMARY = true;
 	
 	private Topology topology;
 	private TaskDistribution distribution;
@@ -38,9 +38,9 @@ public class AuctionAgent implements AuctionBehavior {
 	private int mIter;
 	
 	private BidFinderSls mBidFinder;
-	public  int timeout_setup;
-	public  long timeout_plan;
-	public  long timeout_bid;
+	public int timeout_setup;
+	public long timeout_plan;
+	public long timeout_bid;
 	
 	private Task prevTask = null;
 	
@@ -54,16 +54,16 @@ public class AuctionAgent implements AuctionBehavior {
 		mProba = agent.readProperty("sls_proba", Double.class, 0.5);
 		mIter = agent.readProperty("amnt_iter", Integer.class, 10000);
 		
-//		long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
+		// long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
 		this.random = new Random(2015);
 		this.timeout_bid = LogistPlatform.getSettings().get(LogistSettings.TimeoutKey.BID);
 		this.timeout_plan = LogistPlatform.getSettings().get(LogistSettings.TimeoutKey.PLAN);
 		
-		this.timeout_bid = Math.round(timeout_bid*0.9);
-		this.timeout_plan = Math.round(timeout_plan*0.9);
+		this.timeout_bid = Math.round(timeout_bid * 0.9);
+		this.timeout_plan = Math.round(timeout_plan * 0.9);
 		
-		printIfVerbose("Timeout-plan: "+timeout_plan);
-		printIfVerbose("Timeout-bid: "+timeout_bid);
+		printIfVerbose("Timeout-plan: " + timeout_plan);
+		printIfVerbose("Timeout-bid: " + timeout_bid);
 		
 		mBidFinder = new BidFinderSls(agent.vehicles(), agent, topology, distribution, timeout_bid);
 		printIfVerbose("...setup done (agent " + agent.id() + ")");
@@ -83,48 +83,67 @@ public class AuctionAgent implements AuctionBehavior {
 	
 	@Override
 	public Long askPrice(Task task) {
-		
-		prevTask = task;
-		printIfVerbose("==========================================================================================");
-		printIfVerbose("\nTask auctioned: " + task.toString()+" -> pathlength: "+task.pathLength());
-		mBidFinder.mSLSPlanFinder.setTimeout(timeout_bid);
-		Long bid = mBidFinder.howMuchForThisTask(task);
-		printIfVerbose("... we bid: " + bid);
-		return bid;
+		try {
+			prevTask = task;
+			printIfVerbose("==========================================================================================");
+			printIfVerbose("\nTask auctioned: " + task.toString() + " -> pathlength: " + task.pathLength());
+			mBidFinder.mSLSPlanFinder.setTimeout(timeout_bid);
+			Long bid = mBidFinder.howMuchForThisTask(task);
+			printIfVerbose("... we bid: " + bid);
+			return bid;
+		} catch (Exception e) {
+			int maxcapacity = agent.vehicles().stream().max(((v1, v2) -> ((Integer) v1.capacity()).compareTo(v2.capacity())))
+			    .get().capacity();
+			return maxcapacity < task.weight ? null : Long.MAX_VALUE;
+		}
 	}
 	
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 		printIfVerbose("generating the final plan (for " + tasks.size() + " tasks)... ");
-		mBidFinder.mSLSPlanFinder.setTimeout((long)(timeout_plan*0.9));
-		List<Plan> plans = mBidFinder.mSLSPlanFinder.computeBestPlan(mBidFinder.mPlan, new ArrayList<Task>(tasks)).generatePlans(vehicles);
-		summarize(vehicles, plans, tasks);
+		mBidFinder.mSLSPlanFinder.setTimeout((long) (timeout_plan * 0.9));
+		List<Plan> plans = mBidFinder.mSLSPlanFinder.computeBestPlan(mBidFinder.mPlan, new ArrayList<Task>(tasks))
+		    .generatePlans(vehicles);
+		if (SUMMARY) {
+			summarize(vehicles, plans, tasks);
+		}
 		return plans;
-
+		
 	}
 	
 	private void summarize(List<Vehicle> vehicles, List<Plan> plans, TaskSet tasks) {
-		printIfVerbose("Final plans: ");
-		if (plans.isEmpty()) {
-			printIfVerbose("No plans were made!");
+		boolean temp = VERBOSE;
+		VERBOSE = SUMMARY;
+		try {
+			printIfVerbose("Final plans: ");
+			if (plans.isEmpty()) {
+				printIfVerbose("No plans were made!");
+			}
+			
+			mBidFinder.summarize();
+			
+			long sumReward = tasks.rewardSum();
+			long sumCost = 0;
+			for (int i = 0; i < plans.size(); i++) {
+				Plan p = plans.get(i);
+				Vehicle v = vehicles.get(i);
+				sumCost += p.totalDistance() * v.costPerKm();
+				printIfVerbose("Plan(" + i + "): " + p.toString());
+				printIfVerbose("Plan(" + i + ") length: " + p.totalDistance() + ", Vehicle(" + i + ") cost: " + v.costPerKm()
+				    + " => " + p.totalDistance() * v.costPerKm());
+						
+			}
+			printIfVerbose(
+			    String.format("Total cost %d, total reward: %d, total profit: %d", sumCost, sumReward, sumReward - sumCost));
+		} catch (Exception e) {
+			System.out.println("Error in summarize: "+e.getMessage());
+		} finally {
+			VERBOSE = temp;
 		}
-		
-		mBidFinder.summarize();
-		
-		long sumReward = tasks.rewardSum();
-		long sumCost = 0;
-		for (int i = 0; i < plans.size(); i++) {
-			Plan p = plans.get(i);
-			Vehicle v = vehicles.get(i);
-			sumCost += p.totalDistance() * v.costPerKm();
-			printIfVerbose("Plan("+i+"): "+p.toString());
-			printIfVerbose("Plan("+i+") length: "+p.totalDistance()+", Vehicle("+i+") cost: "+v.costPerKm()+" => "+p.totalDistance() * v.costPerKm());
-
-		}
-		printIfVerbose(String.format("Total cost %d, total reward: %d, total profit: %d", sumCost, sumReward, sumReward-sumCost));
 		
 	}
-	public void printIfVerbose(String str, Object...objects){
+	
+	public void printIfVerbose(String str, Object... objects) {
 		printIfVerbose(String.format(str, objects));
 	}
 	

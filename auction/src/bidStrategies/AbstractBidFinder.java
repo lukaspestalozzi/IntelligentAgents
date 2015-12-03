@@ -12,8 +12,8 @@ import logist.topology.Topology;
 
 public abstract class AbstractBidFinder {
 
-  private static final Comparator<Vehicle> CAPACITY_COMPARATOR = (v1,
-      v2) -> ((Integer) v1.capacity()).compareTo(v2.capacity());
+  private static final Comparator<Vehicle> CAPACITY_COMPARATOR = ((v1,
+      v2) -> ((Integer) v1.capacity()).compareTo(v2.capacity()));
 
   protected List<Task> mAuctionsWon;
   protected List<Vehicle> mVehicles;

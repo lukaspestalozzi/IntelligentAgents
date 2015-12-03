@@ -8,8 +8,7 @@ public class DummyMax extends DummyConstantBid{
 	
 	@Override
 	public void setupsub(Topology topology, TaskDistribution distribution, Agent agent) {
-		super.setup(topology, distribution, agent);
+		super.setupsub(topology, distribution, agent);
 		this.bid = Long.MAX_VALUE;
 	}
-
 }

@@ -18,7 +18,7 @@ import planning.Assignment;
 import planning.SLSPlanFinder;
 
 public abstract class AbstractDummy  implements AuctionBehavior {
-
+	
 	protected long timeout_plan;
 	protected long timeout_bid;
 	protected Agent agent;

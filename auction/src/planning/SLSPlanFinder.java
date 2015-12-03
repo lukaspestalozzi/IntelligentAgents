@@ -18,7 +18,7 @@ import logist.task.Task;
 import logist.task.TaskSet;
 
 public class SLSPlanFinder {
-	private static final boolean VERBOSE = true;
+	private static final boolean VERBOSE = false;
 	private long MAX_COMPUTATION_TIME;
 	private List<Task> mTasks;
 	private List<Vehicle> mVehicles;
@@ -108,7 +108,7 @@ public class SLSPlanFinder {
 
 			oldA = newA;
 		}
-		System.out.printf("it took %d ms to compute.\n", System.currentTimeMillis() - startt);
+		printIfVerbose("it took %d ms to compute.\n", System.currentTimeMillis() - startt);
 		printIfVerbose("...Cost of computed plan: "+bestA.computeCost());
 		return bestA;
 	}
